@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.nx/
+playwright-report/
+test-results/
+.netlify/
+.env*
+!.env.example
+.agent-toolbox/installed/

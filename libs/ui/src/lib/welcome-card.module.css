@@ -1,0 +1,43 @@
+.page {
+  min-height: 100dvh;
+  background: var(--surface-page);
+  color: var(--text-strong);
+  padding: var(--space-4);
+}
+.utility {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: 0.875rem;
+}
+.card {
+  max-width: 42rem;
+  margin: clamp(3rem, 15vh, 10rem) auto;
+  padding: clamp(1.5rem, 5vw, 3rem);
+}
+.card h1 {
+  font-family: var(--font-display);
+  color: var(--brand);
+  font-size: clamp(2.5rem, 9vw, 5rem);
+  line-height: 1;
+  margin: var(--space-4) 0;
+}
+.eyebrow {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+:global(.themeToggle) {
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+:global(.themeToggle:focus-visible),
+.card a:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 3px;
+}

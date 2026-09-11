@@ -1,0 +1,13 @@
+{
+  "name": "web",
+  "sourceRoot": "apps/web/src",
+  "projectType": "application",
+  "tags": ["scope:web", "type:app"],
+  "implicitDependencies": ["ui", "data-access", "domain"],
+  "targets": {
+    "dev": { "command": "vite --config apps/web/vite.config.ts" },
+    "build": { "command": "vite build --config apps/web/vite.config.ts" },
+    "typecheck": { "command": "tsc --noEmit -p apps/web/tsconfig.json" },
+    "lint": { "command": "eslint apps/web/src" }
+  }
+}

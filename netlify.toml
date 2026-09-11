@@ -1,0 +1,26 @@
+[build]
+  base = "."
+  command = "pnpm build"
+  publish = "dist/apps/web"
+  functions = "dist/apps/api/functions"
+
+[dev]
+  command = "pnpm dev"
+  targetPort = 5173
+  port = 8888
+  functions = "apps/api/src/functions"
+
+[[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/api/not-found"
+  status = 404
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

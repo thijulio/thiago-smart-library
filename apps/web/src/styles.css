@@ -1,0 +1,16 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+body {
+  overflow-x: hidden;
+}
+button,
+a {
+  font: inherit;
+}

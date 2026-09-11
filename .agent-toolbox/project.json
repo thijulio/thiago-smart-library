@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "projectId": "thiago-smart-library",
+  "policyVersion": 1,
+  "repository": { "remote": "https://github.com/thijulio/thiago-smart-library.git" },
+  "requirements": [
+    { "id": "LIB-01", "description": "Frozen install and local checks are reproducible" },
+    { "id": "LIB-03", "description": "Welcome page uses published Biome composition" },
+    { "id": "LIB-04", "description": "Theme preference is accessible and local only" },
+    { "id": "LIB-06", "description": "Health endpoint exposes no personal data" },
+    { "id": "LIB-08", "description": "Nx module boundaries protect browser/server separation" }
+  ],
+  "capabilities": { "write": false, "publication": false, "externalIntegrations": false }
+}
