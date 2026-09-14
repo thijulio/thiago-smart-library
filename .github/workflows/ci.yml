@@ -28,7 +28,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
       - run: pnpm check
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm test:e2e
       - uses: actions/upload-artifact@v6
         if: always()
