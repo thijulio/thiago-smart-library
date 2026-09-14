@@ -8,6 +8,7 @@ SPA fallback; unknown API routes return 404.
 local proxy, and loads the source health function. This is also the HTTP boundary exercised
 by the browser suite.
 
-No Netlify site has been connected or changed by this source change. An owner must grant the
-existing site access to this repository, set `NPM_TOKEN` as a build secret, choose
-`main` as production, and then validate a deploy preview for this exact commit.
+The `thiago-smart-library` Netlify site is connected to this GitHub repository with `main` as
+its production branch. Netlify builds require `NPM_TOKEN` as a protected build secret so pnpm
+can install the private `@thijulio` packages. Pull requests receive deploy previews, while
+updates to `main` deploy to production automatically.
