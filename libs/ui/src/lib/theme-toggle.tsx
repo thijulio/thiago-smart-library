@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
-import { nextTheme, readTheme, saveTheme, type Theme } from './theme';
+import { nextTheme, readBrowserTheme, saveBrowserTheme, type Theme } from './theme';
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === 'undefined') return 'light';
     return (
-      readTheme(window.localStorage) ??
+      readBrowserTheme(window) ??
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     );
   });
   useEffect(() => {
     document.documentElement.dataset.mode = theme;
-    saveTheme(theme, window.localStorage);
+    saveBrowserTheme(theme, window);
   }, [theme]);
   return (
     <button

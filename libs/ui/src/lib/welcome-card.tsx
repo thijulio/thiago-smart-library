@@ -14,13 +14,7 @@ export function WelcomeCard({ health }: { health: 'loading' | 'available' | 'una
         <h1>Thiago Smart Library</h1>
         <p>Hello, world.</p>
         <p>This early foundation is a calm place for the next chapter of a personal library.</p>
-        <Button
-          onClick={() =>
-            window.open('https://thiago-library.netlify.app', '_blank', 'noopener,noreferrer')
-          }
-        >
-          Visit the current prototype
-        </Button>
+        <Button href="https://thiago-library.netlify.app">Visit the current prototype</Button>
       </Card>
     </main>
   );

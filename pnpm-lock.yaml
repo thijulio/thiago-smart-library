@@ -74,7 +74,7 @@ importers:
       globals:
         specifier: 16.5.0
         version: 16.5.0
-      netlify:
+      netlify-cli:
         specifier: 27.5.2
         version: 27.5.2(@types/node@24.10.1)(picomatch@4.0.7)(rollup@4.63.1)
       nx:
@@ -7798,19 +7798,19 @@ packages:
       }
     engines: { node: '>=18' }
 
+  netlify-cli@27.5.2:
+    resolution:
+      {
+        integrity: sha512-adtFWbLFN0HXHf6oOpqFiP9w4jl334xojHyd+uOU0Y0WtW6pdX0pkS0ljvnX/TdYeDrBUiCQ/22Q14wu5ud6rA==,
+      }
+    engines: { node: '>=22.13.0' }
+    hasBin: true
+
   netlify-redirector@0.5.0:
     resolution:
       {
         integrity: sha512-4zdzIP+6muqPCuE8avnrgDJ6KW/2+UpHTRcTbMXCIRxiRmyrX+IZ4WSJGZdHPWF3WmQpXpy603XxecZ9iygN7w==,
       }
-
-  netlify@27.5.2:
-    resolution:
-      {
-        integrity: sha512-QQdNZZZ3Gq2LphTDd04ZfEYexdin8OniHs4+KoWhUEOxFdt+j0jBaVexeZkbhfNnNrcq4cO7kbsQ93xYplNjeA==,
-      }
-    engines: { node: '>=22.13.0' }
-    hasBin: true
 
   node-domexception@1.0.0:
     resolution:
@@ -14287,7 +14287,7 @@ snapshots:
 
   dotenv-expand@12.0.3:
     dependencies:
-      dotenv: 16.4.7
+      dotenv: 16.6.1
 
   dotenv@16.4.7: {}
 
@@ -15850,9 +15850,7 @@ snapshots:
     dependencies:
       content-type: 2.1.0
 
-  netlify-redirector@0.5.0: {}
-
-  netlify@27.5.2(@types/node@24.10.1)(picomatch@4.0.7)(rollup@4.63.1):
+  netlify-cli@27.5.2(@types/node@24.10.1)(picomatch@4.0.7)(rollup@4.63.1):
     dependencies:
       '@fastify/static': 10.1.3
       '@netlify/ai': 1.0.1
@@ -15985,6 +15983,8 @@ snapshots:
       - supports-color
       - uploadthing
       - utf-8-validate
+
+  netlify-redirector@0.5.0: {}
 
   node-domexception@1.0.0: {}
 
@@ -16265,7 +16265,7 @@ snapshots:
       default-browser: 5.2.1
       define-lazy-prop: 3.0.0
       is-inside-container: 1.0.0
-      is-wsl: 3.1.0
+      is-wsl: 3.1.1
 
   open@11.0.2:
     dependencies:

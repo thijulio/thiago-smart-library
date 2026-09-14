@@ -5,8 +5,8 @@ This repository contains the first, deliberately small foundation for Thiago Sma
 ## Local development
 
 Use Node 24 and pnpm 10. A GitHub Packages credential with `read:packages` is required to
-install the published Biome dependencies; set it only as `NODE_AUTH_TOKEN` in your shell or
-CI secret. The repository never stores it.
+install the published Biome dependencies. Configure that credential in your user-level npm
+settings; the repository stores only the secret-free `@thijulio` registry mapping.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -15,5 +15,6 @@ pnpm check
 ```
 
 `pnpm dev:netlify` exercises Netlify's local routing. Deployment is intentionally not
-configured by this repository: an owner must connect the existing Netlify site and grant it
-the same build-scoped package-read credential.
+configured by this repository: an owner must connect the existing Netlify site, grant the
+repository Actions access to the private packages, and add a build-scoped `NPM_TOKEN` to
+Netlify for package reads.

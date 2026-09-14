@@ -7,6 +7,11 @@ test('consumer policy is local and declares no write authority', () => {
   assert.equal(policy.projectId, 'thiago-smart-library');
   assert.equal(policy.capabilities.write, false);
   assert.equal(policy.capabilities.publication, false);
+  assert.deepEqual(
+    policy.requirements.map(({ id }) => id),
+    Array.from({ length: 12 }, (_, index) => `LIB-${String(index + 1).padStart(2, '0')}`),
+  );
+  assert.ok(policy.requiredChecks.every(({ executable, arguments: args }) => executable && args));
 });
 
 test('Nx rejects a temporary web-to-api import', () => {
@@ -20,6 +25,7 @@ test('Nx rejects a temporary web-to-api import', () => {
       error = caught;
     }
     assert.equal(error?.status, 1);
+    assert.match(`${error?.stdout ?? ''}${error?.stderr ?? ''}`, /@nx\/enforce-module-boundaries/);
   } finally {
     rmSync(fixture, { force: true });
   }

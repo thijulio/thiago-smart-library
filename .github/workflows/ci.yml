@@ -22,17 +22,20 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
+          registry-url: https://npm.pkg.github.com
+          scope: '@thijulio'
       - run: pnpm install --frozen-lockfile
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
       - run: pnpm check
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - uses: actions/upload-artifact@v6
-        if: failure()
+        if: always()
         with:
-          name: playwright-diagnostics
+          name: playwright-evidence
           path: |
             playwright-report
             test-results
           if-no-files-found: ignore
+          retention-days: 7
