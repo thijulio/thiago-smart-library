@@ -1,0 +1,15 @@
+{
+  "name": "api",
+  "sourceRoot": "apps/api/src",
+  "projectType": "application",
+  "tags": ["scope:api", "type:api"],
+  "implicitDependencies": ["domain"],
+  "targets": {
+    "build": { "command": "node tools/build-api.mjs" },
+    "test": {
+      "command": "vitest run --config apps/api/vitest.config.ts && node --test tests/consumer-policy.spec.mjs"
+    },
+    "typecheck": { "command": "tsc --noEmit -p apps/api/tsconfig.build.json" },
+    "lint": { "command": "eslint apps/api/src" }
+  }
+}

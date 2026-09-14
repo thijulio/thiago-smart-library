@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.nx/
+playwright-report/
+test-results/
+.netlify/
+deno.lock
+.env*
+!.env.example
+.agent-toolbox/installed/

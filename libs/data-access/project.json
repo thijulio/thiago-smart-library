@@ -1,0 +1,12 @@
+{
+  "name": "data-access",
+  "sourceRoot": "libs/data-access/src",
+  "projectType": "library",
+  "tags": ["scope:data-access", "type:data-access"],
+  "implicitDependencies": ["domain"],
+  "targets": {
+    "test": { "command": "vitest run --config libs/data-access/vitest.config.ts" },
+    "typecheck": { "command": "tsc --noEmit -p libs/data-access/tsconfig.json" },
+    "lint": { "command": "eslint libs/data-access/src" }
+  }
+}

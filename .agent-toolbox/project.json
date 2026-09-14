@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "projectId": "thiago-smart-library",
+  "policyVersion": 1,
+  "repository": {
+    "remote": "https://github.com/thijulio/thiago-smart-library.git",
+    "defaultBranch": "main"
+  },
+  "contextPaths": [
+    "AGENTS.md",
+    "README.md",
+    "docs/architecture.md",
+    "docs/operations.md",
+    "docs/governance-pilot.md"
+  ],
+  "requirements": [
+    {
+      "id": "LIB-01",
+      "classification": "blocking",
+      "appliesTo": ["package.json", "pnpm-lock.yaml", ".github/workflows/ci.yml"],
+      "description": "Frozen install and local checks are reproducible",
+      "evidenceRequirements": ["check:quality"]
+    },
+    {
+      "id": "LIB-02",
+      "classification": "blocking",
+      "appliesTo": ["apps/**", "libs/**", "nx.json", ".nxignore"],
+      "description": "Nx exposes the six implemented projects and no fake AI project",
+      "evidenceRequirements": ["artifact:nx-project-list"]
+    },
+    {
+      "id": "LIB-03",
+      "classification": "blocking",
+      "appliesTo": ["apps/web/**", "libs/ui/**"],
+      "description": "Welcome page uses published Biome composition and a working prototype link",
+      "evidenceRequirements": ["check:e2e"]
+    },
+    {
+      "id": "LIB-04",
+      "classification": "blocking",
+      "appliesTo": ["libs/ui/**", "apps/web-e2e/**"],
+      "description": "Theme preference is accessible, local only, persistent, and storage-safe",
+      "evidenceRequirements": ["check:unit", "check:e2e"]
+    },
+    {
+      "id": "LIB-05",
+      "classification": "blocking",
+      "appliesTo": ["apps/web/**", "libs/ui/**", "apps/web-e2e/**"],
+      "description": "The UI is responsive, keyboard-visible, and free of serious accessibility findings",
+      "evidenceRequirements": ["check:e2e", "artifact:theme-screenshots"]
+    },
+    {
+      "id": "LIB-06",
+      "classification": "blocking",
+      "appliesTo": ["apps/api/**", "libs/domain/**", "libs/data-access/**"],
+      "description": "Health behavior is contract-checked and exposes no personal data",
+      "evidenceRequirements": ["check:unit", "check:e2e"]
+    },
+    {
+      "id": "LIB-07",
+      "classification": "blocking",
+      "appliesTo": ["apps/web/**", "libs/ui/**", "package.json", "pnpm-lock.yaml"],
+      "description": "Published Biome imports and styles resolve without copied design-system code",
+      "evidenceRequirements": ["check:build"]
+    },
+    {
+      "id": "LIB-08",
+      "classification": "blocking",
+      "appliesTo": ["apps/**", "libs/**", "eslint.config.mjs"],
+      "description": "Nx module boundaries protect browser and server separation",
+      "evidenceRequirements": ["check:unit", "check:lint"]
+    },
+    {
+      "id": "LIB-09",
+      "classification": "blocking",
+      "appliesTo": [".agent-toolbox/**", "docs/governance-pilot.md"],
+      "description": "The exact released governance package installs and removes safely",
+      "evidenceRequirements": ["check:governance"]
+    },
+    {
+      "id": "LIB-10",
+      "classification": "blocking",
+      "appliesTo": [".agent-toolbox/**", "tools/governance/**", "tests/**"],
+      "description": "Governance validation detects missing, forbidden, and stale evidence",
+      "evidenceRequirements": ["check:governance"]
+    },
+    {
+      "id": "LIB-11",
+      "classification": "blocking",
+      "appliesTo": [".agent-toolbox/**", "docs/governance-pilot.md"],
+      "description": "The supported review host enforces read-only governance capabilities",
+      "evidenceRequirements": ["artifact:guardian-permission-probe"]
+    },
+    {
+      "id": "LIB-12",
+      "classification": "blocking",
+      "appliesTo": [".github/workflows/ci.yml", "netlify.toml"],
+      "description": "CI and a Netlify preview validate the same reviewed commit",
+      "evidenceRequirements": ["artifact:ci-run", "artifact:netlify-preview"]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "format",
+      "executable": "pnpm",
+      "arguments": ["format:check"],
+      "outputs": [],
+      "producesBuildArtifacts": false
+    },
+    {
+      "id": "lint",
+      "executable": "pnpm",
+      "arguments": ["lint"],
+      "outputs": [],
+      "producesBuildArtifacts": false
+    },
+    {
+      "id": "typecheck",
+      "executable": "pnpm",
+      "arguments": ["typecheck"],
+      "outputs": [],
+      "producesBuildArtifacts": false
+    },
+    {
+      "id": "unit",
+      "executable": "pnpm",
+      "arguments": ["test"],
+      "outputs": [],
+      "producesBuildArtifacts": false
+    },
+    {
+      "id": "build",
+      "executable": "pnpm",
+      "arguments": ["build"],
+      "outputs": ["dist/apps/web", "dist/apps/api/functions/health.mjs"],
+      "producesBuildArtifacts": true
+    },
+    {
+      "id": "governance",
+      "executable": "pnpm",
+      "arguments": ["governance:check"],
+      "outputs": [],
+      "producesBuildArtifacts": false
+    },
+    {
+      "id": "quality",
+      "executable": "pnpm",
+      "arguments": ["check"],
+      "outputs": ["dist/apps/web", "dist/apps/api/functions/health.mjs"],
+      "producesBuildArtifacts": true
+    },
+    {
+      "id": "e2e",
+      "executable": "pnpm",
+      "arguments": ["test:e2e"],
+      "outputs": ["playwright-report", "test-results"],
+      "producesBuildArtifacts": true
+    }
+  ],
+  "allowedRoots": ["."],
+  "capabilities": {
+    "write": false,
+    "publication": false,
+    "providers": false,
+    "externalIntegrations": false
+  }
+}

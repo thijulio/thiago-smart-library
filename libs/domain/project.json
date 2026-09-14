@@ -1,0 +1,11 @@
+{
+  "name": "domain",
+  "sourceRoot": "libs/domain/src",
+  "projectType": "library",
+  "tags": ["scope:domain", "type:domain"],
+  "targets": {
+    "test": { "command": "vitest run --config libs/domain/vitest.config.ts" },
+    "typecheck": { "command": "tsc --noEmit -p libs/domain/tsconfig.json" },
+    "lint": { "command": "eslint libs/domain/src" }
+  }
+}

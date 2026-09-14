@@ -1,0 +1,13 @@
+{
+  "name": "web-e2e",
+  "sourceRoot": "apps/web-e2e/src",
+  "projectType": "application",
+  "tags": ["scope:e2e", "type:e2e"],
+  "implicitDependencies": ["web"],
+  "targets": {
+    "e2e": { "command": "playwright test --config apps/web-e2e/playwright.config.ts" },
+    "lint": { "command": "eslint apps/web-e2e/src" },
+    "typecheck": { "command": "tsc --noEmit -p apps/web-e2e/tsconfig.json" },
+    "test": { "command": "node -e \"console.log('E2E tests run through the e2e target')\"" }
+  }
+}

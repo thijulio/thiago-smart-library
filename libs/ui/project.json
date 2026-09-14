@@ -1,0 +1,12 @@
+{
+  "name": "ui",
+  "sourceRoot": "libs/ui/src",
+  "projectType": "library",
+  "tags": ["scope:ui", "type:ui"],
+  "implicitDependencies": ["domain"],
+  "targets": {
+    "test": { "command": "vitest run --config libs/ui/vitest.config.ts" },
+    "typecheck": { "command": "tsc --noEmit -p libs/ui/tsconfig.json" },
+    "lint": { "command": "eslint libs/ui/src" }
+  }
+}
