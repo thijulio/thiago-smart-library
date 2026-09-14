@@ -26,6 +26,7 @@ jobs:
           scope: '@thijulio'
       - run: pnpm install --frozen-lockfile
         env:
+          NPM_TOKEN: ${{ github.token }}
           NODE_AUTH_TOKEN: ${{ github.token }}
       - run: pnpm check
       - run: pnpm exec playwright install --with-deps chromium webkit
