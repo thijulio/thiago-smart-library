@@ -52,3 +52,10 @@ test('serves the health contract through the local HTTP boundary', async ({ requ
   expect(missing.status()).toBe(404);
   expect(await missing.text()).not.toContain('Thiago Smart Library');
 });
+
+test('reports unavailable database health through the local HTTP boundary', async ({ request }) => {
+  const response = await request.get('/api/health/db');
+
+  expect(response.status()).toBe(503);
+  expect(await response.json()).toEqual({ status: 'unavailable' });
+});

@@ -20,6 +20,7 @@
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm governance:check"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@netlify/functions": "6.0.0",
     "@thijulio/biome-css": "0.0.2",
     "@thijulio/biome-react": "0.0.2",
@@ -27,8 +28,8 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
-    "@eslint/js": "9.39.1",
     "@axe-core/playwright": "4.13.0",
+    "@eslint/js": "9.39.1",
     "@nx/devkit": "23.2.1",
     "@nx/eslint": "23.2.1",
     "@nx/eslint-plugin": "23.2.1",
@@ -40,9 +41,9 @@
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.1",
+    "esbuild": "0.25.12",
     "eslint": "9.39.1",
     "eslint-config-prettier": "10.1.8",
-    "esbuild": "0.25.12",
     "globals": "16.5.0",
     "netlify-cli": "27.6.0",
     "nx": "23.2.1",
