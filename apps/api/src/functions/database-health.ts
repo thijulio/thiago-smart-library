@@ -22,10 +22,25 @@ export function createDatabaseHealth(databaseProbe: DatabaseProbe) {
   };
 }
 
-async function probeConfiguredDatabase(): Promise<void> {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) throw new Error('DATABASE_URL is not configured');
+export function getPooledDatabaseUrl(databaseUrl: string | undefined): string {
+  try {
+    if (!databaseUrl) throw new Error();
 
+    const url = new URL(databaseUrl);
+    const isPooledNeonUrl =
+      (url.protocol === 'postgres:' || url.protocol === 'postgresql:') &&
+      url.hostname.endsWith('.neon.tech') &&
+      url.hostname.includes('-pooler.');
+    if (!isPooledNeonUrl) throw new Error();
+
+    return databaseUrl;
+  } catch {
+    throw new Error('DATABASE_URL must be a pooled Neon URL');
+  }
+}
+
+async function probeConfiguredDatabase(): Promise<void> {
+  const databaseUrl = getPooledDatabaseUrl(process.env.DATABASE_URL);
   const sql = neon(databaseUrl);
   await sql`SELECT 1`;
 }

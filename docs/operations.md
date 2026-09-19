@@ -5,7 +5,7 @@ functions to `dist/apps/api/functions`. `netlify.toml` maps `/api/health` and `/
 before the SPA fallback; unknown API routes return 404.
 
 `pnpm dev:netlify` rebuilds the web and API outputs, serves the built web through Netlify's
-local proxy, and loads the source health function. This is also the HTTP boundary exercised
+local proxy, and loads the source health functions. This is also the HTTP boundary exercised
 by the browser suite.
 
 The `thiago-smart-library` Netlify site is connected to this GitHub repository with `main` as
