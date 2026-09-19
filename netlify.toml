@@ -13,6 +13,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/health/db"
+  to = "/.netlify/functions/database-health"
+  status = 200
+
+[[redirects]]
   from = "/api/*"
   to = "/api/not-found"
   status = 404
