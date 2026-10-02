@@ -108,8 +108,11 @@ export async function checkContext(directory) {
     try {
       doc = await document(file);
     } catch {
+      if (!errors.some((error) => error.startsWith(`${file}:1:`))) {
+        report(file, 1, 'unable to read Markdown input');
+      }
       continue;
-    } // Missing required files already have precise diagnostics.
+    }
     const definitions = new Map();
     walk(doc.ast, (node) => {
       if (node.type === 'definition') definitions.set(node.identifier.toLowerCase(), node);
@@ -182,7 +185,7 @@ export async function checkContext(directory) {
   return { checkedLinks, errors };
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const { checkedLinks, errors } = await checkContext(process.cwd());
     if (errors.length) {

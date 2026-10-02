@@ -5,13 +5,14 @@ import {
   writeFileSync,
   rmSync,
   symlinkSync,
+  chmodSync,
   readdirSync,
   readFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import test from 'node:test';
 
 const script = fileURLToPath(new URL('./check-context.mjs', import.meta.url));
@@ -178,4 +179,26 @@ test('checker does not write repository files', (t) => {
   const result = run();
   assert.equal(result.status, 0);
   assert.deepEqual(snapshot(root), before);
+});
+
+test('unreadable specification fails closed with a relative diagnostic', (t) => {
+  const { root, run } = fixture(t);
+  const path = join(root, 'docs/database/spec.md');
+  chmodSync(path, 0);
+  const result = run();
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /docs\/database\/spec.md:1: unable to read Markdown input/);
+});
+
+test('exported checker can be imported without a CLI argv path', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      `const {checkContext} = await import(${JSON.stringify(pathToFileURL(script).href)}); if(typeof checkContext !== 'function') process.exit(1);`,
+    ],
+    { encoding: 'utf8' },
+  );
+  assert.equal(result.status, 0, result.stderr);
 });
