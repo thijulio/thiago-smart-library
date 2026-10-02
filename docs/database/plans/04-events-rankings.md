@@ -8,7 +8,7 @@
 
 **Tech Stack:** SQL functions/triggers, pg transactions, TypeScript ranking port, Vitest multi-client PostgreSQL tests.
 
-**Spec:** database §4.2/§4.3 and §12; execution contracts F. Pinned prototype ranking modules named in DB-00.
+**Spec:** database §4.2/§4.3 and §12; execution contracts F. Consume the [checked-in pinned prototype manifest](../reference/prototype-contracts.md); no sibling checkout is required.
 
 ## Global constraints / review focus
 

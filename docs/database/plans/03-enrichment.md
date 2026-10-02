@@ -46,7 +46,7 @@ export function normalizeRecap(row: SourceRow): RecapCandidate;
 export function validateRecap(candidate: RecapCandidate): Issue[];
 ```
 
-- [ ] Port pure semantics from the pinned prototype `src/recap-catalog.mjs`; record commit and SHA-256 of original file. Do not import from an absolute sibling path. Use synthetic fixtures with generated neutral prose, not copied personal recaps.
+- [ ] Port pure semantics from the [checked-in pinned recap reference](../reference/prototype/src/recap-catalog.mjs); record commit and SHA-256 of original file. Do not import from an absolute sibling path. Use synthetic fixtures with generated neutral prose, not copied personal recaps.
 - [ ] Split story on blank lines `/\r?\n\s*\r?\n/`, preserving each paragraph's text/order. Named character lines use `—`; sources split at the last such separator; paragraph source indices are comma-separated positive integers, one line per story paragraph. Convert to DB one-based positions with no off-by-one shift.
 - [ ] `summary`: valid date/refresher/prose/source mapping, 80–399 whitespace-separated words, no cast/cheat-sheet/handoff/reason content. `verified`: valid date/refresher, nonempty cast and cheat sheet, 400–1760 words, named HTTP(S) sources and references for every paragraph. Strict real calendar dates supplement the old Date.parse-only check.
 - [ ] `pending`/`deferred` require reason and do not expose prose. Preserve any unexpected source prose privately with issue. None of these structural checks claims factual/source verification.
