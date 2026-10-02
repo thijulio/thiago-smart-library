@@ -14,7 +14,7 @@ See [DB-00 evidence and handoff](handoffs/db-00.md).
 | DB-04  | not-started       | not performed                                                                           | not performed                                                  | not performed                          | not performed                             |
 | DB-05  | not-started       | not performed                                                                           | not performed                                                  | not performed                          | not performed                             |
 
-DB-01 core schema, migrations, narrow trusted SQL owner operations and synthetic local harness are implemented locally. Importer, owner CLI, public catalogue and cutover remain unimplemented. See [SQL review package](review/db-01.md).
+DB-01 core schema, migrations, narrow trusted SQL owner operations and synthetic local harness are implemented locally. Importer, owner CLI, public catalogue and cutover remain unimplemented. Implementation checkpoint: `95efb203997ef528e46fd2896dde686eff33f6e6`. See [SQL review package](review/db-01.md) and [DB-01 acceptance handoff](handoffs/db-01.md).
 PR #3 connectivity code is present in the verified base. Its historical deployment observation does not establish current cloud health; provider checks were not performed in DB-00.
 DB-00 performed no database connection. DB-01 applied SQL only to synthetic disposable PostgreSQL. No hosted connection, real-data import, backup/restore, publication, merge or deployment was performed.
 
