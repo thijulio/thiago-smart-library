@@ -35,3 +35,5 @@ Deferred owner request (2026-10-02): [DB-02 Task 02.5](plans/02-import.md#task-0
 Review correction checkpoint: `b48d4bb6825677a3c14b4a975354bd60023cd168`. Golden Path review follow-up: `5f969f43ee7f5381f624fbf6e8ed23a01912eebf`. The running local inspection database and existing migration checksums are preserved.
 
 Golden Path DB-02: proposed ADR 0007, lossless import workflow and synchronized site metadata implemented locally. Checkpoint `b075f256191279890b23083ea36f30f516156718`; final validation is recorded in the DB-02 handoff. Proposal review/acceptance, merge and publication remain pending.
+
+DB-02 implementation checkpoint: `acfd1906b31b4b8d57f8b7b52284f088bd078eea`, based on accepted `f1fab44964de84747b0fab981d99b9345cd4151c`. Final head includes a subsequent handoff-only checkpoint; exact final heads are reported by the executor. Independent DB-02 review is pending.
