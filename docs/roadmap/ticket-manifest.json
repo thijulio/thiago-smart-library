@@ -1,0 +1,161 @@
+{
+  "observed_on": "2026-10-02",
+  "repository": "thijulio/thiago-smart-library",
+  "tracking_destination": "GitHub Issues",
+  "tickets": [
+    {
+      "id": "DB-00",
+      "title": "Context acceptance and portable execution baseline",
+      "phase": "M1",
+      "state": "Implemented locally; independent review and acceptance pending",
+      "depends_on": "Verified connectivity baseline",
+      "file": "tickets/db-00.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/4",
+      "github_number": 4
+    },
+    {
+      "id": "DB-01",
+      "title": "Isolated relational foundation",
+      "phase": "M2",
+      "state": "Not started",
+      "depends_on": "DB-00 accepted",
+      "file": "tickets/db-01.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/5",
+      "github_number": 5
+    },
+    {
+      "id": "DB-02",
+      "title": "Lossless incremental core import",
+      "phase": "M3",
+      "state": "Not started",
+      "depends_on": "DB-01 accepted",
+      "file": "tickets/db-02.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/6",
+      "github_number": 6
+    },
+    {
+      "id": "DB-03",
+      "title": "Enrichment and exact provenance",
+      "phase": "M4",
+      "state": "Not started",
+      "depends_on": "DB-02 accepted",
+      "file": "tickets/db-03.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/7",
+      "github_number": 7
+    },
+    {
+      "id": "DB-04",
+      "title": "Immutable comparisons and coherent rankings",
+      "phase": "M5",
+      "state": "Not started",
+      "depends_on": "DB-03 accepted",
+      "file": "tickets/db-04.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/8",
+      "github_number": 8
+    },
+    {
+      "id": "DB-05",
+      "title": "Local owner workflow, safe reads and recovery",
+      "phase": "M6",
+      "state": "Not started",
+      "depends_on": "DB-04 accepted",
+      "file": "tickets/db-05.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/9",
+      "github_number": 9
+    },
+    {
+      "id": "OPS-01",
+      "title": "Hosted rehearsal and real-data validation",
+      "phase": "M7",
+      "state": "Awaiting local prerequisites and environment authorization",
+      "depends_on": "DB-05 local acceptance",
+      "file": "tickets/ops-01.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/10",
+      "github_number": 10
+    },
+    {
+      "id": "OPS-02",
+      "title": "Canonical cutover and rollback acceptance",
+      "phase": "M8",
+      "state": "Awaiting rehearsal and explicit cutover authorization",
+      "depends_on": "OPS-01; owner acceptance of usable workflow",
+      "file": "tickets/ops-02.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/11",
+      "github_number": 11
+    },
+    {
+      "id": "GOV-01",
+      "title": "Qualify the published governance pilot in Smart Library",
+      "phase": "Parallel track",
+      "state": "Blocked pending publication validation",
+      "depends_on": "Genuinely published and validated governance-core 0.1.0",
+      "file": "tickets/gov-01.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/12",
+      "github_number": 12
+    },
+    {
+      "id": "DISC-01",
+      "title": "Private browser workflows and authentication scope",
+      "phase": "Future discovery",
+      "state": "ChatGPT-only product direction confirmed; design, eligibility and implementation pending",
+      "depends_on": "DB-05 owner workflow; owner decision",
+      "file": "tickets/disc-01.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/13",
+      "github_number": 13
+    },
+    {
+      "id": "DISC-02",
+      "title": "Grounded asynchronous enrichment",
+      "phase": "Future discovery",
+      "state": "ChatGPT-only product direction confirmed; design, eligibility and implementation pending",
+      "depends_on": "Core records and provenance; approved AI scope",
+      "file": "tickets/disc-02.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/14",
+      "github_number": 14
+    },
+    {
+      "id": "DISC-03",
+      "title": "Multilingual retrieval and embedding evaluation",
+      "phase": "Future discovery",
+      "state": "Deferred; scope not approved",
+      "depends_on": "DB-03 provenance; separately approved retrieval scope",
+      "file": "tickets/disc-03.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/15",
+      "github_number": 15
+    },
+    {
+      "id": "DISC-04",
+      "title": "Reviewable preferences and reading suggestions",
+      "phase": "Future discovery",
+      "state": "Deferred; scope not approved",
+      "depends_on": "DISC-02; explicit preference scope",
+      "file": "tickets/disc-04.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/16",
+      "github_number": 16
+    },
+    {
+      "id": "DISC-05",
+      "title": "Export and portability contract",
+      "phase": "Future discovery",
+      "state": "Deferred; scope not approved",
+      "depends_on": "Stable relational model; approved export scope",
+      "file": "tickets/disc-05.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/17",
+      "github_number": 17
+    },
+    {
+      "id": "DISC-06",
+      "title": "Reading history, editions and ownership extensions",
+      "phase": "Future discovery",
+      "state": "Deferred; scope not approved",
+      "depends_on": "Approved product need",
+      "file": "tickets/disc-06.md",
+      "github_url": "https://github.com/thijulio/thiago-smart-library/issues/18",
+      "github_number": 18
+    }
+  ],
+  "product_documentation": "../product/README.md",
+  "roadmap_document": "README.md",
+  "legacy_roadmap_issue": "https://github.com/thijulio/thiago-smart-library/issues/19",
+  "documentation_publication": "documentation branch; main integration pending"
+}
