@@ -107,7 +107,7 @@ Read-only discovery is allowed. Execute sequentially in the chosen agent; do not
 
 ## 5. Execution commands and their availability
 
-Existing: `pnpm check`, `pnpm test:e2e`, `pnpm dev`, `pnpm dev:netlify`.
+Existing: `pnpm check`, `pnpm test:e2e`, `pnpm dev`, `pnpm dev:netlify`. DB-00 adds `pnpm docs:database:check` (local node:test cases and bounded context validation).
 
 Planned by DB-01: `pnpm db:up`, `pnpm db:down`, `pnpm db:migrate`, `pnpm db:status`, `pnpm db:doctor`, `pnpm test:db`.
 

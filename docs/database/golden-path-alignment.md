@@ -4,7 +4,7 @@ Observed 2026-10-02 against freshly fetched Golden Path `origin/main`
 `a8a822b10ccdb736683d92f93a7711afce042e4f`, its AGENTS, tech radar, and ADRs 0001–0004.
 Application baseline: `3841213f6db5ee8bf98620094e2a2ac10881b8ac`.
 Golden Path `memory.md` is referenced by its instructions but absent at that baseline;
-no living-state evidence is inferred from that missing file.
+no living-state evidence is inferred from that missing file. The local Golden Path change repairs this route to its overview and decision status; per-project delivery records own execution state.
 
 | Area                        | Application evidence                                                                           | Alignment / disposition                                                                                                                                                                                                            |
 | --------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -30,7 +30,7 @@ The corresponding typed site ADR entry mirrors the proposal. No existing stack d
 Golden Path local branch: `thijulio/database-context`, worktree recorded in the handoff.
 Its primary checkout's existing README edit and untracked adoption directory were not included or overwritten.
 Documentation inspection and mirror validation are local evidence; full site build/test availability is
-reported in the handoff. Both repositories still require independent review and publication authorization.
+reported in the handoff. The typed ADR module also passes a strict standalone TypeScript check. Both repositories still require independent review and publication authorization.
 
 ## Gates before DB-01 and later delivery
 
