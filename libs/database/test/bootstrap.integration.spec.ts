@@ -59,7 +59,7 @@ it('migrates an explicitly marked blank local target preserving instance UUID', 
     const c = await pool.connect();
     try {
       await c.query("SELECT set_config('smart_library.purpose','synthetic-test',false)");
-      expect((await migrate(c, 'libs/database/migrations')).applied).toHaveLength(4);
+      expect((await migrate(c, 'libs/database/migrations')).applied).toHaveLength(5);
       expect((await assertMarker(c)).instance_id).toBe(before.instance_id);
     } finally {
       c.release();

@@ -1,0 +1,11 @@
+{
+  "name": "importer",
+  "sourceRoot": "libs/importer/src",
+  "projectType": "library",
+  "tags": ["scope:importer", "type:server"],
+  "targets": {
+    "test": { "command": "vitest run --config libs/importer/vitest.config.ts" },
+    "typecheck": { "command": "tsc --noEmit -p libs/importer/tsconfig.json" },
+    "lint": { "command": "eslint libs/importer" }
+  }
+}

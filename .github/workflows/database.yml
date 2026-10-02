@@ -41,4 +41,7 @@ jobs:
           NPM_TOKEN: ${{ github.token }}
       - run: pnpm exec tsx tools/database/bootstrap-test.ts --target local-test --purpose synthetic-test
       - run: pnpm check
-      - run: pnpm test:db
+      - name: First clean disposable database run
+        run: pnpm test:db
+      - name: Second clean disposable database run
+        run: pnpm test:db

@@ -12,7 +12,9 @@
       "@smart-library/domain": ["libs/domain/src/index.ts"],
       "@smart-library/data-access": ["libs/data-access/src/index.ts"],
       "@smart-library/ui": ["libs/ui/src/index.ts"],
-      "@smart-library/database": ["libs/database/src/index.ts"]
+      "@smart-library/database": ["libs/database/src/index.ts"],
+      "@smart-library/importer": ["libs/importer/src/index.ts"],
+      "@smart-library/database/testing": ["libs/database/test/harness.ts"]
     }
   }
 }
