@@ -70,3 +70,87 @@ it('migrates an explicitly marked blank local target preserving instance UUID', 
     await admin.end();
   }
 });
+
+it.each([
+  [
+    'routine',
+    "CREATE FUNCTION public.bootstrap_probe() RETURNS integer LANGUAGE sql AS 'SELECT 1'",
+  ],
+  ['enum', "CREATE TYPE public.bootstrap_probe AS ENUM ('synthetic')"],
+  ['domain', 'CREATE DOMAIN public.bootstrap_probe AS text'],
+  ['sequence', 'CREATE SEQUENCE public.bootstrap_probe'],
+])(
+  'refuses unmarked targets containing an existing %s before creating a marker',
+  async (_kind, sql) => {
+    const target = validateLocalTarget(
+      process.env.DB_TEST_ADMIN_URL ?? syntheticAdminUrl,
+      process.env,
+    );
+    const admin = localPool(target.url);
+    const { randomBytes } = await import('node:crypto');
+    const name = 'smart_library_test_' + randomBytes(8).toString('hex');
+    const url = new URL(target.url);
+    url.pathname = '/' + name;
+    const pool = localPool(url.toString());
+    try {
+      await admin.query(`CREATE DATABASE "${name}"`);
+      await pool.query(sql);
+      const { initializeTestAdmin } = await import('../src/environment');
+      await expect(initializeTestAdmin(pool)).rejects.toThrow('UNAPPROVED_DATABASE_BOOTSTRAP');
+      expect(
+        (await pool.query("SELECT to_regnamespace('db_meta') AS name")).rows[0].name,
+      ).toBeNull();
+    } finally {
+      await pool.end();
+      await admin.query(`DROP DATABASE "${name}"`);
+      await admin.end();
+    }
+  },
+);
+it.each([
+  [
+    'public routine',
+    "CREATE FUNCTION public.bootstrap_probe() RETURNS integer LANGUAGE sql AS 'SELECT 1'",
+  ],
+  [
+    'metadata routine',
+    "CREATE FUNCTION db_meta.bootstrap_probe() RETURNS integer LANGUAGE sql AS 'SELECT 1'",
+  ],
+  ['metadata enum', "CREATE TYPE db_meta.bootstrap_probe AS ENUM ('synthetic')"],
+  ['metadata sequence', 'CREATE SEQUENCE db_meta.bootstrap_probe'],
+])('refuses marked but unmigrated targets containing an existing %s', async (_kind, sql) => {
+  const target = validateLocalTarget(
+    process.env.DB_TEST_ADMIN_URL ?? syntheticAdminUrl,
+    process.env,
+  );
+  const admin = localPool(target.url);
+  const { randomBytes } = await import('node:crypto');
+  const name = 'smart_library_test_' + randomBytes(8).toString('hex');
+  const url = new URL(target.url);
+  url.pathname = '/' + name;
+  const pool = localPool(url.toString());
+  try {
+    await admin.query(`CREATE DATABASE "${name}"`);
+    const { initializeTestAdmin } = await import('../src/environment');
+    const { assertMarker, migrate, status } = await import('../src/migrate');
+    await initializeTestAdmin(pool);
+    const marker = await assertMarker(pool);
+    await pool.query(sql);
+    const c = await pool.connect();
+    try {
+      await c.query("SELECT set_config('smart_library.purpose','synthetic-test',false)");
+      await expect(migrate(c, 'libs/database/migrations')).rejects.toThrow(
+        'UNAPPROVED_DATABASE_BOOTSTRAP',
+      );
+      expect(await status(c)).toEqual([]);
+      expect((await c.query("SELECT to_regnamespace('library') AS name")).rows[0].name).toBeNull();
+      expect((await assertMarker(c)).instance_id).toBe(marker.instance_id);
+    } finally {
+      c.release();
+    }
+  } finally {
+    await pool.end();
+    await admin.query(`DROP DATABASE "${name}"`);
+    await admin.end();
+  }
+});

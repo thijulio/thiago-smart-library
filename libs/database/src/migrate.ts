@@ -2,6 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { SqlClient } from './connection';
+import { assertEmptyBootstrapTarget } from './bootstrap';
 export function migrationFiles(files: string[]): string[] {
   const sorted = [...files].sort();
   if (
@@ -61,21 +62,11 @@ export async function migrate(
       const purpose = (
         await client.query("SELECT current_setting('smart_library.purpose',true) AS purpose")
       ).rows[0].purpose;
-      const objects = (
-        await client.query(
-          "SELECT count(*)::int AS n FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname NOT IN ('public','information_schema','db_meta')",
-        )
-      ).rows[0].n;
       const markerExists = (await client.query("SELECT to_regclass('db_meta.environment') AS name"))
         .rows[0].name;
       if (markerExists) await assertMarker(client);
-      const relations = (
-        await client.query(
-          "SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' OR (n.nspname='db_meta' AND c.relkind IN ('r','v','m','f') AND c.relname<>'environment')",
-        )
-      ).rows[0].n;
-      if (purpose !== 'synthetic-test' || objects !== 0 || relations !== 0)
-        throw new Error('UNAPPROVED_DATABASE_BOOTSTRAP');
+      if (purpose !== 'synthetic-test') throw new Error('UNAPPROVED_DATABASE_BOOTSTRAP');
+      await assertEmptyBootstrapTarget(client, true);
     }
     for (const [i, entry] of entries.entries()) {
       if (i < history.length) {
