@@ -260,6 +260,13 @@ The historical workbook is not proof of current Sheet contents.
 Execution and actual private-data loading require a later explicit request. This task records
 intent only; no source data has been read or imported by adding it.
 
+Review follow-up (2026-10-02): the DB-01 importer role deliberately has direct DML; the
+controlled importer must enforce accepted-assessment conflicts and update row versions,
+provenance, accepted baselines and source heads atomically. Include a regression where an
+accepted assessment differs from incoming source content: preserve the accepted content/review
+unless an explicit reviewed resolution permits replacement; accepted replacement resets review.
+See [independent review](../review/db-01-independent-review.md).
+
 ## Done / next
 
 Done means the unchanged input shape works, all synthetic scenarios pass, and repeat imports plus source/native conflicts have evidence. The Sheet and hosted DB remain untouched. Prepare local description `feat(import): add lossless replay-safe core importer`. Stop for merge-policy review before DB-03.

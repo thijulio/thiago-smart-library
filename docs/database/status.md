@@ -8,7 +8,7 @@ See [DB-00 evidence and handoff](handoffs/db-00.md).
 | Ticket | State             | Test evidence                                                                           | Review                                                         | PR/head                                | Environment                               |
 | ------ | ----------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------- | ----------------------------------------- |
 | DB-00  | implemented-local | 20 context tests; format/check pass; 10 e2e pass; reference hashes and diff checks pass | author self-review completed; independent review not performed | local thijulio/database-context; no PR | local docs/tooling and synthetic UI only  |
-| DB-01  | implemented-local | 79/79 on PostgreSQL 16.15 and 18.6; unit/check/e2e/context gates pass                   | awaiting independent SQL/permissions review                    | local thijulio/database-schema; no PR  | synthetic disposable local databases only |
+| DB-01  | implemented-local | 87/87 on PostgreSQL 16.15 and 18.6 after review fix; unit/check/context gates pass      | independent technical review passed; owner acceptance pending  | local thijulio/database-schema; no PR  | synthetic disposable local databases only |
 | DB-02  | not-started       | not performed                                                                           | not performed                                                  | not performed                          | not performed                             |
 | DB-03  | not-started       | not performed                                                                           | not performed                                                  | not performed                          | not performed                             |
 | DB-04  | not-started       | not performed                                                                           | not performed                                                  | not performed                          | not performed                             |
@@ -20,6 +20,8 @@ DB-00 performed no database connection. DB-01 applied SQL only to synthetic disp
 
 Golden Path DB-01 local checkpoint: `7bc4b589cdaa916218b7a900a493353eed8a66e6` (DB-00 predecessor `9e83c7ff61009e53c28ee274aa40cf79d10394eb`). Proposed ADR 0006, safety workflow and typed site mirror are implemented locally. Site build/test, proposal checks and strict ADR module typecheck pass. Independent review, acceptance, merge and deployment are not performed. DB-00's missing installed dependencies gate is resolved locally.
 
-Next: independent SQL/permissions review of DB-01; do not start DB-02 before accepted DB-01 evidence and separate authorization.
+Next: owner acceptance of the [independent DB-01 technical review](review/db-01-independent-review.md), then separately authorized DB-02 execution. No technical review blocker remains; the executor does not grant itself acceptance.
 
 Deferred owner request (2026-10-02): [DB-02 Task 02.5](plans/02-import.md#task-025--deferred-local-population-from-the-existing-library) will populate a private local database from the existing library after prerequisite review and later execution authorization. Use the documented Sheet/export source rather than fictional demo books. Planned only; no private-data import performed.
+
+Review correction checkpoint: `b48d4bb6825677a3c14b4a975354bd60023cd168`. Golden Path review follow-up: `5f969f43ee7f5381f624fbf6e8ed23a01912eebf`. The running local inspection database and existing migration checksums are preserved.

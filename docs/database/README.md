@@ -2,7 +2,7 @@
 
 Start with [delivery status](status.md), then read the [canonical specification](spec.md),
 [execution pack](plans/README.md), and its authoritative [execution addendum](plans/execution-contracts.md).
-Execute only the user-authorized ticket. Current: [DB-01 SQL/permissions review](review/db-01.md), implemented locally and awaiting independent review. See [DB-01 acceptance handoff](handoffs/db-01.md) for exact identities and evidence.
+Execute only the user-authorized ticket. Current: [DB-01 SQL/permissions review](review/db-01.md), implemented locally; [independent technical review passed](review/db-01-independent-review.md), owner acceptance pending. See [DB-01 acceptance handoff](handoffs/db-01.md) for exact identities and evidence.
 
 [Context ownership](context-map.md) separates private study evidence from implementation.
 [Prototype references](reference/prototype-contracts.md) are pinned compatibility input.
