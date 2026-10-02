@@ -40,6 +40,10 @@ DB-05 owns local tasks 05.1–05.4. OPS-01 owns hosted rehearsal 05.5 and OPS-02
 
 These are discovery scopes, not implementation commitments. DISC-06 records deferred extension candidates. No estimates or target dates are invented; progression depends on accepted evidence and approval of the relevant slice.
 
+## GitHub milestones
+
+[Milestone mapping](milestones.md) groups the 15 roadmap tickets and the documentation transition task into the eight delivery stages, governance qualification and future discovery. The [GitHub milestone list](https://github.com/thijulio/thiago-smart-library/milestones) owns live issue completion. No target dates are assigned.
+
 ## Traceability and source ownership
 
 - [Requirement mapping](traceability.md) connects requirements to their acceptance owner.

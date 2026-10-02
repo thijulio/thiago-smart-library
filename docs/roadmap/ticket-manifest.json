@@ -11,7 +11,12 @@
       "depends_on": "Verified connectivity baseline",
       "file": "tickets/db-00.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/4",
-      "github_number": 4
+      "github_number": 4,
+      "milestone": {
+        "title": "M1 \u2014 Context and documentation acceptance",
+        "number": 1,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/1"
+      }
     },
     {
       "id": "DB-01",
@@ -21,7 +26,12 @@
       "depends_on": "DB-00 accepted",
       "file": "tickets/db-01.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/5",
-      "github_number": 5
+      "github_number": 5,
+      "milestone": {
+        "title": "M2 \u2014 Isolated relational foundation",
+        "number": 2,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/2"
+      }
     },
     {
       "id": "DB-02",
@@ -31,7 +41,12 @@
       "depends_on": "DB-01 accepted",
       "file": "tickets/db-02.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/6",
-      "github_number": 6
+      "github_number": 6,
+      "milestone": {
+        "title": "M3 \u2014 Lossless incremental import",
+        "number": 3,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/3"
+      }
     },
     {
       "id": "DB-03",
@@ -41,7 +56,12 @@
       "depends_on": "DB-02 accepted",
       "file": "tickets/db-03.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/7",
-      "github_number": 7
+      "github_number": 7,
+      "milestone": {
+        "title": "M4 \u2014 Enrichment and provenance",
+        "number": 4,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/4"
+      }
     },
     {
       "id": "DB-04",
@@ -51,7 +71,12 @@
       "depends_on": "DB-03 accepted",
       "file": "tickets/db-04.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/8",
-      "github_number": 8
+      "github_number": 8,
+      "milestone": {
+        "title": "M5 \u2014 Immutable comparisons and coherent rankings",
+        "number": 5,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/5"
+      }
     },
     {
       "id": "DB-05",
@@ -61,7 +86,12 @@
       "depends_on": "DB-04 accepted",
       "file": "tickets/db-05.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/9",
-      "github_number": 9
+      "github_number": 9,
+      "milestone": {
+        "title": "M6 \u2014 Local owner workflow and recovery",
+        "number": 6,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/6"
+      }
     },
     {
       "id": "OPS-01",
@@ -71,7 +101,12 @@
       "depends_on": "DB-05 local acceptance",
       "file": "tickets/ops-01.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/10",
-      "github_number": 10
+      "github_number": 10,
+      "milestone": {
+        "title": "M7 \u2014 Hosted rehearsal",
+        "number": 7,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/7"
+      }
     },
     {
       "id": "OPS-02",
@@ -81,7 +116,12 @@
       "depends_on": "OPS-01; owner acceptance of usable workflow",
       "file": "tickets/ops-02.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/11",
-      "github_number": 11
+      "github_number": 11,
+      "milestone": {
+        "title": "M8 \u2014 Canonical cutover",
+        "number": 8,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/8"
+      }
     },
     {
       "id": "GOV-01",
@@ -91,7 +131,12 @@
       "depends_on": "Genuinely published and validated governance-core 0.1.0",
       "file": "tickets/gov-01.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/12",
-      "github_number": 12
+      "github_number": 12,
+      "milestone": {
+        "title": "G1 \u2014 Governance pilot qualification",
+        "number": 9,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/9"
+      }
     },
     {
       "id": "DISC-01",
@@ -101,7 +146,12 @@
       "depends_on": "DB-05 owner workflow; owner decision",
       "file": "tickets/disc-01.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/13",
-      "github_number": 13
+      "github_number": 13,
+      "milestone": {
+        "title": "F1 \u2014 Future product discovery",
+        "number": 10,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/10"
+      }
     },
     {
       "id": "DISC-02",
@@ -111,7 +161,12 @@
       "depends_on": "Core records and provenance; approved AI scope",
       "file": "tickets/disc-02.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/14",
-      "github_number": 14
+      "github_number": 14,
+      "milestone": {
+        "title": "F1 \u2014 Future product discovery",
+        "number": 10,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/10"
+      }
     },
     {
       "id": "DISC-03",
@@ -121,7 +176,12 @@
       "depends_on": "DB-03 provenance; separately approved retrieval scope",
       "file": "tickets/disc-03.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/15",
-      "github_number": 15
+      "github_number": 15,
+      "milestone": {
+        "title": "F1 \u2014 Future product discovery",
+        "number": 10,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/10"
+      }
     },
     {
       "id": "DISC-04",
@@ -131,7 +191,12 @@
       "depends_on": "DISC-02; explicit preference scope",
       "file": "tickets/disc-04.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/16",
-      "github_number": 16
+      "github_number": 16,
+      "milestone": {
+        "title": "F1 \u2014 Future product discovery",
+        "number": 10,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/10"
+      }
     },
     {
       "id": "DISC-05",
@@ -141,7 +206,12 @@
       "depends_on": "Stable relational model; approved export scope",
       "file": "tickets/disc-05.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/17",
-      "github_number": 17
+      "github_number": 17,
+      "milestone": {
+        "title": "F1 \u2014 Future product discovery",
+        "number": 10,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/10"
+      }
     },
     {
       "id": "DISC-06",
@@ -151,11 +221,78 @@
       "depends_on": "Approved product need",
       "file": "tickets/disc-06.md",
       "github_url": "https://github.com/thijulio/thiago-smart-library/issues/18",
-      "github_number": 18
+      "github_number": 18,
+      "milestone": {
+        "title": "F1 \u2014 Future product discovery",
+        "number": 10,
+        "url": "https://github.com/thijulio/thiago-smart-library/milestone/10"
+      }
     }
   ],
   "product_documentation": "../product/README.md",
   "roadmap_document": "README.md",
   "legacy_roadmap_issue": "https://github.com/thijulio/thiago-smart-library/issues/19",
-  "documentation_publication": "documentation branch; main integration pending"
+  "documentation_publication": "documentation branch; main integration pending",
+  "milestones": [
+    {
+      "title": "M1 \u2014 Context and documentation acceptance",
+      "number": 1,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/1",
+      "issues": [4, 19]
+    },
+    {
+      "title": "M2 \u2014 Isolated relational foundation",
+      "number": 2,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/2",
+      "issues": [5]
+    },
+    {
+      "title": "M3 \u2014 Lossless incremental import",
+      "number": 3,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/3",
+      "issues": [6]
+    },
+    {
+      "title": "M4 \u2014 Enrichment and provenance",
+      "number": 4,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/4",
+      "issues": [7]
+    },
+    {
+      "title": "M5 \u2014 Immutable comparisons and coherent rankings",
+      "number": 5,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/5",
+      "issues": [8]
+    },
+    {
+      "title": "M6 \u2014 Local owner workflow and recovery",
+      "number": 6,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/6",
+      "issues": [9]
+    },
+    {
+      "title": "M7 \u2014 Hosted rehearsal",
+      "number": 7,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/7",
+      "issues": [10]
+    },
+    {
+      "title": "M8 \u2014 Canonical cutover",
+      "number": 8,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/8",
+      "issues": [11]
+    },
+    {
+      "title": "G1 \u2014 Governance pilot qualification",
+      "number": 9,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/9",
+      "issues": [12]
+    },
+    {
+      "title": "F1 \u2014 Future product discovery",
+      "number": 10,
+      "url": "https://github.com/thijulio/thiago-smart-library/milestone/10",
+      "issues": [13, 14, 15, 16, 17, 18]
+    }
+  ]
 }
