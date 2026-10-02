@@ -8,3 +8,7 @@ deno.lock
 .env*
 !.env.example
 .agent-toolbox/installed/
+.superpowers/
+.database-local/
+database-reports/
+*.pgdump

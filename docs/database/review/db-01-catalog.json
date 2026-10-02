@@ -1,0 +1,1246 @@
+{
+  "source": "synthetic disposable PostgreSQL; no records or connection credentials",
+  "server": {
+    "version": "16.15 (Debian 16.15-1.pgdg13+2)"
+  },
+  "roles": [
+    {
+      "rolname": "library_editor",
+      "rolcanlogin": false,
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolbypassrls": false
+    },
+    {
+      "rolname": "library_importer",
+      "rolcanlogin": false,
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolbypassrls": false
+    },
+    {
+      "rolname": "library_owner",
+      "rolcanlogin": false,
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolbypassrls": false
+    },
+    {
+      "rolname": "library_private_reader",
+      "rolcanlogin": false,
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolbypassrls": false
+    },
+    {
+      "rolname": "library_public_reader",
+      "rolcanlogin": false,
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolbypassrls": false
+    },
+    {
+      "rolname": "library_ranking_worker",
+      "rolcanlogin": false,
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolbypassrls": false
+    }
+  ],
+  "history": [
+    {
+      "name": "0001_bootstrap.sql",
+      "checksum": "6c3b82c266976eb94f0f34ac3d658d3bd9057e3e2199a4335be63574f15ee20b"
+    },
+    {
+      "name": "0002_import_audit.sql",
+      "checksum": "d96b471fe7e42d990503e7d05fac4e56ade72325642bc2c2b62c6c2702197464"
+    },
+    {
+      "name": "0003_core_library.sql",
+      "checksum": "39363218e2f314af30fc52ef69ee9c1b4b3d5fe94bad38c42b96bac00ca796cc"
+    },
+    {
+      "name": "0004_owner_operations.sql",
+      "checksum": "9f0ad101266529c66de240ec3acaf1f333a0cf4169c87861019a449e355be22e"
+    }
+  ],
+  "tables": [
+    {
+      "schema": "db_meta",
+      "name": "environment",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "db_meta",
+      "name": "schema_migrations",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "import_audit",
+      "name": "field_baselines",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "import_audit",
+      "name": "import_issues",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "import_audit",
+      "name": "import_rows",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "import_audit",
+      "name": "import_runs",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "import_audit",
+      "name": "source_heads",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "author_aliases",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "authors",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "book_assessments",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "book_authors",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "book_feedback",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "book_field_provenance",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "book_genres",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "books",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "genres",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "owner_requests",
+      "owner": "library_owner"
+    },
+    {
+      "schema": "library",
+      "name": "series",
+      "owner": "library_owner"
+    }
+  ],
+  "functions": [
+    {
+      "routine": "library.archive_book(text,bigint,uuid)",
+      "owner": "library_owner",
+      "security_definer": true,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": true,
+      "public_execute": false
+    },
+    {
+      "routine": "library.attribute(bigint,text,jsonb,jsonb)",
+      "owner": "library_owner",
+      "security_definer": false,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": false,
+      "public_execute": false
+    },
+    {
+      "routine": "library.create_book(jsonb,uuid)",
+      "owner": "library_owner",
+      "security_definer": true,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": true,
+      "public_execute": false
+    },
+    {
+      "routine": "library.immutable_identity()",
+      "owner": "library_owner",
+      "security_definer": false,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": false,
+      "public_execute": false
+    },
+    {
+      "routine": "library.lock_author_parents()",
+      "owner": "library_owner",
+      "security_definer": false,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": false,
+      "public_execute": false
+    },
+    {
+      "routine": "library.normalize_payload(jsonb,text)",
+      "owner": "library_owner",
+      "security_definer": false,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": false,
+      "public_execute": false
+    },
+    {
+      "routine": "library.patch_assessment(text,bigint,jsonb,uuid)",
+      "owner": "library_owner",
+      "security_definer": true,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": true,
+      "public_execute": false
+    },
+    {
+      "routine": "library.patch_book(text,bigint,jsonb,uuid)",
+      "owner": "library_owner",
+      "security_definer": true,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": true,
+      "public_execute": false
+    },
+    {
+      "routine": "library.patch_feedback(text,bigint,jsonb,uuid)",
+      "owner": "library_owner",
+      "security_definer": true,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": true,
+      "public_execute": false
+    },
+    {
+      "routine": "library.request_finish(uuid,text,jsonb,jsonb)",
+      "owner": "library_owner",
+      "security_definer": false,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": false,
+      "public_execute": false
+    },
+    {
+      "routine": "library.request_start(uuid,text,jsonb)",
+      "owner": "library_owner",
+      "security_definer": false,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": false,
+      "public_execute": false
+    },
+    {
+      "routine": "library.require_author()",
+      "owner": "library_owner",
+      "security_definer": true,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": false,
+      "public_execute": false
+    },
+    {
+      "routine": "library.value_hash(text,text,jsonb)",
+      "owner": "library_owner",
+      "security_definer": false,
+      "settings": ["search_path=pg_catalog, pg_temp"],
+      "editor_execute": false,
+      "public_execute": false
+    }
+  ],
+  "grants": [
+    {
+      "role": "library_editor",
+      "object": "db_meta.environment",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "db_meta.schema_migrations",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "import_audit.field_baselines",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "import_audit.import_issues",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "import_audit.import_rows",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "import_audit.import_runs",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "import_audit.source_heads",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.author_aliases",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.authors",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.book_assessments",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.book_authors",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.book_feedback",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.book_field_provenance",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.book_genres",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.books",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.genres",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.owner_requests",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_editor",
+      "object": "library.series",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "db_meta.environment",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "db_meta.schema_migrations",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "import_audit.field_baselines",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "import_audit.import_issues",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "import_audit.import_rows",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "import_audit.import_runs",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "import_audit.source_heads",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.author_aliases",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.authors",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.book_assessments",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.book_authors",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.book_feedback",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.book_field_provenance",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.book_genres",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.books",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.genres",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.owner_requests",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_importer",
+      "object": "library.series",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_owner",
+      "object": "db_meta.environment",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "db_meta.schema_migrations",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "import_audit.field_baselines",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "import_audit.import_issues",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "import_audit.import_rows",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "import_audit.import_runs",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "import_audit.source_heads",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.author_aliases",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.authors",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.book_assessments",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.book_authors",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.book_feedback",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.book_field_provenance",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.book_genres",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.books",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.genres",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.owner_requests",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_owner",
+      "object": "library.series",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": true,
+      "truncate": true
+    },
+    {
+      "role": "library_private_reader",
+      "object": "db_meta.environment",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "db_meta.schema_migrations",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "import_audit.field_baselines",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "import_audit.import_issues",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "import_audit.import_rows",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "import_audit.import_runs",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "import_audit.source_heads",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.author_aliases",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.authors",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.book_assessments",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.book_authors",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.book_feedback",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.book_field_provenance",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.book_genres",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.books",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.genres",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.owner_requests",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_private_reader",
+      "object": "library.series",
+      "select": true,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "db_meta.environment",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "db_meta.schema_migrations",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "import_audit.field_baselines",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "import_audit.import_issues",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "import_audit.import_rows",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "import_audit.import_runs",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "import_audit.source_heads",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.author_aliases",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.authors",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.book_assessments",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.book_authors",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.book_feedback",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.book_field_provenance",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.book_genres",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.books",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.genres",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.owner_requests",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_public_reader",
+      "object": "library.series",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "db_meta.environment",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "db_meta.schema_migrations",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "import_audit.field_baselines",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "import_audit.import_issues",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "import_audit.import_rows",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "import_audit.import_runs",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "import_audit.source_heads",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.author_aliases",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.authors",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.book_assessments",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.book_authors",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.book_feedback",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.book_field_provenance",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.book_genres",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.books",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.genres",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.owner_requests",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    },
+    {
+      "role": "library_ranking_worker",
+      "object": "library.series",
+      "select": false,
+      "insert": false,
+      "update": false,
+      "delete": false,
+      "truncate": false
+    }
+  ]
+}

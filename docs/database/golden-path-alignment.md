@@ -40,3 +40,11 @@ reported in the handoff. The typed ADR module also passes a strict standalone Ty
 - Obtain independent SQL/privilege review before accepting DB-01; executor cannot grant that review.
 - Resolve shared-config adoption and the database-tier exception through reviewed scoped work, without silently replacing SQL/Neon.
 - Hosted targets, real-data import, public read, authentication design, cloud changes and cutover remain separate approvals.
+
+## DB-01 local evidence
+
+Core SQL, safe synthetic targets, checksummed direct-client migrations and distinct-role PostgreSQL tests are now implemented locally. Golden Path adds proposed ADR 0006, the isolated-database workflow, a synchronized typed site entry and executable proposal-mirror checks. No universal tier, ORM/provider choice or locked radar decision changes.
+
+The site now builds and its existing unit test passes after frozen offline dependency installation; the mirror checks and strict typed ADR module check pass. The DB-00 missing-dependencies gate is resolved locally, not a remote CI/review/deploy claim. Golden Path pins pnpm 10.25.0; its checks were replayed explicitly on 10.19.0 with automatic version switching disabled. Its pin remains unchanged, an alignment item for reviewed maintenance. Shared config-package adoption and the intermediate single-owner SQL tier remain unresolved exactly as in DB-00.
+
+See the DB-01 handoff for exact shared head, worktree, command evidence and review gates.

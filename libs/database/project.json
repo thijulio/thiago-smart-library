@@ -1,0 +1,17 @@
+{
+  "name": "database",
+  "sourceRoot": "libs/database/src",
+  "projectType": "library",
+  "tags": ["scope:database", "type:server"],
+  "targets": {
+    "test": {
+      "command": "vitest run --config libs/database/vitest.config.ts"
+    },
+    "typecheck": {
+      "command": "tsc --noEmit -p libs/database/tsconfig.json"
+    },
+    "lint": {
+      "command": "eslint libs/database tools/database/*.ts"
+    }
+  }
+}

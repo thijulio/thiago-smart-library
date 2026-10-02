@@ -17,8 +17,15 @@
     "test:e2e": "nx e2e web-e2e",
     "format:check": "prettier --check .",
     "governance:check": "node tools/governance/collect-evidence.mjs --check",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm governance:check",
-    "docs:database:check": "node --test tools/database/check-context.spec.mjs && node tools/database/check-context.mjs"
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm database:boundary:check && pnpm governance:check",
+    "docs:database:check": "node --test tools/database/check-context.spec.mjs && node tools/database/check-context.mjs",
+    "db:up": "tsx tools/database/local.ts up",
+    "db:down": "tsx tools/database/local.ts down",
+    "db:migrate": "tsx tools/database/cli.ts migrate",
+    "db:status": "tsx tools/database/cli.ts status",
+    "db:doctor": "tsx tools/database/cli.ts doctor",
+    "test:db": "tsx tools/database/run-integration.ts",
+    "database:boundary:check": "node --test tools/database/check-bundle.spec.mjs && node tools/database/check-bundle.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -26,7 +33,8 @@
     "@thijulio/biome-css": "0.0.2",
     "@thijulio/biome-react": "0.0.2",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "pg": "8.23.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
@@ -53,7 +61,9 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.2",
     "vite": "7.3.5",
-    "vitest": "4.1.11"
+    "vitest": "4.1.11",
+    "@types/pg": "8.23.1",
+    "tsx": "4.23.15"
   },
   "pnpm": {
     "overrides": {

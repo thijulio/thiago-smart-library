@@ -23,7 +23,15 @@ export default [
             },
             { sourceTag: 'scope:ui', onlyDependOnLibsWithTags: ['scope:domain'] },
             { sourceTag: 'scope:data-access', onlyDependOnLibsWithTags: ['scope:domain'] },
-            { sourceTag: 'scope:api', onlyDependOnLibsWithTags: ['scope:domain'] },
+            {
+              sourceTag: 'scope:api',
+              onlyDependOnLibsWithTags: ['scope:domain', 'scope:database'],
+            },
+            { sourceTag: 'scope:database', onlyDependOnLibsWithTags: ['scope:domain'] },
+            {
+              sourceTag: 'scope:importer',
+              onlyDependOnLibsWithTags: ['scope:database', 'scope:domain'],
+            },
             { sourceTag: 'scope:domain', onlyDependOnLibsWithTags: [] },
           ],
         },
