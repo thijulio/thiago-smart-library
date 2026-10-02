@@ -241,6 +241,25 @@ Arguments containing `<...>` must be replaced with observed outputs, never copie
 - [ ] Run all tests twice with clean disposable DBs; run `pnpm check`, `pnpm test:db`, `pnpm test:e2e`, `git diff --check`.
 - [ ] Optional approved private local rehearsal: fresh export, dry-run first; compare totals from its own manifest, not hard-coded 174/79. Do not commit its data/report. It is not needed to claim synthetic test success, but is required before eventual hosted real-data import.
 
+## Task 02.5 — Deferred local population from the existing library
+
+Requested by the owner on 2026-10-02. **Planned only; do not execute as part of DB-01.**
+Use the owner's existing books rather than fictional demonstration records.
+
+Source authority is documented in [spec §0](../spec.md#0-authority-scope-and-delivery-state)
+and the [context ownership map](../context-map.md): the current Google Sheet owns the
+prototype records; the original workbook and study belong to private context evidence.
+The historical workbook is not proof of current Sheet contents.
+
+- [ ] After DB-01 is independently accepted and the DB-02 importer is implemented and reviewed, locate the documented existing source and confirm its freshness with the owner. Use an immutable authorized export; do not request a duplicate dataset if the documented source is available.
+- [ ] Run extraction and dry-run first, review source-specific diagnostics, then populate an explicitly selected private local database through the DB-02 importer. Do not bypass the importer with ad hoc seed SQL.
+- [ ] Verify counts against that export, preserve original Book IDs, and demonstrate that replay creates no duplicates or unintended version changes.
+- [ ] Keep source files, records and detailed reports outside Git, CI artifacts and public output. Leave the live Sheet and hosted database untouched.
+- [ ] Record sanitized acceptance evidence and provide DBeaver connection instructions. Choose the local storage lifecycle explicitly: the DB-01 tmpfs harness is disposable and loses imported records when stopped/recreated.
+
+Execution and actual private-data loading require a later explicit request. This task records
+intent only; no source data has been read or imported by adding it.
+
 ## Done / next
 
 Done means the unchanged input shape works, all synthetic scenarios pass, and repeat imports plus source/native conflicts have evidence. The Sheet and hosted DB remain untouched. Prepare local description `feat(import): add lossless replay-safe core importer`. Stop for merge-policy review before DB-03.
