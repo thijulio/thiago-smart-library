@@ -18,6 +18,23 @@ function monthEnd(month: string): string {
   const [y, m] = month.split('-').map(Number);
   return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
 }
+export function parseTimestamp(text: string): string {
+  const parts =
+    /^(\d{4}-\d\d-\d\d)T(\d\d):(\d\d):(\d\d)(?:\.\d{1,3})?(Z|([+-])(\d\d):(\d\d))$/.exec(text);
+  if (
+    !parts ||
+    Number(parts[2]) > 23 ||
+    Number(parts[3]) > 59 ||
+    Number(parts[4]) > 59 ||
+    (parts[5] !== 'Z' &&
+      (Number(parts[7]) > 14 ||
+        Number(parts[8]) > 59 ||
+        (Number(parts[7]) === 14 && Number(parts[8]) !== 0)))
+  )
+    throw new Error('INVALID_SOURCE_TIMESTAMP');
+  day(parts[1]);
+  return new Date(text).toISOString();
+}
 export function parseDate(text: string): { from: string; to: string; precision: string } {
   if (/^\d{4}$/.test(text))
     return { from: day(text + '-01-01'), to: day(text + '-12-31'), precision: 'year' };
@@ -76,11 +93,36 @@ export function parseCompletion(
     )
       throw new Error('UNREVIEWED_DATE');
     const coerced = !!y && !/^\d{4}$/.test(y);
-    const yearPart = y?.slice(0, 4);
-    if (y && (!/^\d{4}(-\d\d(-\d\d)?)?$/.test(y) || !yearPart)) throw new Error('INVALID_YEAR');
-    if (y) parseDate(y);
+    const legacyMonth = y && /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4})$/.exec(y);
+    const yearPart = legacyMonth ? legacyMonth[2] : y?.slice(0, 4);
+    if (legacyMonth && !f) throw new Error('INVALID_YEAR');
+    if (y && !legacyMonth && (!/^\d{4}(-\d\d(-\d\d)?)?$/.test(y) || !yearPart))
+      throw new Error('INVALID_YEAR');
+    if (y && !legacyMonth) parseDate(y);
     const d = parseDate(f ?? yearPart!);
     if (f && y && d.from.slice(0, 4) !== yearPart)
+      return { value: null, issues: ['COMPLETION_YEAR_CONFLICT'] };
+    // A month in Year Finished must also fall inside the finish bounds (spec §3.1).
+    const MONTHS = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const yearMonth = legacyMonth
+      ? `${legacyMonth[2]}-${String(MONTHS.indexOf(legacyMonth[1]) + 1).padStart(2, '0')}`
+      : /^\d{4}-\d\d/.test(y ?? '')
+        ? y!.slice(0, 7)
+        : null;
+    if (f && yearMonth && (yearMonth < d.from.slice(0, 7) || yearMonth > d.to.slice(0, 7)))
       return { value: null, issues: ['COMPLETION_YEAR_CONFLICT'] };
     return {
       value: {

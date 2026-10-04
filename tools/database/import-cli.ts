@@ -32,11 +32,13 @@ export async function importerCli(
                 report: { type: 'string' },
                 resolutions: { type: 'string' },
                 policy: { type: 'string' },
+                target: { type: 'string' },
               }
             : {
                 help: { type: 'boolean' },
                 scope: { type: 'string' },
                 'run-id': { type: 'string' },
+                target: { type: 'string' },
               },
     });
     if (values.help) {
@@ -93,11 +95,16 @@ export async function importerCli(
       usage = true;
       throw new Error('INVALID_RUN_ID');
     }
+    if (values.target !== undefined && values.target !== 'local-test') {
+      usage = true;
+      throw new Error('INVALID_TARGET');
+    }
+    const importTarget = { kind: 'local-test' as const };
     const target = validateLocalTarget(process.env.DB_IMPORT_URL, process.env);
     const db = localPool(target.url);
     try {
       if (operation === 'verify') {
-        console.log(JSON.stringify(await verifyCore(db, id)));
+        console.log(JSON.stringify(await verifyCore(db, id, importTarget)));
         return 0;
       }
       const r = await runImport(
@@ -108,6 +115,7 @@ export async function importerCli(
           reportDirectory: report,
           policyFile: typeof values.policy === 'string' ? values.policy : undefined,
           resolutionFile: typeof values.resolutions === 'string' ? values.resolutions : undefined,
+          target: importTarget,
         },
         db,
       );

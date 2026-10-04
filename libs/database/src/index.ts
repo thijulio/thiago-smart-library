@@ -4,4 +4,4 @@ export { migrate, status } from './migrate';
 export { patchBook, createBook } from './owner';
 export { localPool } from './connection';
 export { assertMarker } from './migrate';
-export { validateLocalTarget } from './target';
+export { validateLocalTarget, validateInstanceId } from './target';

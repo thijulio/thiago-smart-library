@@ -1,13 +1,13 @@
 import type { Pool } from 'pg';
 import { withTransaction } from '@smart-library/database';
-import { assertImportTarget } from './target-schema';
+import { assertImportTarget, type ImportTarget } from './target-schema';
 import { logicalType } from './apply-core';
 import { NUMBER_FIELDS } from './plan-import';
 import { GROUP_FIELDS } from './resolutions';
 import { canonicalJson, sha256Utf8 } from './canonical-json';
 import type { Json } from './contracts';
-export async function verifyCore(db: Pool, runId: string) {
-  await assertImportTarget(db);
+export async function verifyCore(db: Pool, runId: string, target?: ImportTarget) {
+  await assertImportTarget(db, target);
   return withTransaction(db, async (client) => {
     await client.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
     const run = (

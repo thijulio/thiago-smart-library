@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { HEADERS, MAIN_HEADERS } from '../src/headers';
 import { extractWorkbook } from '../src/extract-xlsx';
-export type SyntheticBook = Record<string, string | number | null>;
+export type SyntheticBook = Record<string, ExcelJS.CellValue>;
 export const books: SyntheticBook[] = [
   {
     'Book ID': 'legacy-book',

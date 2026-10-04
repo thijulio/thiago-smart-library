@@ -36,6 +36,125 @@ async function canonical() {
     await db.owner.query('SELECT to_jsonb(b)::text AS value FROM library.books b ORDER BY id')
   ).rows;
 }
+it('retains reviewed empty cover-formula rows as raw evidence without inventing books', async () => {
+  const s = await snapshot([
+    ...books,
+    { 'Cover URL': { formula: 'IF(A5="","","https://example.com/cover")', result: '' } },
+  ]);
+  expect((await apply(s)).status).toBe('blocked');
+  const policyFile = join(s.root, 'policy.json');
+  const policy = {
+    version: 1,
+    sourceSha256: s.manifest.sourceSha256,
+    reviewer: 'synthetic-reviewer',
+    reviewedAt: '2026-10-04T00:00:00Z',
+    seriesSentinels: [],
+    cachedFormulaFields: [],
+    emptyFormulaRows: ['Untitled!5'],
+  };
+  await writeFile(policyFile, JSON.stringify(policy), { mode: 0o600 });
+  const run = await runImport(
+    {
+      snapshotDirectory: s.directory,
+      scope: 'core',
+      mode: 'apply',
+      reportDirectory: s.report(),
+      policyFile,
+    },
+    db.importer,
+  );
+  expect(run.status).toBe('applied');
+  expect(run.inserted).toBe(3);
+  expect(
+    (
+      await db.owner.query('SELECT count(*) FROM import_audit.import_rows WHERE run_id=$1', [
+        run.runId,
+      ])
+    ).rows[0].count,
+  ).toBe('4');
+  const bad = await snapshot([
+    ...books,
+    { 'Cover URL': { formula: '""', result: '' }, Notes: 'must not disappear' },
+  ]);
+  const badFile = join(bad.root, 'policy.json');
+  await writeFile(badFile, JSON.stringify({ ...policy, sourceSha256: bad.manifest.sourceSha256 }), {
+    mode: 0o600,
+  });
+  await expect(
+    runImport(
+      {
+        snapshotDirectory: bad.directory,
+        scope: 'core',
+        mode: 'apply',
+        reportDirectory: bad.report(),
+        policyFile: badFile,
+      },
+      db.importer,
+    ),
+  ).rejects.toThrow('INVALID_EMPTY_FORMULA_POLICY');
+});
+it('accepts a reviewed completion on first insert, rejects stale absence, and replays without churn', async () => {
+  const s = await snapshot([
+    { ...books[1], 'Finished Date': '2026-07~08', 'Year Finished': 'Aug 2026' },
+  ]);
+  const hash = (
+    await db.owner.query(
+      "SELECT library.value_hash('merge.completion','json','null'::jsonb) AS hash",
+    )
+  ).rows[0].hash;
+  const file = join(s.root, 'initial-resolution.json');
+  await writeFile(
+    file,
+    JSON.stringify({
+      version: 1,
+      entries: [
+        {
+          sourceSha256: s.manifest.sourceSha256,
+          entityKey: books[1]['Book ID'],
+          field: 'completion',
+          expectedHash: hash,
+          expectedVersion: '0',
+          hashVersion: 'pg-jsonb-text-v1',
+          reviewer: 'synthetic-reviewer',
+          reviewedAt: '2026-10-04T00:00:00Z',
+          action: 'use_source',
+        },
+      ],
+    }),
+    { mode: 0o600 },
+  );
+  const first = await apply(s, file);
+  expect(first.status).toBe('applied');
+  expect(
+    (
+      await db.owner.query(
+        'SELECT finished_from::text,finished_to::text,finished_precision FROM library.books',
+      )
+    ).rows,
+  ).toEqual([
+    { finished_from: '2026-07-01', finished_to: '2026-08-31', finished_precision: 'range' },
+  ]);
+  const before = await canonical();
+  expect((await apply(s, file)).runId).toBe(first.runId);
+  expect(await canonical()).toEqual(before);
+  const newer = await snapshot(
+    [
+      {
+        ...books[1],
+        Notes: 'new source bytes',
+        'Finished Date': '2026-07~08',
+        'Year Finished': 'Aug 2026',
+      },
+    ],
+    '2026-10-03T00:00:00Z',
+  );
+  const content = JSON.parse(await readFile(file, 'utf8'));
+  content.entries[0].sourceSha256 = newer.manifest.sourceSha256;
+  const stale = join(newer.root, 'stale.json');
+  await writeFile(stale, JSON.stringify(content), { mode: 0o600 });
+  expect((await apply(newer, stale)).status).not.toBe('applied');
+  expect(await canonical()).toEqual(before);
+});
 // Obtain versions through owner: editor intentionally has no base-table SELECT grants.
 async function editNotes(text: string) {
   const v = (

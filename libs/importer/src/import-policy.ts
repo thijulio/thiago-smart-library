@@ -4,6 +4,7 @@ import type { SourceRow } from './contracts';
 export interface NormalizationPolicy {
   seriesSentinels: string[];
   cachedFormulaFields: string[];
+  emptyFormulaRows?: string[];
 }
 export interface ReviewedPolicy extends NormalizationPolicy {
   version: 1;
@@ -21,7 +22,10 @@ export async function readPolicy(
   const p = JSON.parse(await readFile(path, 'utf8'));
   if (
     !p ||
-    Object.keys(p).sort().join('|') !==
+    Object.keys(p)
+      .filter((k) => k !== 'emptyFormulaRows')
+      .sort()
+      .join('|') !==
       [
         'version',
         'sourceSha256',
@@ -57,5 +61,28 @@ export async function readPolicy(
       )
     )
       throw new Error('INVALID_FORMULA_CACHE_POLICY');
+  if (p.emptyFormulaRows !== undefined) {
+    if (
+      !Array.isArray(p.emptyFormulaRows) ||
+      new Set(p.emptyFormulaRows).size !== p.emptyFormulaRows.length
+    )
+      throw new Error('INVALID_EMPTY_FORMULA_POLICY');
+    for (const locator of p.emptyFormulaRows) {
+      const row = rows.find((r) => `${r.sheet}!${r.row}` === locator);
+      if (
+        !row ||
+        row.sheet !== 'Untitled' ||
+        !row.cells.some((c) => c.formula) ||
+        !row.cells.every((c) =>
+          c.formula
+            ? c.header === 'Cover URL' && (c.cachedValue === null || c.cachedValue === '')
+            : c.value === null || c.value === '',
+        )
+      )
+        throw new Error('INVALID_EMPTY_FORMULA_POLICY');
+    }
+  }
   return p;
 }
+export const isReviewedEmptyRow = (row: SourceRow, policy?: NormalizationPolicy) =>
+  policy?.emptyFormulaRows?.includes(`${row.sheet}!${row.row}`) ?? false;

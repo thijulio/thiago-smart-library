@@ -31,6 +31,11 @@ export interface ContainerInspection {
   };
   Mounts: { Type: string; Destination: string }[];
 }
+export function validateInstanceId(value: string | undefined): string {
+  if (!value || !/^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(value))
+    throw new Error('MISSING_LIBRARY_INSTANCE');
+  return value;
+}
 export function validateDisposableContainer(input: ContainerInspection) {
   const bindings = input.HostConfig.PortBindings['5432/tcp'];
   if (

@@ -19,6 +19,55 @@ const row = (values: Record<string, CellEvidence['value']>): SourceRow => ({
   row: 2,
   cells: Object.entries(values).map(([h, v]) => cell(h, v)),
 });
+it('accepts an offset timestamp as an instant and rejects impossible calendar dates', () => {
+  const valid = normalizeBook(row({ 'Updated At': '2026-08-31T01:03:52+02:00' }), manifest);
+  expect(valid.sourceMetadata.source_updated_at).toBe('2026-08-30T23:03:52.000Z');
+  for (const value of [
+    '2026-02-30T01:00:00Z',
+    '2026-01-01T24:00:00Z',
+    '2026-01-01T00:00:00',
+    '2026-01-01T00:00:00+14:01',
+  ]) {
+    expect(
+      normalizeBook(row({ 'Updated At': value }), manifest).sourceMetadata.source_updated_at,
+    ).toBeUndefined();
+  }
+});
+it.each([
+  ['✅', 'read'],
+  ['📖', 'reading'],
+  ['⏸', 'paused'],
+  ['⏸️', 'paused'],
+])('checks the known reading symbol %s', (symbol, status) => {
+  const valid = normalizeBook(row({ 'Read?': symbol, Status: status }), manifest);
+  expect(valid.issues.some((i) => i.field === 'Read?')).toBe(false);
+  const conflict = normalizeBook(row({ 'Read?': symbol, Status: 'wishlist' }), manifest);
+  expect(conflict.issues.some((i) => i.code === 'READ_STATUS_DISAGREEMENT')).toBe(true);
+});
+it('proposes a reviewed legacy month-year conversion only alongside consistent finish bounds', () => {
+  expect(
+    parseCompletion(cell('Finished Date', '2026-07~08'), cell('Year Finished', 'Aug 2026'), '1900'),
+  ).toMatchObject({
+    value: {
+      finished_from: '2026-07-01',
+      finished_to: '2026-08-31',
+      finished_precision: 'range',
+      finished_year_raw: 'Aug 2026',
+    },
+    issues: ['YEAR_CELL_COERCION'],
+  });
+  expect(
+    parseCompletion(cell('Finished Date', null), cell('Year Finished', 'Aug 2026'), '1900').value,
+  ).toBeNull();
+  expect(
+    parseCompletion(cell('Finished Date', '2025-07~08'), cell('Year Finished', 'Aug 2026'), '1900')
+      .value,
+  ).toBeNull();
+  expect(
+    parseCompletion(cell('Finished Date', '2026-05'), cell('Year Finished', 'Foo 2026'), '1900')
+      .value,
+  ).toBeNull();
+});
 it.each([
   ['old', 'old', 'native', 'keep'],
   ['old', 'new', 'old', 'write'],
@@ -184,3 +233,16 @@ it('refuses a report directory inside the repository whose name starts with dots
     'PRIVATE_OUTPUT_IN_REPOSITORY',
   );
 });
+it.each([
+  ['2026-03-05', 'Aug 2026'],
+  ['2026-08-10', '2026-05'],
+])('flags a Year Finished month outside the finish bounds (%s vs %s)', (finished, year) =>
+  expect(
+    parseCompletion(cell('Finished Date', finished), cell('Year Finished', year), '1900'),
+  ).toEqual({ value: null, issues: ['COMPLETION_YEAR_CONFLICT'] }),
+);
+it('accepts a Year Finished month inside the finish bounds', () =>
+  expect(
+    parseCompletion(cell('Finished Date', '2026-08-10'), cell('Year Finished', '2026-08'), '1900')
+      .issues,
+  ).toEqual(['YEAR_CELL_COERCION']));

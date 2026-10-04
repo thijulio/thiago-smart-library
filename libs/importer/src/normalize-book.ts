@@ -7,7 +7,7 @@ import type {
   SourceRow,
 } from './contracts';
 import { HEADERS, MAIN_HEADERS } from './headers';
-import { dateText, parseCompletion, parseDate } from './parse-dates';
+import { dateText, parseCompletion, parseDate, parseTimestamp } from './parse-dates';
 import { decimal, integer, safeUrl } from './parse-numbers';
 import { names, lookupKey } from './lookup-keys';
 import type { NormalizationPolicy } from './import-policy';
@@ -297,18 +297,23 @@ export function normalizeBook(
       ? updatedValue.iso
       : cellText(get('Updated At'));
   if (updated !== null) {
-    if (
-      get('Updated At').formula ||
-      !/^\d{4}-\d\d-\d\dT.*Z$/.test(updated) ||
-      !Number.isFinite(Date.parse(updated))
-    )
+    try {
+      if (get('Updated At').formula) throw new Error('UNREVIEWED_TIMESTAMP');
+      n.sourceMetadata.source_updated_at = parseTimestamp(updated);
+    } catch {
       issue('Updated At', 'INVALID_SOURCE_TIMESTAMP');
-    else n.sourceMetadata.source_updated_at = new Date(updated).toISOString();
+    }
   }
   const by = cellText(get('Updated By'));
   if (by !== null && !get('Updated By').formula) n.sourceMetadata.source_updated_by = by;
-  const read = cellText(get('Read?'));
-  if (read && !['true', 'yes', '1', 'false', 'no', '0'].includes(read.toLowerCase()))
+  const read = cellText(get('Read?'))
+    ?.trim()
+    .replace(/\uFE0F/g, '');
+  const displayStatus: Record<string, string> = { '✅': 'read', '📖': 'reading', '⏸': 'paused' };
+  if (read && displayStatus[read]) {
+    if (n.fields.status.kind === 'value' && n.fields.status.value !== displayStatus[read])
+      issue('Read?', 'READ_STATUS_DISAGREEMENT');
+  } else if (read && !['true', 'yes', '1', 'false', 'no', '0'].includes(read.toLowerCase()))
     issue('Read?', 'UNRESOLVED_READ_FLAG');
   else if (
     read &&

@@ -3,7 +3,12 @@ import { join } from 'node:path';
 import type { Pool } from 'pg';
 import { validateLocalTarget, assertMarker } from '@smart-library/database';
 import { sha256Bytes } from './canonical-json';
-export async function assertImportTarget(db: Pool): Promise<{ name: string; checksum: string }[]> {
+export type ImportTarget = { kind: 'local-test' };
+export async function assertImportTarget(
+  db: Pool,
+  target: ImportTarget = { kind: 'local-test' },
+): Promise<{ name: string; checksum: string }[]> {
+  if (target.kind !== 'local-test') throw new Error('INVALID_TARGET');
   validateLocalTarget(db.options.connectionString, process.env);
   await assertMarker(db);
   if (
