@@ -103,3 +103,18 @@ it.each([
     ]),
   ).rejects.toThrow(code);
 });
+it.each(['read', 'reading', 'reread', 'unread', 'wishlist', 'paused', 'abandoned'])(
+  'accepts the prototype reading status %s',
+  async (status) => {
+    const b = await insertBookFixture(db.owner);
+    const result = (
+      await db.editor.query('SELECT library.patch_book($1,$2,$3::jsonb,$4) AS result', [
+        b.stableId,
+        b.version,
+        JSON.stringify({ status }),
+        randomUUID(),
+      ])
+    ).rows[0].result;
+    expect(result.stable_id).toBe(b.stableId);
+  },
+);
