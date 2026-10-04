@@ -160,5 +160,5 @@ Native edits are valid only when their owner operation also refreshes provenance
 Run `pnpm test:db` twice: every integration suite/test receives a fresh disposable database
 and distinct role logins; cleanup drops only its recorded databases/roles. Do not stop a
 preexisting inspection container/database. Run the full application quality/unit/UI gates
-and context/diff checks. See [review package](../review/db-02.md) and
-[acceptance handoff](../handoffs/db-02.md) for the actual evidence and remaining review gates.
+and context/diff checks. See the [review package](../review/db-02.md) and the merged PRs #35, #36 and #37 for the
+review evidence.

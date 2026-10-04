@@ -8,7 +8,7 @@
 
 **Tech Stack:** Node 24, pnpm 10.19.0, existing Nx/TypeScript/Vitest/Playwright, PostgreSQL, Neon, existing Netlify functions. SQL + node-postgres for migrations/offline transactions; existing Neon HTTP driver for approved public read endpoints. No ORM, pgvector, new auth service, or model calls in this delivery.
 
-Promoted 2026-10-02. This repository copy owns future execution; the private planning source is provenance only. Ticket delivery state is recorded in [status](../status.md).
+Promoted 2026-10-02. This repository copy owns future execution; the private planning source is provenance only. Live delivery state is tracked in GitHub milestones.
 
 **Spec:** [Database structure and migration contract](../spec.md), supplemented by [execution contracts](execution-contracts.md). Read both. The supplement resolves the later conversation's incremental-import rules and distinguishes current Sheet findings from the old workbook.
 
@@ -16,14 +16,14 @@ Promoted 2026-10-02. This repository copy owns future execution; the private pla
 
 | User stage              | Ticket                             | Deliverable                                                                                   | Depends on |
 | ----------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------- | ---------- |
-| 0 — AI-ready context    | [DB-00](00-context.md)             | Portable entrypoint, current state, spec promotion, instructions, dependency version contract | None       |
+| 0 — AI-ready context    | DB-00 (merged)                     | Portable entrypoint, current state, spec promotion, instructions, dependency version contract | None       |
 | 1 — Database foundation | [DB-01](01-schema.md)              | Isolated PostgreSQL harness, migrations, core tables, role and constraint tests               | DB-00      |
 | 2 — Incremental seed    | [DB-02](02-import.md)              | Lossless extraction, dry-run, three-way merge, transactional import                           | DB-01      |
 | 3A — Enrichment         | [DB-03](03-enrichment.md)          | Quotes/recaps/catalogs, source-owned collection reconciliation, quarantine                    | DB-02      |
 | 3B — Comparisons        | [DB-04](04-events-rankings.md)     | Immutable events, replacement/undo, reproducible ranking cache                                | DB-03      |
 | 4 — Adoption            | [DB-05](05-application-cutover.md) | Owner CLI, opt-in public read path, rehearsal, restore, gated cutover                         | DB-04      |
 
-Also read [handoff and acceptance matrix](handoff-and-acceptance.md). These are **local ticket specifications**, not GitHub issues already created. One ticket may require several local commits; do not create PRs or push merely because a ticket mentions review.
+These are **local ticket specifications**, not GitHub issues already created. One ticket may require several local commits; do not create PRs or push merely because a ticket mentions review.
 
 DB-05 does not recreate every legacy UI feature. Its deliverable is a controlled data-store transition with a usable owner CLI and optional public catalogue. A private browser editor requires a separately approved authentication design. If the user requires browser feature parity before abandoning the prototype, retain the Sheet as canonical and stop at rehearsal; do not label that state a cutover.
 
@@ -89,7 +89,6 @@ that repository as Smart Library delivery produces reusable knowledge.
 - Do not run schema/import work on build, function startup, or production automatically.
 - Never put DB URLs, workbook data, import reports, backups, or private fixtures in Git, CI logs/artifacts, frontend bundles, or model prompts.
 - The old `docs/schema/schema.sql` is a prototype, not a migration. Never execute it as the implementation.
-- No `@thijulio/governance-core` installation until its separately required published-version validation exists.
 - `libs/ai` stays documentation-only. No AI calls, embedding backfill, or vector extension.
 - Use real PostgreSQL for FK, privilege, rollback, optimistic-write, and concurrent-write tests. Mocks do not establish these properties.
 - The database remains private unless a separate public-read publication gate is approved.
@@ -107,7 +106,7 @@ Read-only discovery is allowed. Execute sequentially in the chosen agent; do not
 
 ## 5. Execution commands and their availability
 
-Existing: `pnpm check`, `pnpm test:e2e`, `pnpm dev`, `pnpm dev:netlify`. DB-00 adds `pnpm docs:database:check` (local node:test cases and bounded context validation).
+Existing: `pnpm check`, `pnpm test:e2e`, `pnpm dev`, `pnpm dev:netlify`.
 
 Planned by DB-01: `pnpm db:up`, `pnpm db:down`, `pnpm db:migrate`, `pnpm db:status`, `pnpm db:doctor`, `pnpm test:db`.
 
