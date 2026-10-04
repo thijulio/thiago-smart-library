@@ -22,24 +22,24 @@ it('replays once and rejects changed bytes without executing SQL', async () => {
     for (const file of await readdir('libs/database/migrations'))
       await copyFile(join('libs/database/migrations', file), join(dir, file));
     expect((await migrate(client, dir)).unchanged).toEqual(base.map((x) => x.name));
-    await writeFile(join(dir, '0005_test.sql'), 'CREATE TABLE library.replay_probe(id int);');
-    expect((await migrate(client, dir)).applied).toEqual(['0005_test.sql']);
+    await writeFile(join(dir, '0006_test.sql'), 'CREATE TABLE library.replay_probe(id int);');
+    expect((await migrate(client, dir)).applied).toEqual(['0006_test.sql']);
     expect((await migrate(client, dir)).applied).toEqual([]);
-    await writeFile(join(dir, '0005_test.sql'), 'CREATE TABLE library.never_applied(id int);');
+    await writeFile(join(dir, '0006_test.sql'), 'CREATE TABLE library.never_applied(id int);');
     await expect(migrate(client, dir)).rejects.toThrow('MIGRATION_CHECKSUM_MISMATCH');
     expect(
       (await client.query("SELECT to_regclass('library.never_applied') AS name")).rows[0].name,
     ).toBeNull();
-    await writeFile(join(dir, '0005_test.sql'), 'CREATE TABLE library.replay_probe(id int);');
+    await writeFile(join(dir, '0006_test.sql'), 'CREATE TABLE library.replay_probe(id int);');
     await writeFile(
-      join(dir, '0006_bad.sql'),
+      join(dir, '0007_bad.sql'),
       'CREATE TABLE library.rolled_back(id int); SELECT missing_operation();',
     );
     await expect(migrate(client, dir)).rejects.toThrow();
     expect(
       (await client.query("SELECT to_regclass('library.rolled_back') AS name")).rows[0].name,
     ).toBeNull();
-    expect((await status(client)).at(-1)?.name).toBe('0005_test.sql');
+    expect((await status(client)).at(-1)?.name).toBe('0006_test.sql');
   } finally {
     client.release();
     await rm(dir, { recursive: true });
@@ -61,14 +61,14 @@ it('concurrent runners commit each migration once', async () => {
   try {
     for (const file of await readdir('libs/database/migrations'))
       await copyFile(join('libs/database/migrations', file), join(dir, file));
-    // Previous test deliberately added 0005 in this same suite.
-    await writeFile(join(dir, '0005_test.sql'), 'CREATE TABLE library.replay_probe(id int);');
+    // Previous test deliberately added 0006 in this same suite.
+    await writeFile(join(dir, '0006_test.sql'), 'CREATE TABLE library.replay_probe(id int);');
     await writeFile(
-      join(dir, '0006_concurrent.sql'),
+      join(dir, '0007_concurrent.sql'),
       'CREATE TABLE library.concurrent_probe(id int); INSERT INTO library.concurrent_probe VALUES(1);',
     );
     const r = await Promise.all([migrate(c1, dir), migrate(c2, dir)]);
-    expect(r.flatMap((x) => x.applied)).toEqual(['0006_concurrent.sql']);
+    expect(r.flatMap((x) => x.applied)).toEqual(['0007_concurrent.sql']);
     expect(
       (await db.owner.query('SELECT count(*) FROM library.concurrent_probe')).rows[0].count,
     ).toBe('1');
@@ -94,13 +94,13 @@ it('unknown database history fails before new SQL', async () => {
   const client = await db.owner.connect();
   try {
     await client.query(
-      "INSERT INTO db_meta.schema_migrations(name,checksum) VALUES('0007_unknown.sql',repeat('a',64))",
+      "INSERT INTO db_meta.schema_migrations(name,checksum) VALUES('0008_unknown.sql',repeat('a',64))",
     );
     await expect(migrate(client, 'libs/database/migrations')).rejects.toThrow(
       'MIGRATION_HISTORY_DIVERGED',
     );
   } finally {
-    await client.query("DELETE FROM db_meta.schema_migrations WHERE name='0007_unknown.sql'");
+    await client.query("DELETE FROM db_meta.schema_migrations WHERE name='0008_unknown.sql'");
     client.release();
   }
 });
@@ -124,13 +124,13 @@ it('connection loss cannot leave a false applied history record', async () => {
   try {
     for (const file of await readdir('libs/database/migrations'))
       await copyFile(join('libs/database/migrations', file), join(dir, file));
-    await writeFile(join(dir, '0005_test.sql'), 'CREATE TABLE library.replay_probe(id int);');
+    await writeFile(join(dir, '0006_test.sql'), 'CREATE TABLE library.replay_probe(id int);');
     await writeFile(
-      join(dir, '0006_concurrent.sql'),
+      join(dir, '0007_concurrent.sql'),
       'CREATE TABLE library.concurrent_probe(id int); INSERT INTO library.concurrent_probe VALUES(1);',
     );
     await writeFile(
-      join(dir, '0007_loss.sql'),
+      join(dir, '0008_loss.sql'),
       'CREATE TABLE library.loss_probe(id int); SELECT pg_sleep(20);',
     );
     const pid = (await c.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
@@ -150,7 +150,7 @@ it('connection loss cannot leave a false applied history record', async () => {
     expect(waiting).toBe(true);
     await db.owner.query('SELECT pg_terminate_backend($1)', [pid]);
     expect(await result).toEqual({ failed: true });
-    expect((await status(db.owner)).map((x) => x.name)).not.toContain('0007_loss.sql');
+    expect((await status(db.owner)).map((x) => x.name)).not.toContain('0008_loss.sql');
     expect(
       (await db.owner.query("SELECT to_regclass('library.loss_probe') AS name")).rows[0].name,
     ).toBeNull();

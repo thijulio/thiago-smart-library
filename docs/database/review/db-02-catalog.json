@@ -1,0 +1,171 @@
+{
+  "serverVersion": "16.15 (Debian 16.15-1.pgdg13+2)",
+  "migrations": [
+    {
+      "name": "0001_bootstrap.sql",
+      "checksum": "6c3b82c266976eb94f0f34ac3d658d3bd9057e3e2199a4335be63574f15ee20b"
+    },
+    {
+      "name": "0002_import_audit.sql",
+      "checksum": "d96b471fe7e42d990503e7d05fac4e56ade72325642bc2c2b62c6c2702197464"
+    },
+    {
+      "name": "0003_core_library.sql",
+      "checksum": "39363218e2f314af30fc52ef69ee9c1b4b3d5fe94bad38c42b96bac00ca796cc"
+    },
+    {
+      "name": "0004_owner_operations.sql",
+      "checksum": "9f0ad101266529c66de240ec3acaf1f333a0cf4169c87861019a449e355be22e"
+    },
+    {
+      "name": "0005_core_import_support.sql",
+      "checksum": "cab6db0c6cd9244e597d37d3ba9c0f8937e2d43943dfb0af14b5b38ef57682b3"
+    }
+  ],
+  "permissions": [
+    {
+      "table_schema": "db_meta",
+      "table_name": "environment",
+      "importer_select": true,
+      "importer_insert": false,
+      "importer_update": false,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "db_meta",
+      "table_name": "schema_migrations",
+      "importer_select": true,
+      "importer_insert": false,
+      "importer_update": false,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "import_audit",
+      "table_name": "field_baselines",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "import_audit",
+      "table_name": "import_issues",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "import_audit",
+      "table_name": "import_rows",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "import_audit",
+      "table_name": "import_runs",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "import_audit",
+      "table_name": "source_heads",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "library",
+      "table_name": "author_aliases",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "library",
+      "table_name": "authors",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "library",
+      "table_name": "book_assessments",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "library",
+      "table_name": "book_authors",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": true
+    },
+    {
+      "table_schema": "library",
+      "table_name": "book_feedback",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "library",
+      "table_name": "book_field_provenance",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "library",
+      "table_name": "book_genres",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": true
+    },
+    {
+      "table_schema": "library",
+      "table_name": "books",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "library",
+      "table_name": "genres",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "library",
+      "table_name": "owner_requests",
+      "importer_select": false,
+      "importer_insert": false,
+      "importer_update": false,
+      "importer_delete": false
+    },
+    {
+      "table_schema": "library",
+      "table_name": "series",
+      "importer_select": true,
+      "importer_insert": true,
+      "importer_update": true,
+      "importer_delete": false
+    }
+  ]
+}

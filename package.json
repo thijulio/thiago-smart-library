@@ -25,16 +25,19 @@
     "db:status": "tsx tools/database/cli.ts status",
     "db:doctor": "tsx tools/database/cli.ts doctor",
     "test:db": "tsx tools/database/run-integration.ts",
-    "database:boundary:check": "node --test tools/database/check-bundle.spec.mjs && node tools/database/check-bundle.mjs"
+    "database:boundary:check": "node --test tools/database/check-bundle.spec.mjs && node tools/database/check-bundle.mjs",
+    "db:extract": "tsx tools/database/extract.ts",
+    "db:import": "tsx tools/database/import.ts",
+    "db:verify": "tsx tools/database/verify.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@netlify/functions": "6.0.0",
     "@thijulio/biome-css": "0.0.2",
     "@thijulio/biome-react": "0.0.2",
+    "pg": "8.23.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "pg": "8.23.0"
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
@@ -47,23 +50,24 @@
     "@nx/vite": "23.2.1",
     "@playwright/test": "1.58.2",
     "@types/node": "24.10.1",
+    "@types/pg": "8.23.1",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.1",
     "esbuild": "0.25.12",
     "eslint": "9.39.1",
     "eslint-config-prettier": "10.1.8",
+    "exceljs": "4.4.0",
     "globals": "16.5.0",
     "netlify-cli": "27.6.0",
     "nx": "23.2.1",
     "prettier": "3.7.4",
     "tslib": "2.8.1",
+    "tsx": "4.23.15",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.2",
     "vite": "7.3.5",
-    "vitest": "4.1.11",
-    "@types/pg": "8.23.1",
-    "tsx": "4.23.15"
+    "vitest": "4.1.11"
   },
   "pnpm": {
     "overrides": {
