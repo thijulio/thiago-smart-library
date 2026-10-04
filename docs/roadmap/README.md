@@ -27,12 +27,30 @@ M3 and M4 can run in parallel once M2 is done. Within M1, the data imports (#7, 
 
 ## Working rules
 
-- Detailed tickets exist only for the current milestones. Later milestones have one epic each,
-  broken down when they start, so tickets do not go stale.
+- Detailed tickets exist only for the current milestones. The scope of later milestones lives in
+  the section below and is broken into issues when the milestone starts, so tickets do not go
+  stale. Roadmap phases are never GitHub issues (Golden Path ADR 0007).
 - Every PR runs `pnpm check`; database work also runs the real-PostgreSQL suite.
 - Merge, deploy, hosted migrations, hosted imports, Neon/Netlify configuration and cutover each
   need explicit owner approval.
 - Until M5, production is a read model refreshed by the importer and the Sheet stays canonical.
+
+## Milestone scope not yet broken into issues
+
+- **M1 — Read parity:** Nuxt app replacing the React app and `apps/api` (health URLs preserved);
+  ranking engine port; public API on allowlisted views; Library, detail, Reading/Up Next (public
+  part), Stats, Favorites, recap reader; freshness indicator; privacy e2e. Existing issues: #7, #8.
+- **M2 — Identity and writes:** apply the M0 spike results; owner sign-in with full private view;
+  editor with create, archive and restore; Up Next management; Book Battle votes and undo with
+  cache invalidation. Writes run on staging only while production keeps `WRITES_ENABLED=false`.
+  Preview gate: every deploy-preview route requires the owner's Google sign-in.
+- **M3 — MCP:** MCP server and tools (spec §6.3); connectors in ChatGPT and Claude against
+  staging; `save_recap` with server-side validation; recaps workflow retargeted.
+- **M4 — Remaining parity:** Playground with server-side keys; `apps/jobs` weekly jobs; cover
+  lookup.
+- **M5 — Cutover:** backup/restore rehearsal, Sheet freeze, final import, enable production
+  writes, switch connectors, retire the prototype, archive the Sheet export. Existing issues:
+  #10, #11.
 
 ## Parity checklist (M4 exit)
 
