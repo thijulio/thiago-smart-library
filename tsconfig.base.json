@@ -11,7 +11,8 @@
     "paths": {
       "@smart-library/domain": ["libs/domain/src/index.ts"],
       "@smart-library/data-access": ["libs/data-access/src/index.ts"],
-      "@smart-library/ui": ["libs/ui/src/index.ts"]
+      "@smart-library/ui": ["libs/ui/src/index.ts"],
+      "@smart-library/database": ["libs/database/src/index.ts"]
     }
   }
 }

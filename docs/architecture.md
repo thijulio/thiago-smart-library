@@ -15,3 +15,12 @@ plans api → database/domain, database → domain, and importer → database/do
 DB-01 must add database project configuration and enforce its new edges; DB-02 adds importer.
 Neither project nor edge is implemented by DB-00. Browser web/data-access/ui cannot import either
 server-only project; browser calls use HTTP DTOs from domain. No migrations run at build or startup.
+
+## DB-01 local server boundary
+
+`libs/database` is tagged `scope:database` and depends only on domain DTOs. API may depend
+on database/domain; web, UI and data-access cannot import it. The future `scope:importer`
+edge is importer → database/domain, without changing frontend edges. SQL migrations and
+owner operations remain local, server-only infrastructure; they are not invoked by the API,
+frontend bundle, build or startup. Unit tests run in `pnpm check`; actual PostgreSQL tests
+are a separate required database workflow. See [local development](database/runbooks/local-development.md).

@@ -1,0 +1,15 @@
+name: smart-library-db-test
+services:
+  postgres:
+    image: postgres:16.15
+    ports: ['127.0.0.1:55433:5432']
+    environment:
+      POSTGRES_DB: smart_library_test_admin
+      POSTGRES_USER: sl_test_admin
+      POSTGRES_PASSWORD: sl_test_local_only
+    tmpfs: ['/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sl_test_admin -d smart_library_test_admin']
+      interval: 2s
+      timeout: 5s
+      retries: 30
