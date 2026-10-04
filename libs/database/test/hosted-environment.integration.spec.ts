@@ -57,3 +57,15 @@ it('refuses to bootstrap a database that already has objects', async () => {
     await dispose();
   }
 });
+it('treats provider default privileges on public as empty, but not objects', async () => {
+  const { db, dispose } = await emptyDatabase();
+  try {
+    // Neon sets default privileges for its admin role on public in every new database.
+    await db.query('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO PUBLIC');
+    await expect(initializeHostedEnvironment(db, 'staging')).resolves.toMatchObject({
+      purpose: 'staging',
+    });
+  } finally {
+    await dispose();
+  }
+});
