@@ -1,4 +1,4 @@
-import type { NormalizationPolicy } from './import-policy';
+import { isReviewedEmptyRow, type NormalizationPolicy } from './import-policy';
 import type { SqlClient } from '@smart-library/database';
 import type {
   BookCandidate,
@@ -178,7 +178,7 @@ export async function planImport(
         severity: 'warning',
       });
   const candidates = rows
-    .filter((r) => r.sheet === mainSheet?.name)
+    .filter((r) => r.sheet === mainSheet?.name && !isReviewedEmptyRow(r, policy))
     .map((r) => normalizeBook(r, manifest, policy));
   const ids = new Set<string>();
   for (const c of candidates) {
@@ -279,6 +279,13 @@ export async function planImport(
       );
       if (resolution) {
         used.add(resolution);
+        const reviewedInitialCompletion =
+          !current &&
+          field === 'completion' &&
+          resolution.action === 'use_source' &&
+          resolution.expectedVersion === '0' &&
+          incoming.kind === 'invalid' &&
+          incoming.code === 'YEAR_CELL_COERCION';
         const hash = (
           await client.query('SELECT library.value_hash($1,$2,$3::jsonb) AS hash', [
             'merge.' + field,
@@ -288,9 +295,9 @@ export async function planImport(
         ).rows[0].hash;
         if (
           resolution.sourceSha256 !== manifest.sourceSha256 ||
-          !current ||
+          (!current && !reviewedInitialCompletion) ||
           resolution.expectedHash !== hash ||
-          resolution.expectedVersion !== current.versions[ownerOf(field)]
+          resolution.expectedVersion !== (current?.versions[ownerOf(field)] ?? '0')
         ) {
           add({
             sheet: candidate.row.sheet,
@@ -351,6 +358,14 @@ export async function planImport(
             if (proposal.value && proposal.issues.every((code) => code === 'YEAR_CELL_COERCION')) {
               change.writes[field] = proposal.value;
               change.adopts[field] = proposal.value;
+              report.issues = report.issues.filter(
+                (i) =>
+                  !(
+                    i.sheet === candidate.row.sheet &&
+                    i.row === candidate.row.row &&
+                    i.code === 'YEAR_CELL_COERCION'
+                  ),
+              );
               continue;
             }
           }

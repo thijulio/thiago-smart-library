@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { validateLocalTarget, validateDisposableContainer } from './target';
+import { validateLocalTarget, validateDisposableContainer, validateLibraryTarget } from './target';
+it('isolates the persistent library from all disposable targets', () => {
+  const url = 'postgres://private@127.0.0.1:55434/smart_library_local';
+  expect(validateLibraryTarget(url).database).toBe('smart_library_local');
+  expect(() => validateLocalTarget(url)).toThrow();
+  for (const input of [
+    url.replace('55434', '55433'),
+    url.replace('127.0.0.1', 'remote.example'),
+    url.replace('smart_library_local', 'smart_library_test_admin'),
+    url + '?host=other',
+    url + '#x',
+  ])
+    expect(() => validateLibraryTarget(input)).toThrow();
+});
 describe('disposable target safety', () => {
   it('accepts only an explicit loopback synthetic database', () => {
     expect(

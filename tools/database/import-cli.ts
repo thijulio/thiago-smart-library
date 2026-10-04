@@ -1,6 +1,10 @@
 import { parseArgs } from 'node:util';
 import { localPool } from '../../libs/database/src/connection';
-import { validateLocalTarget } from '../../libs/database/src/target';
+import {
+  validateLocalTarget,
+  validateLibraryTarget,
+  validateInstanceId,
+} from '../../libs/database/src/target';
 import { extractWorkbook, runImport, verifyCore } from '../../libs/importer/src';
 export async function importerCli(
   operation: 'extract' | 'import' | 'verify',
@@ -32,11 +36,13 @@ export async function importerCli(
                 report: { type: 'string' },
                 resolutions: { type: 'string' },
                 policy: { type: 'string' },
+                target: { type: 'string' },
               }
             : {
                 help: { type: 'boolean' },
                 scope: { type: 'string' },
                 'run-id': { type: 'string' },
+                target: { type: 'string' },
               },
     });
     if (values.help) {
@@ -93,11 +99,27 @@ export async function importerCli(
       usage = true;
       throw new Error('INVALID_RUN_ID');
     }
-    const target = validateLocalTarget(process.env.DB_IMPORT_URL, process.env);
+    if (
+      values.target !== undefined &&
+      !['local-test', 'local-library'].includes(String(values.target))
+    ) {
+      usage = true;
+      throw new Error('INVALID_TARGET');
+    }
+    const importTarget =
+      values.target === 'local-library'
+        ? {
+            kind: 'local-library' as const,
+            instanceId: validateInstanceId(process.env.DB_LOCAL_INSTANCE_ID),
+          }
+        : { kind: 'local-test' as const };
+    const target = (
+      importTarget.kind === 'local-library' ? validateLibraryTarget : validateLocalTarget
+    )(process.env.DB_IMPORT_URL, process.env);
     const db = localPool(target.url);
     try {
       if (operation === 'verify') {
-        console.log(JSON.stringify(await verifyCore(db, id)));
+        console.log(JSON.stringify(await verifyCore(db, id, importTarget)));
         return 0;
       }
       const r = await runImport(
@@ -108,6 +130,7 @@ export async function importerCli(
           reportDirectory: report,
           policyFile: typeof values.policy === 'string' ? values.policy : undefined,
           resolutionFile: typeof values.resolutions === 'string' ? values.resolutions : undefined,
+          target: importTarget,
         },
         db,
       );

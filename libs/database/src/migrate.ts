@@ -21,13 +21,17 @@ export async function status(client: SqlClient): Promise<{ name: string; checksu
     ? (await client.query('SELECT name,checksum FROM db_meta.schema_migrations ORDER BY name')).rows
     : [];
 }
-export async function assertMarker(client: SqlClient, instanceId?: string) {
+export async function assertMarker(
+  client: SqlClient,
+  instanceId?: string,
+  purpose: 'synthetic-test' | 'staging' = 'synthetic-test',
+) {
   const exists = await client.query("SELECT to_regclass('db_meta.environment') AS name");
   if (!exists.rows[0].name) throw new Error('MISSING_DATABASE_MARKER');
   const marker = (
     await client.query('SELECT instance_id,purpose FROM db_meta.environment WHERE singleton')
   ).rows[0];
-  if (marker?.purpose !== 'synthetic-test' || (instanceId && marker.instance_id !== instanceId))
+  if (marker?.purpose !== purpose || (instanceId && marker.instance_id !== instanceId))
     throw new Error('UNSAFE_DATABASE_MARKER');
   return marker as { instance_id: string; purpose: string };
 }
@@ -35,6 +39,7 @@ export async function assertMarker(client: SqlClient, instanceId?: string) {
 export async function migrate(
   client: SqlClient,
   directory: string,
+  expectedPurpose: 'synthetic-test' | 'staging' = 'synthetic-test',
 ): Promise<{ applied: string[]; unchanged: string[] }> {
   const files = migrationFiles(await readdir(directory));
   const entries = await Promise.all(
@@ -56,7 +61,7 @@ export async function migrate(
       throw new Error('MIGRATION_HISTORY_DIVERGED');
     for (const [i, row] of history.entries())
       if (row.checksum !== entries[i].checksum) throw new Error('MIGRATION_CHECKSUM_MISMATCH');
-    if (history.length) await assertMarker(client);
+    if (history.length) await assertMarker(client, undefined, expectedPurpose);
     else {
       // Empty targets alone may bootstrap. Purpose must be explicitly set by validated local adapter.
       const purpose = (
@@ -64,8 +69,8 @@ export async function migrate(
       ).rows[0].purpose;
       const markerExists = (await client.query("SELECT to_regclass('db_meta.environment') AS name"))
         .rows[0].name;
-      if (markerExists) await assertMarker(client);
-      if (purpose !== 'synthetic-test') throw new Error('UNAPPROVED_DATABASE_BOOTSTRAP');
+      if (markerExists) await assertMarker(client, undefined, expectedPurpose);
+      if (purpose !== expectedPurpose) throw new Error('UNAPPROVED_DATABASE_BOOTSTRAP');
       await assertEmptyBootstrapTarget(client, true);
     }
     for (const [i, entry] of entries.entries()) {

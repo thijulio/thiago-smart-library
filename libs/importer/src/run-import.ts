@@ -1,9 +1,9 @@
-import { readPolicy } from './import-policy';
+import { readPolicy, isReviewedEmptyRow } from './import-policy';
 import type { Pool } from 'pg';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { withTransaction } from '@smart-library/database';
-import { assertImportTarget } from './target-schema';
+import { assertImportTarget, type ImportTarget } from './target-schema';
 import { verifySnapshot } from './manifest';
 import { readResolutions } from './resolutions';
 import { planImport } from './plan-import';
@@ -21,6 +21,7 @@ export async function runImport(
     resolutionFile?: string;
     policyFile?: string;
     reportDirectory: string;
+    target?: ImportTarget;
   },
   db: Pool,
 ): Promise<ImportReport> {
@@ -30,14 +31,14 @@ export async function runImport(
   const resolutions = await readResolutions(input.resolutionFile);
   const policy = await readPolicy(input.policyFile, manifest.sourceSha256, rows);
   const output = await privateOutput(input.reportDirectory);
-  const schema = await assertImportTarget(db);
+  const schema = await assertImportTarget(db, input.target);
   const config = sha256Utf8(
     canonicalJson({
       extractor: manifest.extractorVersion,
       aliases: 'reviewed-alias-map-v1',
       schema: schema as unknown as Json,
-      parser: 'normalize-v1',
-      merge: 'three-way-v1',
+      parser: 'normalize-v2',
+      merge: 'three-way-v2',
       resolutions: resolutions as unknown as Json,
       policy: (policy ?? null) as unknown as Json,
     }),
@@ -91,7 +92,9 @@ export async function runImport(
         );
       for (const row of rows.filter(
         (r) =>
-          r.cells.some((c) => c.header === 'Title') && r.cells.some((c) => c.header === 'Platform'),
+          r.cells.some((c) => c.header === 'Title') &&
+          r.cells.some((c) => c.header === 'Platform') &&
+          !isReviewedEmptyRow(r, policy),
       ))
         for (const issue of normalizeBook(row, manifest, policy).issues)
           await client.query(
@@ -136,7 +139,7 @@ export async function runImport(
             const candidate = plan.changes.find(
               (c) => c.candidate.stableId === entry.entityKey,
             )?.candidate;
-            if (candidate)
+            if (candidate) {
               await client.query(
                 `INSERT INTO import_audit.import_issues(run_id,sheet_name,row_number,field_name,code,severity,resolution_state,resolution_note,resolved_by,resolved_at) SELECT $1,$2,$3,$4,$5,'warning','accepted',$6,$7,$8 WHERE NOT EXISTS(SELECT 1 FROM import_audit.import_issues WHERE run_id=$1 AND sheet_name=$2 AND row_number=$3 AND field_name=$4 AND code=$5)`,
                 [
@@ -150,6 +153,19 @@ export async function runImport(
                   entry.reviewedAt,
                 ],
               );
+              if (entry.field === 'completion' && entry.action === 'use_source')
+                await client.query(
+                  "UPDATE import_audit.import_issues SET resolution_state='accepted',resolution_note=$4,resolved_by=$5,resolved_at=$6 WHERE run_id=$1 AND sheet_name=$2 AND row_number=$3 AND code='YEAR_CELL_COERCION'",
+                  [
+                    staged.id,
+                    candidate.row.sheet,
+                    candidate.row.row,
+                    'reviewed completion conversion',
+                    entry.reviewer,
+                    entry.reviewedAt,
+                  ],
+                );
+            }
           }
           await applyCore(client, plan, manifest, staged.id);
           plan.report.status = 'applied';
@@ -220,9 +236,10 @@ export async function runImport(
       rows.map((row) => ({
         sheet: row.sheet,
         row: row.row,
-        dispositions:
-          row.cells.some((c) => c.header === 'Title') &&
-          row.cells.some((c) => c.header === 'Platform')
+        dispositions: isReviewedEmptyRow(row, policy)
+          ? { scope: 'reviewed-empty-template-evidence' }
+          : row.cells.some((c) => c.header === 'Title') &&
+              row.cells.some((c) => c.header === 'Platform')
             ? normalizeBook(row, manifest, policy).dispositions
             : { scope: 'pending-later-scope' },
       })) as unknown as Json,

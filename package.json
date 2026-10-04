@@ -28,7 +28,8 @@
     "database:boundary:check": "node --test tools/database/check-bundle.spec.mjs && node tools/database/check-bundle.mjs",
     "db:extract": "tsx tools/database/extract.ts",
     "db:import": "tsx tools/database/import.ts",
-    "db:verify": "tsx tools/database/verify.ts"
+    "db:verify": "tsx tools/database/verify.ts",
+    "db:library": "tsx tools/database/library.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
