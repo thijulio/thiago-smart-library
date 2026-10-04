@@ -1,16 +1,28 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Pool } from 'pg';
-import { validateLocalTarget, assertMarker } from '@smart-library/database';
+import {
+  validateLocalTarget,
+  validateHostedTarget,
+  validateInstanceId,
+  assertMarker,
+  type HostedPurpose,
+} from '@smart-library/database';
 import { sha256Bytes } from './canonical-json';
-export type ImportTarget = { kind: 'local-test' };
+export type ImportTarget =
+  | { kind: 'local-test' }
+  | { kind: 'hosted'; purpose: HostedPurpose; instanceId: string; confirmHost: string };
 export async function assertImportTarget(
   db: Pool,
   target: ImportTarget = { kind: 'local-test' },
 ): Promise<{ name: string; checksum: string }[]> {
-  if (target.kind !== 'local-test') throw new Error('INVALID_TARGET');
-  validateLocalTarget(db.options.connectionString, process.env);
-  await assertMarker(db);
+  if (target.kind === 'hosted') {
+    validateHostedTarget(db.options.connectionString, process.env, target.confirmHost);
+    await assertMarker(db, validateInstanceId(target.instanceId), target.purpose);
+  } else {
+    validateLocalTarget(db.options.connectionString, process.env);
+    await assertMarker(db);
+  }
   if (
     (await db.query("SELECT pg_has_role(current_user,'library_owner','USAGE') AS owner")).rows[0]
       .owner

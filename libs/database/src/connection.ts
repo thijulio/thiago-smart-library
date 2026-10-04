@@ -35,3 +35,12 @@ export async function withTransaction<T>(
     await new Promise((resolve) => setTimeout(resolve, 25 + Math.floor(Math.random() * 51)));
   }
 }
+/** Direct hosted connection; TLS verification comes from the required sslmode=verify-full. */
+export function hostedPool(url: string, statementTimeoutMs = 30000) {
+  return new Pool({
+    connectionString: url,
+    max: 2,
+    connectionTimeoutMillis: 10000,
+    options: `-c lock_timeout=5000 -c statement_timeout=${statementTimeoutMs}`,
+  });
+}

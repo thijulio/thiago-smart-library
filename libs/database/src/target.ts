@@ -51,3 +51,34 @@ export function validateDisposableContainer(input: ContainerInspection) {
   )
     throw new Error('UNSAFE_TEST_CONTAINER');
 }
+export type HostedPurpose = 'staging' | 'production';
+/** Explicit Neon targets for offline operations: direct host, verified TLS, confirmed host. */
+export function validateHostedTarget(
+  raw: string | undefined,
+  environment: Record<string, string | undefined>,
+  confirmHost: string | undefined,
+) {
+  if (environment.DATABASE_URL) throw new Error('INHERITED_DATABASE_URL');
+  if (!raw) throw new Error('MISSING_DATABASE_TARGET');
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error('UNSAFE_DATABASE_TARGET');
+  }
+  const keys = [...url.searchParams.keys()];
+  if (
+    !['postgres:', 'postgresql:'].includes(url.protocol) ||
+    !url.hostname.endsWith('.neon.tech') ||
+    url.hostname.includes('-pooler.') ||
+    !url.username ||
+    !url.password ||
+    url.pathname.length < 2 ||
+    url.hash ||
+    keys.length !== 1 ||
+    url.searchParams.get('sslmode') !== 'verify-full'
+  )
+    throw new Error('UNSAFE_DATABASE_TARGET');
+  if (!confirmHost || confirmHost !== url.hostname) throw new Error('UNCONFIRMED_DATABASE_HOST');
+  return { url: raw, database: url.pathname.slice(1), host: url.hostname };
+}

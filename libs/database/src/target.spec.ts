@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateLocalTarget, validateDisposableContainer } from './target';
+import { validateLocalTarget, validateDisposableContainer, validateHostedTarget } from './target';
 describe('disposable target safety', () => {
   it('accepts only an explicit loopback synthetic database', () => {
     expect(
@@ -74,3 +74,39 @@ it.each([
 ])('rejects a non-disposable Docker identity', (input) =>
   expect(() => validateDisposableContainer(input)).toThrow('UNSAFE_TEST_CONTAINER'),
 );
+describe('hosted target safety', () => {
+  const host = 'ep-quiet-sun-123456.eu-central-1.aws.neon.tech';
+  const good = `postgresql://owner:secret@${host}/smart_library?sslmode=verify-full`;
+  it('accepts a direct Neon host with verified TLS and a matching confirmation', () => {
+    expect(validateHostedTarget(good, {}, host)).toEqual({
+      url: good,
+      database: 'smart_library',
+      host,
+    });
+  });
+  it.each([
+    good.replace(host, host.replace('ep-quiet-sun-123456', 'ep-quiet-sun-123456-pooler')),
+    good.replace('verify-full', 'require'),
+    good.replace('?sslmode=verify-full', ''),
+    good + '&options=x',
+    good.replace(host, 'db.example.com'),
+    good.replace('owner:secret@', ''),
+    good.replace('/smart_library', '/'),
+    good + '#x',
+  ])('refuses %s', (input) => {
+    expect(() => validateHostedTarget(input, {}, new URL(input).hostname)).toThrow(
+      'UNSAFE_DATABASE_TARGET',
+    );
+  });
+  it('refuses a missing or mismatched host confirmation', () => {
+    expect(() => validateHostedTarget(good, {}, undefined)).toThrow('UNCONFIRMED_DATABASE_HOST');
+    expect(() => validateHostedTarget(good, {}, 'other.neon.tech')).toThrow(
+      'UNCONFIRMED_DATABASE_HOST',
+    );
+  });
+  it('refuses an inherited DATABASE_URL', () => {
+    expect(() => validateHostedTarget(good, { DATABASE_URL: 'x' }, host)).toThrow(
+      'INHERITED_DATABASE_URL',
+    );
+  });
+});

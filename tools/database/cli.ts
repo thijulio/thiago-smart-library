@@ -1,35 +1,43 @@
-import { validateLocalTarget } from '../../libs/database/src/target';
-import { localPool } from '../../libs/database/src/connection';
+import { localPool, hostedPool } from '../../libs/database/src/connection';
+import { initializeHostedEnvironment } from '../../libs/database/src/environment';
 import { assertMarker, migrate, status } from '../../libs/database/src/migrate';
+import {
+  validateHostedTarget,
+  validateInstanceId,
+  validateLocalTarget,
+} from '../../libs/database/src/target';
+import { parseDatabaseArgs } from '../../libs/database/src/target-args';
+const USAGE =
+  'Usage: db:{migrate|status|doctor} --target local-test | db:{bootstrap|migrate|status|doctor} --target staging|production --confirm-host HOST [--confirm-production]; DB_MIGRATION_URL required; hosted commands except bootstrap need DB_TARGET_INSTANCE_ID';
 async function main() {
   const args = process.argv.slice(2);
-  if (args.length === 1 && args[0] === '--help') {
-    console.log(
-      'Usage: db:{migrate|status|doctor} --target local-test; explicit DB_MIGRATION_URL required',
-    );
-    return;
-  }
-  if (
-    args.length !== 3 ||
-    !['migrate', 'status', 'doctor'].includes(args[0]) ||
-    args[1] !== '--target' ||
-    args[2] !== 'local-test'
-  )
-    throw new Error('INVALID_ARGUMENTS');
-  const target = validateLocalTarget(process.env.DB_MIGRATION_URL, process.env);
-  const pool = localPool(target.url),
+  // The package scripts prepend the command, so `pnpm db:migrate --help` arrives as [migrate, --help].
+  if (args.includes('--help')) return console.log(USAGE);
+  const { command, target } = parseDatabaseArgs(args);
+  const hosted = target.kind === 'hosted';
+  const url = hosted
+    ? validateHostedTarget(process.env.DB_MIGRATION_URL, process.env, target.confirmHost).url
+    : validateLocalTarget(process.env.DB_MIGRATION_URL, process.env).url;
+  const purpose = hosted ? target.purpose : 'synthetic-test';
+  const pool = hosted ? hostedPool(url) : localPool(url),
     client = await pool.connect();
   try {
-    await assertMarker(client);
-    if (args[0] === 'migrate')
-      await client.query("SELECT set_config('smart_library.purpose','synthetic-test',false)");
-    if (args[0] === 'migrate')
-      console.log(JSON.stringify(await migrate(client, 'libs/database/migrations')));
-    else if (args[0] === 'status') console.log(JSON.stringify(await status(client)));
+    if (command === 'bootstrap' && hosted) {
+      const marker = await initializeHostedEnvironment(client, target.purpose);
+      return console.log(
+        JSON.stringify({ purpose: marker.purpose, instanceId: marker.instance_id }),
+      );
+    }
+    const instanceId = hosted ? validateInstanceId(process.env.DB_TARGET_INSTANCE_ID) : undefined;
+    await assertMarker(client, instanceId, purpose);
+    if (command === 'migrate') {
+      await client.query("SELECT set_config('smart_library.purpose',$1,false)", [purpose]);
+      console.log(JSON.stringify(await migrate(client, 'libs/database/migrations', purpose)));
+    } else if (command === 'status') console.log(JSON.stringify(await status(client)));
     else
       console.log(
         JSON.stringify({
-          marker: (await assertMarker(client)).purpose,
+          marker: purpose,
           ...(
             await client.query(
               "SELECT current_user AS role,current_setting('server_version') AS version",

@@ -162,3 +162,17 @@ and distinct role logins; cleanup drops only its recorded databases/roles. Do no
 preexisting inspection container/database. Run the full application quality/unit/UI gates
 and context/diff checks. See [review package](../review/db-02.md) and
 [acceptance handoff](../handoffs/db-02.md) for the actual evidence and remaining review gates.
+
+## Hosted targets
+
+Hosted operations run from the owner's machine only. Each command needs `--target staging` or
+`--target production`, `--confirm-host` equal to the URL host, and for production
+`--confirm-production`. URLs must be direct Neon hosts (no `-pooler.`) with
+`sslmode=verify-full` and no other parameters. `db:bootstrap` writes the environment marker on an
+empty database and prints its instance ID; record it privately and export it as
+`DB_TARGET_INSTANCE_ID` for every later hosted command.
+
+During M0–M4 production is a read model rebuilt from Sheet snapshots. No pre-import backup is
+taken for these imports: the immutable snapshot is the recovery source. This is a recorded
+deviation from database spec §11.3, whose verified backup/restore requirement applies in full at
+the M5 cutover.
