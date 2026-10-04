@@ -17,7 +17,8 @@
     "test:e2e": "nx e2e web-e2e",
     "format:check": "prettier --check .",
     "governance:check": "node tools/governance/collect-evidence.mjs --check",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm governance:check"
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm governance:check",
+    "docs:database:check": "node --test tools/database/check-context.spec.mjs && node tools/database/check-context.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

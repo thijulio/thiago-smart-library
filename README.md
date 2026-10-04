@@ -18,3 +18,8 @@ pnpm check
 `pnpm dev:netlify` exercises Netlify's local routing. The existing Netlify site deploys `main`
 to production and creates deploy previews for pull requests. Its protected `NPM_TOKEN` build
 secret is required for private package reads.
+
+## Database work
+
+Start at [the database index](docs/database/README.md) and [delivery status](docs/database/status.md).
+Plans and implementation evidence have separate owners; execute only the authorized ticket.

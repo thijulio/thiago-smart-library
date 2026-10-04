@@ -1,0 +1,4 @@
+# Keep checksum-pinned compatibility references byte-identical.
+docs/database/reference/prototype/
+# Temporary plan execution artifacts are not deliverables.
+.superpowers/
