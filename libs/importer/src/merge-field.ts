@@ -14,7 +14,8 @@ export function mergeValue(
   const next = incoming.value;
   if (baseline === undefined) {
     if (same(current, next)) return { action: 'adopt' };
-    return current === null ? { action: 'write', value: next } : { action: 'conflict' };
+    const unset = current === null || (Array.isArray(current) && current.length === 0);
+    return unset ? { action: 'write', value: next } : { action: 'conflict' };
   }
   if (same(next, baseline)) return { action: 'keep' };
   if (same(next, current)) return { action: 'adopt' };

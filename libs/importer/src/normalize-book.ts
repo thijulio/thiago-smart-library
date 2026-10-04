@@ -136,14 +136,27 @@ export function normalizeBook(
         if (key === 'title') return s.trim();
         if (key === 'platform' && !['Audible', 'Kindle', 'Physical', 'Unknown'].includes(s))
           throw new Error();
-        if (key === 'status' && !['read', 'wishlist', 'unread', 'reading', 'paused'].includes(s))
+        if (
+          key === 'status' &&
+          !['read', 'wishlist', 'unread', 'reading', 'reread', 'paused', 'abandoned'].includes(s)
+        )
           throw new Error();
         if (key === 'rating') return decimal(s, 5, 1);
         if (key === 'personal_relevance') return decimal(s, 10, 2);
         if (key === 'word_count') return integer(s, 2147483647n, 1n);
         if (key === 'next_rank') return integer(s, 32767n, 1n);
         if (key === 'cover_url') return safeUrl(s);
-        if (key === 'next_slot' && !['Primary', 'Secondary'].includes(s)) throw new Error();
+        if (key === 'next_slot') {
+          // The prototype editor writes Principal/Secundário; the schema stores Primary/Secondary.
+          const slot = {
+            Principal: 'Primary',
+            Secundário: 'Secondary',
+            Primary: 'Primary',
+            Secondary: 'Secondary',
+          }[s];
+          if (!slot) throw new Error();
+          return slot;
+        }
         if (['added_at', 'relevance_updated'].includes(key)) {
           const d = parseDate(s);
           if (d.precision !== 'day') throw new Error();
