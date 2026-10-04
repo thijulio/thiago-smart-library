@@ -21,5 +21,5 @@ secret is required for private package reads.
 
 ## Database work
 
-Start at [the database index](docs/database/README.md) and [delivery status](docs/database/status.md).
-Plans and implementation evidence have separate owners; execute only the authorized ticket.
+Start at the [roadmap](docs/roadmap/README.md) and the [database index](docs/database/README.md).
+Live status is in GitHub milestones.

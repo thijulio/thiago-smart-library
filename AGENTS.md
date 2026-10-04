@@ -1,29 +1,35 @@
 # Repository guidance
 
-This repository is the deliberately small L1 foundation for Thiago Smart Library.
+Thiago Smart Library is a private, single-owner reading library that replaces the Thiago Library
+prototype. Start with `docs/roadmap/README.md` and the takeover design in
+`docs/superpowers/specs/`. Live status is in GitHub milestones and issues.
 
 ## Boundaries
 
-- Keep durable code, documentation, tests, and change descriptions in English.
-- Preserve the Nx dependency direction documented in `docs/architecture.md`.
-- Do not add books, reading, authentication, AI, RAG, or provider behavior without a separately approved scope.
-- Keep `libs/ai` documentation-only until a real capability is approved.
-- Consume the published Biome packages; do not copy their palette, token scale, or components into this repository.
-- Do not connect, deploy, release, publish, or merge unless the user explicitly requests that separate operation.
-- Do not install or pin `@thijulio/governance-core` until version `0.1.0` is genuinely published and validated.
+- Durable code, documentation, tests and change descriptions are in English.
+- Preserve the Nx dependency direction in `docs/architecture.md`; browser code never imports
+  server-only libraries (`libs/database`, `libs/importer` and later server libraries).
+- Work only within the approved milestone scope. Database, import, MCP and AI work are in scope
+  when a milestone ticket covers them.
+- `docs/database/spec.md` and `docs/database/plans/execution-contracts.md` are the data contract;
+  the execution addendum takes precedence on specific rules.
+- Consume published `@thijulio` Biome packages; never copy tokens, palettes or components.
+- Never put real library data, snapshots, import reports, backups, credentials or database URLs
+  in Git, CI logs, frontend bundles or prompts.
+- Never run migrations or imports during a Netlify build or function startup; never execute the
+  historical schema prototype.
+- The Google Sheet stays canonical until the M5 cutover. Do not modify the prototype repository,
+  its Sheet or its Netlify site.
 
-## Toolchain and checks
+## Approvals
 
-- Use Node 24 and pnpm 10.19.0.
-- Run `pnpm check` for the local quality gate and `pnpm test:e2e` for built UI and local HTTP routing.
-- Use `pnpm dev` for frontend iteration and `pnpm dev:netlify` when the source health function must be available.
+Merges, deploys, hosted migrations, hosted imports, Neon/Netlify changes and cutover each need
+explicit owner approval at the time of the action.
 
-## Task routing
+## Checks
 
-- Start database work at [the database index](docs/database/README.md) and [delivery status](docs/database/status.md).
-- Read the selected ticket and its named spec sections before editing code.
-- Database implementation is limited to the ticket explicitly authorized by the user.
-- Local implementation does not authorize real-data import, cloud changes, publication, merge, or cutover.
-- Never execute the historical schema prototype or migrate during a Netlify build.
-- Keep `libs/database` and `libs/importer` server-only; preserve the Nx dependency rules.
-- Keep source exports, backups, detailed import reports, and credentials outside Git.
+- Node 24, pnpm 10.19.0.
+- `pnpm check` for format, lint, typecheck, unit tests, build and the browser bundle boundary.
+- `pnpm test:db` for real-PostgreSQL integration tests (`pnpm db:up` starts the disposable server).
+- `pnpm test:e2e` for the built UI and local HTTP routing.
+- `pnpm dev` for frontend iteration; `pnpm dev:netlify` when the health functions must run.

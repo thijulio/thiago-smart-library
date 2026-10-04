@@ -1,7 +1,7 @@
 # Thiago Smart Library — database structure and migration contract
 
 > Canonical implementation contract. The [execution addendum](plans/execution-contracts.md) takes precedence wherever it supplies more specific rules.
-> Promotion: 2026-10-02; sanitized from the private 2026-09-20 study. [Delivery status](status.md) is the authority for implementation evidence.
+> Promotion: 2026-10-02; sanitized from the private 2026-09-20 study. Delivery status lives in GitHub milestones.
 >
 > Revision: 2026-09-20. Architecture recommendation and implementation contract.
 > PostgreSQL on Neon is selected and connectivity has been delivered. This

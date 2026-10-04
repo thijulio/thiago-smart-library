@@ -160,15 +160,15 @@ Native edits are valid only when their owner operation also refreshes provenance
 Run `pnpm test:db` twice: every integration suite/test receives a fresh disposable database
 and distinct role logins; cleanup drops only its recorded databases/roles. Do not stop a
 preexisting inspection container/database. Run the full application quality/unit/UI gates
-and context/diff checks. See [review package](../review/db-02.md) and
-[acceptance handoff](../handoffs/db-02.md) for the actual evidence and remaining review gates.
+and context/diff checks. See the [review package](../review/db-02.md) and the merged PRs #35, #36 and #37 for the
+review evidence.
 
 ## Hosted targets
 
 Hosted operations run from the owner's machine only. Each command needs `--target staging` or
 `--target production`, `--confirm-host` equal to the URL host, and for production
 `--confirm-production`. URLs must be direct Neon hosts (no `-pooler.`) with
-`sslmode=verify-full` and no other parameters. `db:bootstrap` writes the environment marker on an
+`sslmode=verify-full`; the only other accepted parameter is `channel_binding=require`. `db:bootstrap` writes the environment marker on an
 empty database and prints its instance ID; record it privately and export it as
 `DB_TARGET_INSTANCE_ID` for every later hosted command.
 

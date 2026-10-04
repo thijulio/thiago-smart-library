@@ -62,7 +62,7 @@ compare these bytes with JavaScript JSON serialization. Snapshot/config hashes i
 own serializer domain. The owner-request table is private and stores only payload digest/result,
 never the original private payload.
 
-Run `pnpm test`, `pnpm test:db`, `pnpm check`, `pnpm test:e2e`, and `pnpm docs:database:check`.
+Run `pnpm test`, `pnpm test:db`, `pnpm check`, and `pnpm test:e2e`.
 The separate database workflow repeats SQL tests on 16.15 and 18.6. CI execution itself is a separate
 state from validating those majors locally. Keep real exports, logs, credentials and backups outside
 Git. All committed fixtures are synthetic. SQL/permissions require independent review before DB-02.

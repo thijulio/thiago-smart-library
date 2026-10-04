@@ -247,7 +247,7 @@ Requested by the owner on 2026-10-02. **Planned only; do not execute as part of 
 Use the owner's existing books rather than fictional demonstration records.
 
 Source authority is documented in [spec §0](../spec.md#0-authority-scope-and-delivery-state)
-and the [context ownership map](../context-map.md): the current Google Sheet owns the
+and the takeover design: the current Google Sheet owns the
 prototype records; the original workbook and study belong to private context evidence.
 The historical workbook is not proof of current Sheet contents.
 
