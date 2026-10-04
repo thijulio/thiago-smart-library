@@ -31,30 +31,6 @@ export interface ContainerInspection {
   };
   Mounts: { Type: string; Destination: string }[];
 }
-/** Opt-in persistent local library; never accepted by synthetic lifecycle tools. */
-export function validateLibraryTarget(
-  raw: string | undefined,
-  environment: Record<string, string | undefined> = {},
-) {
-  if (environment.DATABASE_URL) throw new Error('INHERITED_DATABASE_URL');
-  if (!raw) throw new Error('MISSING_DATABASE_TARGET');
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    throw new Error('UNSAFE_DATABASE_TARGET');
-  }
-  if (
-    !['postgres:', 'postgresql:'].includes(url.protocol) ||
-    url.hostname !== '127.0.0.1' ||
-    url.port !== '55434' ||
-    url.pathname !== '/smart_library_local' ||
-    url.search ||
-    url.hash
-  )
-    throw new Error('UNSAFE_DATABASE_TARGET');
-  return { url: raw, database: 'smart_library_local' };
-}
 export function validateInstanceId(value: string | undefined): string {
   if (!value || !/^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(value))
     throw new Error('MISSING_LIBRARY_INSTANCE');
