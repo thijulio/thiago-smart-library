@@ -1,6 +1,10 @@
 import { parseArgs } from 'node:util';
-import { localPool } from '../../libs/database/src/connection';
-import { validateLocalTarget } from '../../libs/database/src/target';
+import { localPool, hostedPool } from '../../libs/database/src/connection';
+import {
+  validateLocalTarget,
+  validateHostedTarget,
+  validateInstanceId,
+} from '../../libs/database/src/target';
 import { extractWorkbook, runImport, verifyCore } from '../../libs/importer/src';
 export async function importerCli(
   operation: 'extract' | 'import' | 'verify',
@@ -33,12 +37,16 @@ export async function importerCli(
                 resolutions: { type: 'string' },
                 policy: { type: 'string' },
                 target: { type: 'string' },
+                'confirm-host': { type: 'string' },
+                'confirm-production': { type: 'boolean' },
               }
             : {
                 help: { type: 'boolean' },
                 scope: { type: 'string' },
                 'run-id': { type: 'string' },
                 target: { type: 'string' },
+                'confirm-host': { type: 'string' },
+                'confirm-production': { type: 'boolean' },
               },
     });
     if (values.help) {
@@ -46,8 +54,8 @@ export async function importerCli(
         operation === 'extract'
           ? 'Usage: db:extract --source-file PATH --out NEW_PRIVATE_DIRECTORY --source-key KEY --effective-at UTC_ISO --freshness-approved-by REVIEWER (immutable XLSX export; no DB/network)'
           : operation === 'import'
-            ? 'Usage: db:import --snapshot PRIVATE_DIRECTORY --scope core --dry-run|--apply --report NEW_PRIVATE_DIRECTORY [--resolutions PRIVATE_JSON] [--policy REVIEWED_PRIVATE_JSON] (DB_IMPORT_URL only; synthetic local targets)'
-            : 'Usage: db:verify --scope core --run-id UUID (DB_IMPORT_URL only)',
+            ? 'Usage: db:import --snapshot PRIVATE_DIRECTORY --scope core --dry-run|--apply --report NEW_PRIVATE_DIRECTORY [--resolutions PRIVATE_JSON] [--policy REVIEWED_PRIVATE_JSON] [--target staging|production --confirm-host HOST [--confirm-production]] (DB_IMPORT_URL only)'
+            : 'Usage: db:verify --scope core --run-id UUID [--target staging|production --confirm-host HOST [--confirm-production]] (DB_IMPORT_URL only)',
       );
       return 0;
     }
@@ -95,13 +103,40 @@ export async function importerCli(
       usage = true;
       throw new Error('INVALID_RUN_ID');
     }
-    if (values.target !== undefined && values.target !== 'local-test') {
+    const kind = values.target ?? 'local-test';
+    if (!['local-test', 'staging', 'production'].includes(String(kind))) {
       usage = true;
       throw new Error('INVALID_TARGET');
     }
-    const importTarget = { kind: 'local-test' as const };
-    const target = validateLocalTarget(process.env.DB_IMPORT_URL, process.env);
-    const db = localPool(target.url);
+    // Confirmation flags are only meaningful for the targets they confirm.
+    if (
+      (kind === 'local-test' && values['confirm-host'] !== undefined) ||
+      (kind !== 'production' && values['confirm-production'] !== undefined)
+    ) {
+      usage = true;
+      throw new Error('UNEXPECTED_CONFIRMATION');
+    }
+    if (kind === 'production' && values['confirm-production'] !== true) {
+      usage = true;
+      throw new Error('PRODUCTION_NOT_CONFIRMED');
+    }
+    const importTarget =
+      kind === 'local-test'
+        ? { kind: 'local-test' as const }
+        : {
+            kind: 'hosted' as const,
+            purpose: kind as 'staging' | 'production',
+            instanceId: validateInstanceId(process.env.DB_TARGET_INSTANCE_ID),
+            confirmHost: text('confirm-host'),
+          };
+    const db =
+      importTarget.kind === 'hosted'
+        ? hostedPool(
+            validateHostedTarget(process.env.DB_IMPORT_URL, process.env, importTarget.confirmHost)
+              .url,
+            120000,
+          )
+        : localPool(validateLocalTarget(process.env.DB_IMPORT_URL, process.env).url);
     try {
       if (operation === 'verify') {
         console.log(JSON.stringify(await verifyCore(db, id, importTarget)));

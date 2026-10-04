@@ -24,7 +24,7 @@ export async function status(client: SqlClient): Promise<{ name: string; checksu
 export async function assertMarker(
   client: SqlClient,
   instanceId?: string,
-  purpose: 'synthetic-test' | 'staging' = 'synthetic-test',
+  purpose: 'synthetic-test' | 'staging' | 'production' = 'synthetic-test',
 ) {
   const exists = await client.query("SELECT to_regclass('db_meta.environment') AS name");
   if (!exists.rows[0].name) throw new Error('MISSING_DATABASE_MARKER');
@@ -39,7 +39,7 @@ export async function assertMarker(
 export async function migrate(
   client: SqlClient,
   directory: string,
-  expectedPurpose: 'synthetic-test' | 'staging' = 'synthetic-test',
+  expectedPurpose: 'synthetic-test' | 'staging' | 'production' = 'synthetic-test',
 ): Promise<{ applied: string[]; unchanged: string[] }> {
   const files = migrationFiles(await readdir(directory));
   const entries = await Promise.all(

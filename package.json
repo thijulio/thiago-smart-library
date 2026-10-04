@@ -19,6 +19,7 @@
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm database:boundary:check",
     "db:up": "tsx tools/database/local.ts up",
     "db:down": "tsx tools/database/local.ts down",
+    "db:bootstrap": "tsx tools/database/cli.ts bootstrap",
     "db:migrate": "tsx tools/database/cli.ts migrate",
     "db:status": "tsx tools/database/cli.ts status",
     "db:doctor": "tsx tools/database/cli.ts doctor",

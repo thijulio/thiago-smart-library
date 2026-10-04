@@ -51,3 +51,18 @@ it('invalid source shape is a blocked input, not an execution failure', async ()
     log.mockRestore();
   }
 });
+const importBase = ['--snapshot', 'x', '--scope', 'core', '--dry-run', '--report', 'y'];
+it.each([
+  [[...importBase, '--target', 'staging', '--confirm-host', 'h', '--confirm-production']],
+  [[...importBase, '--confirm-host', 'h']],
+  [[...importBase, '--target', 'local-test', '--confirm-production']],
+  [[...importBase, '--target', 'production', '--confirm-host', 'h']],
+  [[...importBase, '--target', 'preview', '--confirm-host', 'h']],
+])('hosted target flags are validated before connecting %j', async (args) => {
+  const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+  try {
+    expect(await importerCli('import', args)).toBe(64);
+  } finally {
+    log.mockRestore();
+  }
+});
