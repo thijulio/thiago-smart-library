@@ -233,3 +233,16 @@ it('refuses a report directory inside the repository whose name starts with dots
     'PRIVATE_OUTPUT_IN_REPOSITORY',
   );
 });
+it.each([
+  ['2026-03-05', 'Aug 2026'],
+  ['2026-08-10', '2026-05'],
+])('flags a Year Finished month outside the finish bounds (%s vs %s)', (finished, year) =>
+  expect(
+    parseCompletion(cell('Finished Date', finished), cell('Year Finished', year), '1900'),
+  ).toEqual({ value: null, issues: ['COMPLETION_YEAR_CONFLICT'] }),
+);
+it('accepts a Year Finished month inside the finish bounds', () =>
+  expect(
+    parseCompletion(cell('Finished Date', '2026-08-10'), cell('Year Finished', '2026-08'), '1900')
+      .issues,
+  ).toEqual(['YEAR_CELL_COERCION']));

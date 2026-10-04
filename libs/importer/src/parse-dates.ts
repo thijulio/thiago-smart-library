@@ -102,6 +102,28 @@ export function parseCompletion(
     const d = parseDate(f ?? yearPart!);
     if (f && y && d.from.slice(0, 4) !== yearPart)
       return { value: null, issues: ['COMPLETION_YEAR_CONFLICT'] };
+    // A month in Year Finished must also fall inside the finish bounds (spec §3.1).
+    const MONTHS = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const yearMonth = legacyMonth
+      ? `${legacyMonth[2]}-${String(MONTHS.indexOf(legacyMonth[1]) + 1).padStart(2, '0')}`
+      : /^\d{4}-\d\d/.test(y ?? '')
+        ? y!.slice(0, 7)
+        : null;
+    if (f && yearMonth && (yearMonth < d.from.slice(0, 7) || yearMonth > d.to.slice(0, 7)))
+      return { value: null, issues: ['COMPLETION_YEAR_CONFLICT'] };
     return {
       value: {
         finished_from: d.from,
