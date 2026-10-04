@@ -9,10 +9,13 @@ export async function assertEmptyBootstrapTarget(client: SqlClient, allowMarker 
   // PostgreSQL records namespace dependencies for explicit schema objects across catalogs.
   // Marker indexes, constraints and composite/array types depend on the marker relation;
   // they have no independent namespace dependency. Allow only that one relation.
+  // Default-privilege rules (pg_default_acl) are not objects; managed providers such as Neon
+  // create them on public in every new database.
   const objects = await client.query(
     `SELECT count(*)::int AS n FROM pg_depend d
      JOIN pg_namespace n ON d.refclassid='pg_namespace'::regclass AND d.refobjid=n.oid
      WHERE n.nspname IN ('public','db_meta')
+       AND d.classid<>'pg_default_acl'::regclass
        AND NOT ($1::boolean AND n.nspname='db_meta' AND d.classid='pg_class'::regclass
                 AND d.objid=coalesce(to_regclass('db_meta.environment')::oid,0))`,
     [allowMarker],
