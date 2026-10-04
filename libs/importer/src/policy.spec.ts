@@ -205,3 +205,31 @@ it.each(['2026-99', '2026-02-30'])(
     ).toMatchObject({ value: null, issues: ['INVALID_COMPLETION'] });
   },
 );
+it.each(['reread', 'abandoned'])('accepts the prototype status %s', (status) =>
+  expect(normalizeBook(row({ Status: status }), manifest).fields.status).toEqual({
+    kind: 'value',
+    value: status,
+  }),
+);
+it.each([
+  ['Principal', 'Primary'],
+  ['Secundário', 'Secondary'],
+  ['Primary', 'Primary'],
+  ['Secondary', 'Secondary'],
+])('maps the prototype Next Slot %s to %s', (source, slot) =>
+  expect(normalizeBook(row({ 'Next Slot': source }), manifest).fields.next_slot).toEqual({
+    kind: 'value',
+    value: slot,
+  }),
+);
+it('fills an empty collection that has no source baseline', () =>
+  expect(mergeValue(undefined, { kind: 'value', value: ['1'] }, [])).toEqual({
+    action: 'write',
+    value: ['1'],
+  }));
+it('refuses a report directory inside the repository whose name starts with dots', async () => {
+  const { privateOutput } = await import('./private-files');
+  await expect(privateOutput('..reports-' + Date.now())).rejects.toThrow(
+    'PRIVATE_OUTPUT_IN_REPOSITORY',
+  );
+});
