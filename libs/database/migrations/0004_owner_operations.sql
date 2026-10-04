@@ -42,13 +42,18 @@ BEGIN
   IF NOT k=ANY(allowed) THEN RAISE EXCEPTION 'INVALID_PAYLOAD_KEY'; END IF;
   IF v='null'::jsonb THEN NULL;
   ELSIF k=ANY(numeric_keys) THEN
-   IF jsonb_typeof(v) NOT IN ('string','number') OR (v#>>'{}')::numeric IN ('NaN'::numeric,'Infinity'::numeric,'-Infinity'::numeric) THEN RAISE EXCEPTION 'INVALID_NUMBER'; END IF;
+   IF jsonb_typeof(v) NOT IN ('string','number') THEN RAISE EXCEPTION 'INVALID_NUMBER'; END IF;
+   IF NOT pg_input_is_valid(v#>>'{}','numeric') THEN RAISE EXCEPTION 'INVALID_NUMBER'; END IF;
+   IF (v#>>'{}')::numeric IN ('NaN'::numeric,'Infinity'::numeric,'-Infinity'::numeric) THEN RAISE EXCEPTION 'INVALID_NUMBER'; END IF;
    v=to_jsonb(trim_scale((v#>>'{}')::numeric)::text);
   ELSIF k=ANY(integer_keys) THEN
-   IF jsonb_typeof(v) NOT IN ('string','number') OR (v#>>'{}')!~'^[0-9]+$' THEN RAISE EXCEPTION 'INVALID_INTEGER'; END IF;
+   IF jsonb_typeof(v) NOT IN ('string','number') THEN RAISE EXCEPTION 'INVALID_INTEGER'; END IF;
+   IF (v#>>'{}')!~'^[0-9]+$' OR NOT pg_input_is_valid(v#>>'{}','bigint') THEN RAISE EXCEPTION 'INVALID_INTEGER'; END IF;
    v=to_jsonb(((v#>>'{}')::bigint)::text);
   ELSIF k=ANY(date_keys) THEN
-   IF jsonb_typeof(v)<>'string' OR (v#>>'{}')!~'^[0-9]{4}-[0-9]{2}-[0-9]{2}$' OR NOT isfinite((v#>>'{}')::date) THEN RAISE EXCEPTION 'INVALID_DATE'; END IF;
+   IF jsonb_typeof(v)<>'string' THEN RAISE EXCEPTION 'INVALID_DATE'; END IF;
+   IF (v#>>'{}')!~'^[0-9]{4}-[0-9]{2}-[0-9]{2}$' OR NOT pg_input_is_valid(v#>>'{}','date') THEN RAISE EXCEPTION 'INVALID_DATE'; END IF;
+   IF NOT isfinite((v#>>'{}')::date) THEN RAISE EXCEPTION 'INVALID_DATE'; END IF;
   ELSIF k IN ('author_ids','genre_ids') THEN
    IF jsonb_typeof(v)<>'array' OR EXISTS(SELECT 1 FROM jsonb_array_elements(v) x WHERE jsonb_typeof(x) NOT IN ('string','number') OR (x#>>'{}')!~'^[1-9][0-9]*$') THEN RAISE EXCEPTION 'INVALID_RELATIONS'; END IF;
    SELECT coalesce(jsonb_agg(to_jsonb((x#>>'{}')::bigint::text) ORDER BY CASE WHEN k='genre_ids' THEN (x#>>'{}')::bigint ELSE ord END),'[]') INTO v FROM jsonb_array_elements(v) WITH ORDINALITY a(x,ord);
@@ -64,6 +69,8 @@ CREATE FUNCTION library.request_start(request uuid,operation_name text,payload j
 DECLARE prior library.owner_requests;digest text;
 BEGIN
  IF request IS NULL THEN RAISE EXCEPTION 'MISSING_REQUEST_ID'; END IF;
+ -- Replay lookup must see requests committed while waiting for the request lock.
+ IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'READ_COMMITTED_REQUIRED'; END IF;
  PERFORM pg_advisory_xact_lock_shared(73421,2);
  PERFORM pg_advisory_xact_lock(hashtextextended(request::text,73421));
  digest=library.value_hash(operation_name,'request',jsonb_build_object('actor',session_user,'payload',payload));
@@ -81,7 +88,7 @@ CREATE FUNCTION library.attribute(parent bigint,kind text,before_row jsonb,after
 DECLARE k text;v jsonb;logical_type text;
 BEGIN
  FOR k,v IN SELECT key,value FROM jsonb_each(after_row) LOOP
-  IF before_row->k IS NOT DISTINCT FROM v OR k IN ('id','book_id','stable_id','created_at','updated_at','updated_by','row_version','source_updated_at','source_updated_by','last_import_run_id','archived_at','review_state','reviewed_by','reviewed_at') THEN CONTINUE; END IF;
+  IF (NOT before_row?k AND v='null'::jsonb) OR before_row->k IS NOT DISTINCT FROM v OR k IN ('id','book_id','stable_id','created_at','updated_at','updated_by','row_version','source_updated_at','source_updated_by','last_import_run_id','archived_at','review_state','reviewed_by','reviewed_at') THEN CONTINUE; END IF;
   logical_type=CASE WHEN k IN ('series_volume','community_rating','rating','personal_relevance') THEN 'numeric' WHEN k IN ('series_id','word_count','next_rank','ratings_count') THEN 'integer' WHEN k IN ('rating_updated','finished_from','finished_to','added_at','relevance_updated') THEN 'date' WHEN k IN ('authors','genres') THEN 'array' ELSE 'text' END;
   IF logical_type IN ('numeric','integer') AND v<>'null'::jsonb THEN v=to_jsonb(trim_scale((v#>>'{}')::numeric)::text); END IF;
   INSERT INTO library.book_field_provenance(book_id,field_name,origin,actor,produced_at,value_sha256,hash_version)
@@ -123,9 +130,10 @@ BEGIN
 END $$;
 CREATE FUNCTION library.create_book(payload jsonb,request_id uuid) RETURNS jsonb
  LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,pg_temp AS $$
-DECLARE p jsonb;prior jsonb;b library.books;result jsonb;
+DECLARE supplied jsonb;p jsonb;prior jsonb;b library.books;result jsonb;
 BEGIN
- p=jsonb_build_object('finished_precision','unknown','genre_ids','[]'::jsonb)||library.normalize_payload(payload,'books');
+ supplied=library.normalize_payload(payload,'books');
+ p=jsonb_build_object('finished_precision','unknown','genre_ids','[]'::jsonb)||supplied;
  IF NOT (p?'title' AND p?'platform' AND p?'status' AND p?'author_ids') OR p->'author_ids'='null'::jsonb OR jsonb_array_length(p->'author_ids')=0 THEN RAISE EXCEPTION 'MISSING_REQUIRED_BOOK_FIELDS'; END IF;
  prior=library.request_start(request_id,'create_book',p);IF prior IS NOT NULL THEN RETURN prior; END IF;
  b=jsonb_populate_record(NULL::library.books,p-'author_ids'-'genre_ids');
@@ -133,7 +141,11 @@ BEGIN
  VALUES(gen_random_uuid()::text,b.title,b.series_id,b.series_volume,b.platform,b.status,b.cover_url,b.word_count,b.next_rank,b.next_slot,b.why_next,b.community_rating,b.ratings_count,b.rating_source,b.rating_updated,b.finished_from,b.finished_to,b.finished_precision,b.finished_date_raw,b.finished_year_raw,b.added_at,session_user) RETURNING * INTO b;
  INSERT INTO library.book_authors SELECT b.id,(x#>>'{}')::bigint,ord::integer FROM jsonb_array_elements(p->'author_ids') WITH ORDINALITY a(x,ord);
  IF p?'genre_ids' THEN INSERT INTO library.book_genres SELECT b.id,(x#>>'{}')::bigint FROM jsonb_array_elements(p->'genre_ids') a(x); END IF;
- PERFORM library.attribute(b.id,'books','{}',to_jsonb(b)||jsonb_build_object('authors',p->'author_ids','genres',coalesce(p->'genre_ids','[]')));
+ -- Attribute only owner-supplied fields; defaults and absent fields stay unattributed.
+ PERFORM library.attribute(b.id,'books','{}',
+  (SELECT coalesce(jsonb_object_agg(key,value),'{}') FROM jsonb_each(to_jsonb(b)) WHERE supplied?key)
+  ||jsonb_build_object('authors',p->'author_ids')
+  ||CASE WHEN supplied?'genre_ids' THEN jsonb_build_object('genres',p->'genre_ids') ELSE '{}'::jsonb END);
  result=jsonb_build_object('id',b.id::text,'stable_id',b.stable_id,'row_version',b.row_version::text);
  RETURN library.request_finish(request_id,'create_book',p,result);
 END $$;
@@ -160,6 +172,10 @@ BEGIN
  IF NOT FOUND THEN RAISE EXCEPTION 'BOOK_NOT_FOUND'; END IF;
  SELECT * INTO b FROM library.book_feedback WHERE book_id=parent FOR UPDATE;exists_row=FOUND;
  IF (exists_row AND (expected_version IS NULL OR b.row_version<>expected_version)) OR (NOT exists_row AND expected_version IS NOT NULL) THEN RAISE EXCEPTION 'VERSION_CONFLICT'; END IF;
+ IF NOT exists_row AND NOT EXISTS(SELECT 1 FROM jsonb_each(p) WHERE value<>'null'::jsonb) THEN
+  result=jsonb_build_object('id',parent::text,'stable_id',stable_id,'row_version',NULL);
+  RETURN library.request_finish(request_id,'patch_feedback',req,result);
+ END IF;
  old_data=CASE WHEN exists_row THEN to_jsonb(b) ELSE '{}'::jsonb END;
  n=jsonb_populate_record(b,p);new_data=to_jsonb(n);
  IF NOT exists_row THEN
@@ -182,6 +198,10 @@ BEGIN
  IF NOT FOUND THEN RAISE EXCEPTION 'BOOK_NOT_FOUND'; END IF;
  SELECT * INTO b FROM library.book_assessments WHERE book_id=parent FOR UPDATE;exists_row=FOUND;
  IF (exists_row AND (expected_version IS NULL OR b.row_version<>expected_version)) OR (NOT exists_row AND expected_version IS NOT NULL) THEN RAISE EXCEPTION 'VERSION_CONFLICT'; END IF;
+ IF NOT exists_row AND NOT EXISTS(SELECT 1 FROM jsonb_each(p) WHERE value<>'null'::jsonb) THEN
+  result=jsonb_build_object('id',parent::text,'stable_id',stable_id,'row_version',NULL);
+  RETURN library.request_finish(request_id,'patch_assessment',req,result);
+ END IF;
  old_data=CASE WHEN exists_row THEN to_jsonb(b) ELSE '{}'::jsonb END;
  n=jsonb_populate_record(b,p);new_data=to_jsonb(n);
  IF NOT exists_row THEN
