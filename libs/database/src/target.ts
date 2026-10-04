@@ -75,8 +75,10 @@ export function validateHostedTarget(
     !url.password ||
     url.pathname.length < 2 ||
     url.hash ||
-    keys.length !== 1 ||
-    url.searchParams.get('sslmode') !== 'verify-full'
+    keys.some((key) => key !== 'sslmode' && key !== 'channel_binding') ||
+    url.searchParams.getAll('sslmode').join() !== 'verify-full' ||
+    (keys.includes('channel_binding') &&
+      url.searchParams.getAll('channel_binding').join() !== 'require')
   )
     throw new Error('UNSAFE_DATABASE_TARGET');
   if (!confirmHost || confirmHost !== url.hostname) throw new Error('UNCONFIRMED_DATABASE_HOST');

@@ -6,7 +6,7 @@ import {
   validateInstanceId,
   validateLocalTarget,
 } from '../../libs/database/src/target';
-import { parseDatabaseArgs } from '../../libs/database/src/target-args';
+import { describeFailure, parseDatabaseArgs } from '../../libs/database/src/target-args';
 const USAGE =
   'Usage: db:{migrate|status|doctor} --target local-test | db:{bootstrap|migrate|status|doctor} --target staging|production --confirm-host HOST [--confirm-production]; DB_MIGRATION_URL required; hosted commands except bootstrap need DB_TARGET_INSTANCE_ID';
 async function main() {
@@ -50,7 +50,7 @@ async function main() {
     await pool.end();
   }
 }
-main().catch(() => {
-  console.error('DATABASE_OPERATION_FAILED');
+main().catch((error) => {
+  console.error(describeFailure(error));
   process.exitCode = 1;
 });

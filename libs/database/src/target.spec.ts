@@ -98,6 +98,12 @@ describe('hosted target safety', () => {
       'UNSAFE_DATABASE_TARGET',
     );
   });
+  it('accepts Neon channel binding but only in its required form', () => {
+    expect(validateHostedTarget(good + '&channel_binding=require', {}, host).host).toBe(host);
+    expect(() => validateHostedTarget(good + '&channel_binding=disable', {}, host)).toThrow(
+      'UNSAFE_DATABASE_TARGET',
+    );
+  });
   it('refuses a missing or mismatched host confirmation', () => {
     expect(() => validateHostedTarget(good, {}, undefined)).toThrow('UNCONFIRMED_DATABASE_HOST');
     expect(() => validateHostedTarget(good, {}, 'other.neon.tech')).toThrow(

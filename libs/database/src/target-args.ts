@@ -30,3 +30,23 @@ export function parseDatabaseArgs(args: string[]): {
     target: { kind: 'hosted', purpose, confirmHost: host },
   };
 }
+/** Deliberate refusals carry no secrets, so their codes are safe to show the operator. */
+const REFUSALS = [
+  'INVALID_ARGUMENTS',
+  'MISSING_DATABASE_TARGET',
+  'UNSAFE_DATABASE_TARGET',
+  'UNCONFIRMED_DATABASE_HOST',
+  'INHERITED_DATABASE_URL',
+  'MISSING_LIBRARY_INSTANCE',
+  'MISSING_DATABASE_MARKER',
+  'UNSAFE_DATABASE_MARKER',
+  'UNAPPROVED_DATABASE_BOOTSTRAP',
+  'MIGRATION_HISTORY_DIVERGED',
+  'MIGRATION_CHECKSUM_MISMATCH',
+];
+export function describeFailure(error: unknown): string {
+  const message = error instanceof Error ? error.message : '';
+  return REFUSALS.includes(message)
+    ? `DATABASE_OPERATION_FAILED: ${message}`
+    : 'DATABASE_OPERATION_FAILED';
+}

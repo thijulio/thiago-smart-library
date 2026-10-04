@@ -108,6 +108,14 @@ export async function importerCli(
       usage = true;
       throw new Error('INVALID_TARGET');
     }
+    // Confirmation flags are only meaningful for the targets they confirm.
+    if (
+      (kind === 'local-test' && values['confirm-host'] !== undefined) ||
+      (kind !== 'production' && values['confirm-production'] !== undefined)
+    ) {
+      usage = true;
+      throw new Error('UNEXPECTED_CONFIRMATION');
+    }
     if (kind === 'production' && values['confirm-production'] !== true) {
       usage = true;
       throw new Error('PRODUCTION_NOT_CONFIRMED');

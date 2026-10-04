@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { parseDatabaseArgs } from './target-args';
+import { parseDatabaseArgs, describeFailure } from './target-args';
 const host = 'ep-x.eu-central-1.aws.neon.tech';
 it('keeps the local synthetic form', () => {
   expect(parseDatabaseArgs(['migrate', '--target', 'local-test'])).toEqual({
@@ -39,4 +39,11 @@ it.each([
   [['migrate', '--target', 'preview', '--confirm-host', host]],
 ])('refuses %j', (args) => {
   expect(() => parseDatabaseArgs(args)).toThrow('INVALID_ARGUMENTS');
+});
+it.each([
+  ['UNCONFIRMED_DATABASE_HOST', 'DATABASE_OPERATION_FAILED: UNCONFIRMED_DATABASE_HOST'],
+  ['UNSAFE_DATABASE_MARKER', 'DATABASE_OPERATION_FAILED: UNSAFE_DATABASE_MARKER'],
+  ['connect ECONNREFUSED 10.0.0.1:5432 password=hunter2', 'DATABASE_OPERATION_FAILED'],
+])('describes failure %s without leaking details', (message, text) => {
+  expect(describeFailure(new Error(message))).toBe(text);
 });
