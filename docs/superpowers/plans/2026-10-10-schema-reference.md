@@ -12,7 +12,7 @@
 
 ## Global constraints
 
-- Ticket #55, M0; independent from Reading #45. Implementation plan review and execution selection are pending.
+- Ticket #55, M0; independent from Reading #45. The owner approved this plan and selected Native execution on 2026-10-10.
 - Never execute the historical schema prototype or edit applied migrations.
 - Generate from a fresh empty disposable local/CI PostgreSQL target using existing local-test/synthetic-test guards; never accept a hosted URL.
 - Cover auth, library, import_audit, db_meta and api_public, including bootstrap metadata and final ALTER effects. Fail on unrepresented project object families.
