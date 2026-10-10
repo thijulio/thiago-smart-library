@@ -1,6 +1,6 @@
 # Automatically generated database reference — design proposal
 
-Date: 2026-10-10. Status: **proposed architecture; owner review pending**.
+Date: 2026-10-10. Status: **architecture approved by the owner; implementation and initial publication pending**.
 
 ## Request and verified starting point
 
@@ -118,10 +118,11 @@ access and must not appear in output.
 Implementation tracking: [#55](https://github.com/thijulio/thiago-smart-library/issues/55),
 M0, Todo on Libraries; independent from the Reading delivery sequence.
 
-Review this architecture and public content boundary, then write the concrete
-implementation plan. No generator, new dependencies, Pages workflow, hosted
-settings, merge or publication is implemented by this proposal. Individual
-technical and hosted approvals follow the applicable repository/skill contract.
+The owner approved this architecture and public content boundary on 2026-10-10
+and explicitly authorized merging the planning PR. Next, write and review the
+concrete implementation plan. No generator, new dependencies, Pages workflow,
+hosted settings or publication is implemented by this document. Initial hosted
+configuration/publication remains a separate action approval.
 
 ## References checked on 2026-10-10
 
