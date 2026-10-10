@@ -41,8 +41,8 @@ Use the existing public repository and GitHub Actions as the Pages source.
 Default URL: https://thijulio.github.io/thiago-smart-library/ (not published yet).
 
 Builds validate PostgreSQL 16.15 and 18.6; the published artifact uses 16.15.
-Changes to migrations/bootstrap/generator/public mapping/build inputs trigger
-generation. Main deployment also requires SCHEMA_REFERENCE_PUBLISH=true.
+Relevant PR changes trigger validation. Every main push rebuilds the reference
+so a later unrelated commit can replace an obsolete in-flight build. Main deployment also requires SCHEMA_REFERENCE_PUBLISH=true.
 Leave that variable unset until the owner reviews the artifact and explicitly
 approves initial Pages settings/publication and recurring main-only updates.
 

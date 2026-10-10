@@ -1,7 +1,7 @@
 name: Schema reference
 on:
   pull_request:
-    paths: &schema_paths
+    paths:
       - 'libs/database/**'
       - 'tools/database/**'
       - 'docs/database/roadmap-schema-map.md'
@@ -12,7 +12,6 @@ on:
       - '.github/workflows/schema-reference.yml'
   push:
     branches: [main]
-    paths: *schema_paths
   workflow_dispatch:
 permissions:
   contents: read

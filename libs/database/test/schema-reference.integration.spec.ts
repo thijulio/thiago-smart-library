@@ -70,6 +70,37 @@ describe('schema reference on real disposable PostgreSQL', () => {
       await expect(inspectReference(client, commit)).rejects.toThrow('UNSUPPORTED_SCHEMA_OBJECT');
     });
   });
+  it('represents ordered standalone composite attributes', async () => {
+    await withReferenceDatabase(async (client) => {
+      await client.query('CREATE TYPE library.ref_pair AS (a integer,b text)');
+      const model = await inspectReference(client, commit);
+      const pair = model.objects.find((o) => o.kind === 'type' && o.name === 'ref_pair');
+      expect(pair?.columns?.map((c) => [c.name, c.type])).toEqual([
+        ['a', 'integer'],
+        ['b', 'text'],
+      ]);
+    });
+  });
+  it('rejects unrepresented table rules while allowing view return rules', async () => {
+    await withReferenceDatabase(async (client) => {
+      await client.query(
+        'CREATE TABLE library.ref_table(a integer); CREATE VIEW library.ref_view AS SELECT a FROM library.ref_table',
+      );
+      await expect(inspectReference(client, commit)).resolves.toBeDefined();
+      await client.query(
+        'CREATE RULE ref_rule AS ON INSERT TO library.ref_table DO INSTEAD NOTHING',
+      );
+      await expect(inspectReference(client, commit)).rejects.toThrow('UNSUPPORTED_SCHEMA_OBJECT');
+    });
+  });
+  it('rejects unsupported table-attached statistics', async () => {
+    await withReferenceDatabase(async (client) => {
+      await client.query(
+        'CREATE TABLE library.ref_stats(a integer,b integer); CREATE STATISTICS library.ref_statistics ON a,b FROM library.ref_stats',
+      );
+      await expect(inspectReference(client, commit)).rejects.toThrow('UNSUPPORTED_SCHEMA_OBJECT');
+    });
+  });
   it('cleans a fresh database even when generation fails', async () => {
     let allocated = '';
     await expect(

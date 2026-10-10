@@ -18,3 +18,18 @@ it('supplies the service container in step env for every database reference cons
       );
   }
 });
+
+it('replaces stale schema builds after every main push, including unrelated edits', () => {
+  const workflow = readFileSync('.github/workflows/schema-reference.yml', 'utf8');
+  const push = workflow.split('\n  push:')[1].split('\n  workflow_dispatch:')[0];
+  expect(push).toContain('branches: [main]');
+  expect(push).not.toMatch(/paths(?:-ignore)?:/);
+});
+
+it('invalidates cached database checks when offline tooling or workflow inputs change', () => {
+  const project = JSON.parse(readFileSync('libs/database/project.json', 'utf8'));
+  for (const target of ['test', 'lint', 'typecheck']) {
+    expect(project.targets[target].inputs).toContain('{workspaceRoot}/tools/database/**/*');
+    expect(project.targets[target].inputs).toContain('{workspaceRoot}/.github/workflows/*.yml');
+  }
+});

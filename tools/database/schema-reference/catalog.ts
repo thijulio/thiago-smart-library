@@ -9,7 +9,17 @@ export function objectId(kind: string, schema: string, name: string, args = '') 
   return [kind, schema, name, args].map(encodeURIComponent).join(':');
 }
 export function assertSupportedCatalogKinds(objects: { catalog: string; name: string }[]) {
-  const supported = ['pg_class', 'pg_type', 'pg_proc', 'pg_constraint', 'pg_default_acl'];
+  const supported = [
+    'pg_class',
+    'pg_type',
+    'pg_proc',
+    'pg_constraint',
+    'pg_default_acl',
+    'pg_rewrite',
+    'pg_trigger',
+    'pg_attrdef',
+    'pg_policy',
+  ];
   if (objects.some((o) => !supported.includes(o.catalog)))
     throw new Error('UNSUPPORTED_SCHEMA_OBJECT');
 }
@@ -29,16 +39,41 @@ function acl(expression: string) {
   return '(' + aclSql.replace('ACL_EXPR', expression) + ')';
 }
 
+async function readColumns(client: SqlClient, relationOid: number): Promise<Column[]> {
+  return (
+    await client.query(
+      'SELECT a.attname AS name,format_type(a.atttypid,a.atttypmod) AS type,NOT a.attnotnull AS nullable,pg_get_expr(d.adbin,d.adrelid) AS default,a.attidentity AS identity,a.attgenerated AS generated,col_description(a.attrelid,a.attnum) AS comment,' +
+        acl('a.attacl') +
+        ' AS acl FROM pg_attribute a LEFT JOIN pg_attrdef d ON d.adrelid=a.attrelid AND d.adnum=a.attnum WHERE a.attrelid=$1 AND a.attnum>0 AND NOT a.attisdropped ORDER BY a.attnum',
+      [relationOid],
+    )
+  ).rows.map((c) => ({
+    name: c.name,
+    type: c.type,
+    nullable: c.nullable,
+    default: c.default,
+    identity: c.identity,
+    generated: c.generated,
+    comment: c.comment,
+    privileges: groupAcl(c.acl),
+  }));
+}
+
 export async function inspectReference(
   client: SqlClient,
   sourceCommit: string,
 ): Promise<SchemaReference> {
   if (!/^[a-f0-9]{40}$/.test(sourceCommit)) throw new Error('INVALID_SOURCE_COMMIT');
   const dependencies = await client.query(
-    "SELECT DISTINCT d.classid::regclass::text AS catalog, pg_describe_object(d.classid,d.objid,d.objsubid) AS name FROM pg_depend d JOIN pg_namespace n ON d.refclassid='pg_namespace'::regclass AND d.refobjid=n.oid WHERE n.nspname=ANY($1)",
+    "WITH RECURSIVE owned(classid,objid,objsubid) AS (SELECT 'pg_namespace'::regclass::oid,n.oid,0 FROM pg_namespace n WHERE n.nspname=ANY($1) UNION SELECT d.classid,d.objid,d.objsubid FROM pg_depend d JOIN owned o ON d.refclassid=o.classid AND d.refobjid=o.objid) SELECT DISTINCT classid::regclass::text AS catalog,pg_describe_object(classid,objid,objsubid) AS name FROM owned WHERE classid<>'pg_namespace'::regclass",
     [schemas],
   );
   assertSupportedCatalogKinds(dependencies.rows);
+  const rules = await client.query(
+    "SELECT 1 FROM pg_rewrite r JOIN pg_class c ON c.oid=r.ev_class JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=ANY($1) AND NOT (r.rulename='_RETURN' AND c.relkind IN ('v','m'))",
+    [schemas],
+  );
+  if (rules.rowCount) throw new Error('UNSUPPORTED_SCHEMA_OBJECT');
   const unsupported = await client.query(
     "SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=ANY($1) AND c.relkind NOT IN ('r','p','v','m','S','i','I','c') UNION ALL SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname=ANY($1) AND p.prokind='a' UNION ALL SELECT 1 FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace WHERE n.nspname=ANY($1) AND t.typtype NOT IN ('c','e','d') AND t.typelem=0",
     [schemas],
@@ -79,23 +114,7 @@ export async function inspectReference(
     I: 'partitioned index',
   };
   for (const r of relations.rows) {
-    const columns: Column[] = (
-      await client.query(
-        'SELECT a.attname AS name,format_type(a.atttypid,a.atttypmod) AS type,NOT a.attnotnull AS nullable,pg_get_expr(d.adbin,d.adrelid) AS default,a.attidentity AS identity,a.attgenerated AS generated,col_description(a.attrelid,a.attnum) AS comment,' +
-          acl('a.attacl') +
-          ' AS acl FROM pg_attribute a LEFT JOIN pg_attrdef d ON d.adrelid=a.attrelid AND d.adnum=a.attnum WHERE a.attrelid=$1 AND a.attnum>0 AND NOT a.attisdropped ORDER BY a.attnum',
-        [r.oid],
-      )
-    ).rows.map((c) => ({
-      name: c.name,
-      type: c.type,
-      nullable: c.nullable,
-      default: c.default,
-      identity: c.identity,
-      generated: c.generated,
-      comment: c.comment,
-      privileges: groupAcl(c.acl),
-    }));
+    const columns = await readColumns(client, r.oid);
     const sequence =
       r.relkind === 'S'
         ? (
@@ -193,17 +212,19 @@ export async function inspectReference(
       details: { enabled: t.tgenabled },
     });
   const types = await client.query(
-    'SELECT t.oid,n.nspname AS schema,t.typname AS name,t.typtype,format_type(t.typbasetype,t.typtypmod) AS base,t.typnotnull,t.typdefault,' +
+    'SELECT t.oid,t.typrelid,n.nspname AS schema,t.typname AS name,t.typtype,format_type(t.typbasetype,t.typtypmod) AS base,t.typnotnull,t.typdefault,' +
       acl("coalesce(t.typacl,acldefault('T',t.typowner))") +
       " AS acl,ARRAY(SELECT e.enumlabel::text FROM pg_enum e WHERE e.enumtypid=t.oid ORDER BY e.enumsortorder) AS labels FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace LEFT JOIN pg_class c ON c.oid=t.typrelid WHERE n.nspname=ANY($1) AND (t.typtype IN ('e','d') OR (t.typtype='c' AND c.relkind='c')) ORDER BY n.nspname,t.typname",
     [schemas],
   );
-  for (const t of types.rows)
+  for (const t of types.rows) {
+    const columns = t.typtype === 'c' ? await readColumns(client, t.typrelid) : undefined;
     objects.push({
       id: objectId('type', t.schema, t.name),
       kind: 'type',
       schema: t.schema,
       name: t.name,
+      columns,
       definition: '',
       privileges: groupAcl(t.acl),
       details: {
@@ -214,6 +235,7 @@ export async function inspectReference(
         labels: t.labels,
       },
     });
+  }
   const defaults = await client.query(
     'SELECT n.nspname AS schema,pg_get_userbyid(d.defaclrole) AS owner,d.defaclobjtype,' +
       acl('d.defaclacl') +

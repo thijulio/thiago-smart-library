@@ -5,13 +5,28 @@
   "tags": ["scope:database", "type:server"],
   "targets": {
     "test": {
-      "command": "vitest run --config libs/database/vitest.config.ts"
+      "command": "vitest run --config libs/database/vitest.config.ts",
+      "inputs": [
+        "default",
+        "{workspaceRoot}/tools/database/**/*",
+        "{workspaceRoot}/.github/workflows/*.yml"
+      ]
     },
     "typecheck": {
-      "command": "tsc --noEmit -p libs/database/tsconfig.json"
+      "command": "tsc --noEmit -p libs/database/tsconfig.json",
+      "inputs": [
+        "default",
+        "{workspaceRoot}/tools/database/**/*",
+        "{workspaceRoot}/.github/workflows/*.yml"
+      ]
     },
     "lint": {
-      "command": "eslint libs/database tools/database/**/*.ts"
+      "command": "eslint libs/database tools/database/**/*.ts",
+      "inputs": [
+        "default",
+        "{workspaceRoot}/tools/database/**/*",
+        "{workspaceRoot}/.github/workflows/*.yml"
+      ]
     }
   }
 }
