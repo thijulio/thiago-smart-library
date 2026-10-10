@@ -1,0 +1,129 @@
+name: Schema reference
+on:
+  pull_request:
+    paths: &schema_paths
+      - 'libs/database/**'
+      - 'tools/database/**'
+      - 'docs/database/roadmap-schema-map.md'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.nvmrc'
+      - '.github/workflows/schema-reference.yml'
+  push:
+    branches: [main]
+    paths: *schema_paths
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: read
+concurrency:
+  group: schema-reference-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres: ['16.15', '18.6']
+    services:
+      postgres:
+        image: postgres:${{ matrix.postgres }}
+        env:
+          POSTGRES_USER: sl_test_admin
+          POSTGRES_PASSWORD: sl_test_local_only
+          POSTGRES_DB: smart_library_test_admin
+        ports: ['55433:5432']
+        options: >-
+          --health-cmd "pg_isready -U sl_test_admin -d smart_library_test_admin"
+          --health-interval 2s --health-timeout 5s --health-retries 30
+    env:
+      DB_TEST_ADMIN_URL: postgresql://sl_test_admin:sl_test_local_only@127.0.0.1:55433/smart_library_test_admin
+      SCHEMA_REFERENCE_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        env:
+          NPM_TOKEN: ${{ github.token }}
+      - run: pnpm exec tsx tools/database/bootstrap-test.ts --target local-test --purpose synthetic-test
+      - run: pnpm check
+      - run: pnpm exec vitest run --config libs/database/vitest.integration.config.ts libs/database/test/schema-reference.integration.spec.ts
+      - name: Generate exact checkout schema
+        env:
+          SCHEMA_SOURCE: ${{ github.sha }}
+        run: pnpm schema:generate --source-commit "$SCHEMA_SOURCE"
+      - run: pnpm exec playwright install --with-deps chromium webkit
+      - run: pnpm test:schema-ui
+      - name: Validate curated artifact
+        env:
+          SCHEMA_SOURCE: ${{ github.sha }}
+        run: pnpm exec tsx tools/database/schema-reference/artifact.ts "$SCHEMA_SOURCE"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: schema-reference-${{ matrix.postgres }}-${{ github.sha }}
+          path: dist/schema-reference/
+          if-no-files-found: error
+          retention-days: 7
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.SCHEMA_REFERENCE_PUBLISH == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: schema-reference-pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        env:
+          NPM_TOKEN: ${{ github.token }}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: schema-reference-16.15-${{ github.sha }}
+          path: dist/schema-reference/
+      - name: Revalidate exact commit artifact
+        env:
+          SCHEMA_SOURCE: ${{ github.sha }}
+        run: pnpm exec tsx tools/database/schema-reference/artifact.ts "$SCHEMA_SOURCE"
+      - id: current
+        name: Reject obsolete or unapproved publication
+        env:
+          SCHEMA_SOURCE: ${{ github.sha }}
+          SCHEMA_EVENT: ${{ github.event_name }}
+          SCHEMA_REF: ${{ github.ref }}
+          SCHEMA_ENABLED: ${{ vars.SCHEMA_REFERENCE_PUBLISH }}
+        run: |
+          SCHEMA_CURRENT="$(git ls-remote origin refs/heads/main | cut -f1)" pnpm exec tsx tools/database/schema-reference/publication.ts >> "$GITHUB_OUTPUT"
+      - if: steps.current.outputs.allowed == 'true'
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - if: steps.current.outputs.allowed == 'true'
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: dist/schema-reference/
+      - id: deployment
+        if: steps.current.outputs.allowed == 'true'
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
