@@ -41,7 +41,6 @@ jobs:
           --health-interval 2s --health-timeout 5s --health-retries 30
     env:
       DB_TEST_ADMIN_URL: postgresql://sl_test_admin:sl_test_local_only@127.0.0.1:55433/smart_library_test_admin
-      SCHEMA_REFERENCE_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
@@ -57,8 +56,11 @@ jobs:
       - run: pnpm exec tsx tools/database/bootstrap-test.ts --target local-test --purpose synthetic-test
       - run: pnpm check
       - run: pnpm exec vitest run --config libs/database/vitest.integration.config.ts libs/database/test/schema-reference.integration.spec.ts
+        env:
+          SCHEMA_REFERENCE_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
       - name: Generate exact checkout schema
         env:
+          SCHEMA_REFERENCE_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
           SCHEMA_SOURCE: ${{ github.sha }}
         run: pnpm schema:generate --source-commit "$SCHEMA_SOURCE"
       - run: pnpm exec playwright install --with-deps chromium webkit
