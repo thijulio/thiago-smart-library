@@ -7,7 +7,7 @@ it('supplies the service container in step env for every database reference cons
     // The job context is available to step env, not job-level env.
     const beforeSteps = workflow.split('    steps:')[0];
     expect(beforeSteps).not.toContain('${{ job.services.postgres.id }}');
-    const steps = workflow.split(/\n      - /).slice(1);
+    const steps = workflow.split(/\n {6}- /).slice(1);
     const consumers = steps.filter((step) =>
       /pnpm test:db|schema-reference\.integration|pnpm schema:generate/.test(step),
     );
