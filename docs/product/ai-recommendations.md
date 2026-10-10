@@ -96,6 +96,14 @@ near-term order. Reordering must consider the sequence, not merely rank three
 independent alternatives against the same current state. The owner wants to
 consult this plan when deciding what to read next.
 
+The owner selected **independent platform plans**. Kindle sequencing uses its
+own current/recent reading and planned entries; audiobook sequencing uses its
+own. A dense Kindle read does not automatically cause an audiobook queue to
+favor a lighter book. Proposed shared inputs such as the reader's overall taste
+profile and book-level eligibility can still apply to both plans; independence
+here governs the platform's reading-sequence context. A deferral refreshes its
+affected platform plan.
+
 Proposed interaction: select **Move later**, enter a reason, save the decision,
 then refresh the affected plan and store the resulting placement. Jev evaluates
 the relevant qualitative factors; application code applies eligibility and
@@ -223,9 +231,9 @@ recommendation quality. Numeric targets remain undecided.
 The initial taste evidence, relevance rubric, format criteria, queue behavior,
 profile persistence, enrichment sources, model/embedding costs, consent and
 milestone sequencing remain open. The owner selected a planned reading order
-per platform and reason-based deferral. The plan horizon, how cross-platform
-recent reading influences each queue, how long a deferral reason applies and the
-exact placement rules still need design. No new delivery tickets or technical
+per platform, independent platform sequencing and reason-based deferral. The
+plan horizon, how long a deferral reason applies and the exact placement rules
+still need design. No new delivery tickets or technical
 design approvals are created by this draft.
 
 ## Technical references
