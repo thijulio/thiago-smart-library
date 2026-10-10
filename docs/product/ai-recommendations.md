@@ -49,6 +49,42 @@ The owner identified **Jev by TypeSafe AI** and reported having Vercel credits.
 Account access, credit eligibility for AI Gateway and usable balance have not
 been verified. No credentials have been requested or model calls made.
 
+## Owner-stated calculation lifecycle
+
+Calculate with Jev, persist the results and reuse them when displaying the
+product. Refresh affected results on meaningful events such as buying a book,
+adding a recommendation or finishing a book. Opening a page should read saved
+results rather than invoke Jev again. The inexpensive enrichment model should
+also produce reusable stored output.
+
+The following trigger mapping is proposed implementation detail:
+
+| Event                                          | Refresh scope                                                                                                                     |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Add a new book or recommendation               | Enrich missing book information; calculate its taste and format judgments; update eligible platform queues                        |
+| Buy a book already evaluated                   | Update ownership, edition availability and eligibility in code; refresh qualitative format judgments only if their inputs changed |
+| Finish a book                                  | Update status, recent-reading context and series progress; refresh affected next-read judgments and queues                        |
+| Add or change a rating, reaction or preference | Refresh the relevant preference evidence and dependent taste/format judgments, then queues                                        |
+| Correct book metadata or an edition            | Refresh only judgments depending on those changed facts                                                                           |
+| Change ranking criteria or request a refresh   | Recompute affected judgments against the current criteria                                                                         |
+
+Finishing a book supplies reading context; it does not by itself prove the reader
+liked it or justify changing a taste preference. Adding a candidate should not
+force reevaluating every unchanged book. Exact sorting and eligibility updates
+can often reuse existing judgments without a model call.
+
+Proposed persisted outputs include book enrichment, user-specific taste scores,
+format judgments and platform recommendations. Retain calculation time, source
+references and input/model/rubric versions so stale results can be detected and
+only their dependents refreshed. Keep all personal outputs scoped to their owner.
+Background refresh, coalescing nearby changes and failure handling remain design
+choices; saving a reading action must not wait for AI to succeed.
+
+Natural-language filtering depends on the actual query: a new query may need a
+new Jev evaluation. Reuse a saved query result while its query, book evidence and
+any included user preferences remain unchanged. Saved book tags alone do not
+precompute every possible query match.
+
 ## Proposed separation of judgments
 
 Keep three distinct outputs rather than folding every decision into one score:
@@ -113,8 +149,10 @@ candidate selection, preference handling, comparison and evaluation also matter.
    from generated explanations. Rejected recommendations can reveal a wrong
    inference or a temporary reading preference rather than a permanent dislike.
 
-Proposed flow: request → retrieve private evidence → compare eligible candidates
-→ recommend with reasons → capture feedback.
+Proposed calculation flow: meaningful event → retrieve affected private evidence
+→ evaluate changed judgments → store results → update platform queues.
+Proposed display flow: read persisted results → show recommendations and reasons
+→ capture the next reading action or feedback.
 
 ## When semantic retrieval helps
 
@@ -155,10 +193,12 @@ recommendation quality. Numeric targets remain undecided.
 
 The initial taste evidence, relevance rubric, format criteria, queue behavior,
 profile persistence, enrichment sources, model/embedding costs, consent and
-milestone sequencing remain open. In particular, decide whether each platform's
-three books are alternatives for the immediate next read or an ordered sequence
-whose context changes after each proposed book.
-No new delivery tickets or accepted decisions are created by this draft.
+milestone sequencing remain open. When designing the screen, clarify whether
+each platform's three books form a ranked shortlist to choose from now or a
+planned reading order that anticipates finishing the first and second books.
+This display detail remains open and does not block planning the persisted-results
+lifecycle. No new delivery tickets or technical design approvals are created by
+this draft.
 
 ## Technical references
 
