@@ -21,6 +21,11 @@ This page records order/dependencies rather than duplicating task status.
 
 ## Existing obligations and later work
 
+Independent documentation work: [#55 — Automatic schema reference on GitHub Pages](https://github.com/thijulio/thiago-smart-library/issues/55)
+is M0/Todo with a [reviewable proposal](../database/schema-reference-proposal.md).
+It generates from migrations in disposable PostgreSQL, does not access Neon,
+and does not gate #45. Initial Pages publication/automation requires its own review.
+
 | Track                      | Tickets                                                                                                                                                                                                 | Meaning                                                                                                     |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Completed baseline         | [#28](https://github.com/thijulio/thiago-smart-library/issues/28), [PR #48](https://github.com/thijulio/thiago-smart-library/pull/48)                                                                   | Main integration and 2026-10-10 production publication recorded. No repeat import/release for cleanup.      |

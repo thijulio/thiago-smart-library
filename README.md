@@ -86,6 +86,8 @@ The public page works without secrets; login fails safely until configured.
 - [Product decisions](docs/product/decisions.md), [architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap/README.md); GitHub milestones/issues own live tracking
 - [Database contract](docs/database/README.md) and its execution addendum
+- [Roadmap/schema mapping](docs/database/roadmap-schema-map.md) and
+  [automatic schema-reference proposal](docs/database/schema-reference-proposal.md)
 
 Hosted migrations, imports, provider changes, owner binding, merges, deploys and
 cutover require explicit approval for the concrete action. PR #48 integrated the
