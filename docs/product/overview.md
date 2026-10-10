@@ -7,7 +7,8 @@
 Planning review: 2026-10-10. This brief recovers existing intent; new priorities
 and validation proposals remain proposals until reviewed. See the
 [source review](direction-and-evidence.md), [benchmark](benchmark-2026-10-10.md),
-[decisions](decisions.md) and [roadmap](../roadmap/README.md).
+[decisions](decisions.md), [AI recommendation discussion](ai-recommendations.md)
+and [roadmap](../roadmap/README.md).
 
 ## Purpose and users
 
