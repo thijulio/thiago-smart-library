@@ -43,5 +43,9 @@ jobs:
       - run: pnpm check
       - name: First clean disposable database run
         run: pnpm test:db
+        env:
+          SCHEMA_REFERENCE_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
       - name: Second clean disposable database run
         run: pnpm test:db
+        env:
+          SCHEMA_REFERENCE_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
