@@ -1,7 +1,8 @@
 # Repository guidance
 
-Thiago Smart Library is a private, single-owner reading library that replaces the Thiago Library
-prototype. Start with `docs/roadmap/README.md` and the takeover design in
+Smart Library provides private libraries for any user, initially with only the owner's imported
+library populated. Google is the first provider; application user IDs own libraries. It replaces
+the Thiago Library prototype. Start with `docs/roadmap/README.md` and the takeover design in
 `docs/superpowers/specs/`. Live status is in GitHub milestones and issues.
 
 ## Boundaries
@@ -32,4 +33,4 @@ explicit owner approval at the time of the action.
 - `pnpm check` for format, lint, typecheck, unit tests, build and the browser bundle boundary.
 - `pnpm test:db` for real-PostgreSQL integration tests (`pnpm db:up` starts the disposable server).
 - `pnpm test:e2e` for the built UI and local HTTP routing.
-- `pnpm dev` for frontend iteration; `pnpm dev:netlify` when the health functions must run.
+- `pnpm dev` for frontend iteration; `pnpm dev:netlify` for built local HTTP checks.

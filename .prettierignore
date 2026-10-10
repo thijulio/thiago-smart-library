@@ -2,3 +2,8 @@
 docs/database/reference/prototype/
 # Temporary plan execution artifacts are not deliverables.
 .superpowers/
+# Nested Claude checkouts are independent workspaces.
+.claude/worktrees/
+.nuxt/
+.output/
+dist/

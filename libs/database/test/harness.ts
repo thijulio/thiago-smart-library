@@ -31,6 +31,7 @@ export async function createTestDatabase() {
     'private_reader',
     'public_reader',
     'ranking_worker',
+    'app_runtime',
   ] as const;
   const logins = roles.map((role) => `sl_${role}_${suffix}`);
   const pools = roles.map(() => localPool(target.url)); // replaced after provisioning
@@ -79,6 +80,7 @@ export async function createTestDatabase() {
     privateReader: pools[3],
     publicReader: pools[4],
     rankingWorker: pools[5],
+    appRuntime: pools[6],
     name,
     instanceId,
     async dispose() {

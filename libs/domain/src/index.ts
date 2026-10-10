@@ -1,4 +1,5 @@
 export * from './lib/health';
+export type { BookCard, BookDetail } from './lib/library-contracts';
 
 export type { BookId, StableBookId, ReadingStatus, Platform } from './lib/database-contracts';
 

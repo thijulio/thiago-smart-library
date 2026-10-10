@@ -2,9 +2,12 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { rmSync, writeFileSync } from 'node:fs';
 import test from 'node:test';
-test('Nx rejects a temporary web-to-api import', () => {
-  const fixture = 'apps/web/src/__boundary_fixture__.ts';
-  writeFileSync(fixture, "import '../../../api/src/functions/health';\n");
+test('browser imports cannot reach server-only modules or database libraries', () => {
+  const fixture = 'apps/web/app/__boundary_fixture__.ts';
+  writeFileSync(
+    fixture,
+    "import '../server/core/auth';\nimport '@smart-library/database';\nimport '@neondatabase/serverless';\n",
+  );
   try {
     let error;
     try {
@@ -13,6 +16,7 @@ test('Nx rejects a temporary web-to-api import', () => {
       error = caught;
     }
     assert.equal(error?.status, 1);
+    assert.match(`${error?.stdout ?? ''}${error?.stderr ?? ''}`, /no-restricted-imports/);
     assert.match(`${error?.stdout ?? ''}${error?.stderr ?? ''}`, /@nx\/enforce-module-boundaries/);
   } finally {
     rmSync(fixture, { force: true });

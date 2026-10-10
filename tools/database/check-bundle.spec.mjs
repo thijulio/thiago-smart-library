@@ -10,6 +10,11 @@ test('rejects database driver and private SQL payloads in browser output', () =>
     'DB_MIGRATION_URL',
     'DB_IMPORT_URL',
     'exceljs',
+    'DATABASE_RUNTIME_URL',
+    'GOOGLE_CLIENT_SECRET',
+    'BETTER_AUTH_SECRET',
+    'library.catalog_for_user',
+    'postgresql://sl_app_runtime:private@ep-example.neon.tech/neondb',
   ])
     assert.throws(() => assertBrowserBundleSafe(text), /SERVER_DATABASE_CODE_IN_BROWSER/);
 });

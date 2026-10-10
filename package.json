@@ -9,11 +9,11 @@
   },
   "scripts": {
     "dev": "nx dev web",
-    "dev:netlify": "pnpm build && netlify dev --filter web --offline --no-open --skip-gitignore --dir dist/apps/web --functions ../../apps/api/src/functions --framework '#static'",
+    "dev:netlify": "pnpm build && HOST=127.0.0.1 PORT=8888 node dist/apps/web/server/index.mjs",
     "lint": "nx run-many -t lint --all",
     "typecheck": "nx run-many -t typecheck --all",
     "test": "nx run-many -t test --all",
-    "build": "nx run-many -t build --projects=web,api",
+    "build": "nx build web",
     "test:e2e": "nx e2e web-e2e",
     "format:check": "prettier --check .",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm database:boundary:check",
@@ -27,35 +27,37 @@
     "database:boundary:check": "node --test tools/database/check-bundle.spec.mjs && node tools/database/check-bundle.mjs",
     "db:extract": "tsx tools/database/extract.ts",
     "db:import": "tsx tools/database/import.ts",
-    "db:verify": "tsx tools/database/verify.ts"
+    "db:verify": "tsx tools/database/verify.ts",
+    "build:netlify": "NITRO_PRESET=netlify pnpm build",
+    "db:bind-owner": "tsx tools/database/bind-owner.ts"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
-    "@netlify/functions": "6.0.0",
+    "@neondatabase/serverless": "^1.2.0",
     "@thijulio/biome-css": "0.0.2",
-    "@thijulio/biome-react": "0.0.2",
+    "better-auth": "1.7.7",
+    "h3": "1.15.11",
+    "kysely": "0.28.17",
+    "nuxt": "4.6.0",
     "pg": "8.23.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "vue": "3.5.43",
+    "ws": "8.21.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
-    "@eslint/js": "9.39.1",
+    "@eslint/js": "9.39.4",
     "@nx/devkit": "23.2.1",
     "@nx/eslint": "23.2.1",
     "@nx/eslint-plugin": "23.2.1",
     "@nx/js": "23.2.1",
-    "@nx/react": "23.2.1",
     "@nx/vite": "23.2.1",
     "@playwright/test": "1.58.2",
     "@types/node": "24.10.1",
     "@types/pg": "8.23.1",
-    "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.1",
-    "esbuild": "0.25.12",
-    "eslint": "9.39.1",
+    "@types/ws": "8.18.1",
+    "esbuild": "0.28.1",
+    "eslint": "9.39.4",
     "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-vue": "10.11.1",
     "exceljs": "4.4.0",
     "globals": "16.5.0",
     "netlify-cli": "27.6.0",
@@ -65,8 +67,10 @@
     "tsx": "4.23.15",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.2",
-    "vite": "7.3.5",
-    "vitest": "4.1.11"
+    "vite": "8.3.4",
+    "vitest": "4.1.11",
+    "vue-eslint-parser": "10.4.1",
+    "vue-tsc": "3.3.12"
   },
   "pnpm": {
     "overrides": {
@@ -74,5 +78,6 @@
       "nx@23.2.1>smol-toml": "1.7.1",
       "vite>esbuild": "0.28.1"
     }
-  }
+  },
+  "type": "module"
 }

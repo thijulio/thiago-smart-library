@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 /** Complements Nx import boundaries with a scan of actual built frontend bytes. */
 export function assertBrowserBundleSafe(text) {
   if (
-    /pg-protocol|pg-pool|MIGRATION_CHECKSUM_MISMATCH|library\.(patch_book|create_book)|DB_(MIGRATION|IMPORT|OWNER)_URL|exceljs|libs\/(database|importer)/i.test(
+    /pg-protocol|pg-pool|MIGRATION_CHECKSUM_MISMATCH|library\.(patch_book|create_book|catalog_for_user|book_for_user)|DB_(MIGRATION|IMPORT|OWNER)_URL|DATABASE_RUNTIME_URL|GOOGLE_CLIENT_SECRET|BETTER_AUTH_SECRET|postgres(?:ql)?:\/\/|exceljs|libs\/(database|importer)/i.test(
       text,
     )
   )
@@ -25,7 +25,7 @@ async function scan(directory) {
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   try {
-    const count = await scan('dist/apps/web');
+    const count = await scan('dist/apps/web/public');
     if (!count) throw new Error('MISSING_BROWSER_OUTPUT');
     console.log(`BROWSER_DATABASE_BOUNDARY_OK files=${count}`);
   } catch {
