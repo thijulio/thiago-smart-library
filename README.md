@@ -1,5 +1,7 @@
 # Thiago Smart Library
 
+## [🌐 Open Smart Library](https://thiago-smart-library.netlify.app)
+
 Thiago Smart Library is a private, single-owner reading library that replaces the Thiago Library
 prototype. Daily capture works from ChatGPT and Claude through an MCP server.
 
