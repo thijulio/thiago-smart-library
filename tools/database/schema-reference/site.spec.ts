@@ -35,7 +35,11 @@ test('full reference works at project prefix without application data', async ({
   ])
     expect((await request.get('./' + path)).ok()).toBe(true);
   expect(errors).toEqual([]);
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  const violations = (await new AxeBuilder({ page }).analyze()).violations.map((v) => ({
+    id: v.id,
+    targets: v.nodes.map((n) => n.target),
+  }));
+  expect(violations).toEqual([]);
   await page.screenshot({
     path: 'test-results/schema-reference/' + test.info().project.name + '.png',
     fullPage: false,
@@ -48,7 +52,7 @@ test('search is keyboard accessible and downloads use relative paths', async ({ 
   await page.keyboard.type('does-not-exist');
   await expect(page.getByRole('status')).toHaveText('0 objects shown');
   await search.clear();
-  await page.keyboard.press('Tab');
+  await page.keyboard.press(test.info().project.name === 'mobile' ? 'Alt+Tab' : 'Tab');
   await expect(page.locator(':focus')).toHaveAttribute('data-nav-id', /./);
   await expect(page.getByRole('link', { name: 'Download schema-only SQL' })).toHaveAttribute(
     'href',

@@ -137,7 +137,7 @@ const css = `
 body{margin:0;background:var(--surface-page);color:var(--text-strong);font-family:var(--font-ui,system-ui)}
 header,main,footer{max-width:1440px;margin:auto;padding:var(--space-6,24px)}
 h1,h2,h3{overflow-wrap:anywhere}a{color:var(--text-strong)}a:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:4px}
-.eyebrow{font-size:.85rem;text-transform:uppercase;letter-spacing:.1em}.muted{color:var(--text-muted)}
+.eyebrow{font-size:.85rem;text-transform:uppercase;letter-spacing:.1em}.muted,nav small{color:var(--text-body)}
 .layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:var(--space-6,24px)}
 nav{align-self:start;position:sticky;top:16px;max-height:90vh;overflow:auto}nav ul{list-style:none;padding:0}nav li{padding:6px 0;overflow-wrap:anywhere}
 .object-card{background:var(--surface-raised);border:1px solid var(--border);border-radius:12px;padding:var(--space-6,24px);margin:20px 0;scroll-margin-top:16px}
