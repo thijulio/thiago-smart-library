@@ -30,9 +30,12 @@ the priorities below. Their technical design and delivery sequence remain open.
 3. **Choose a wishlist book's best platform/format using Jev.** Compare Kindle
    versus audiobook with parameters such as complexity, suitability for listening
    and quality. The complete criteria and weights still need discussion.
-4. **Display the next three books per platform.** Consider recent reading, series
-   continuity and balancing a dense book with a lighter next read. Use Jev for
-   the contextual judgments rather than sorting only by general taste relevance.
+4. **Display the next three books in a planned reading order per platform.**
+   The owner clarified that this is an ordered plan to consult when deciding the
+   next read. Consider recent reading, series continuity and balancing a dense
+   book with a lighter next read. Let the reader move a book further down the
+   list, add a reason and have Jev reassess its placement. Use Jev for contextual
+   judgments rather than sorting only by general taste relevance.
 5. **Then add filtering by story characteristics.** Use an inexpensive generative
    model to enrich book records with useful descriptive tags, and Jev to evaluate
    their relevance to a natural-language query. One supplied query describes a
@@ -64,6 +67,7 @@ The following trigger mapping is proposed implementation detail:
 | Add a new book or recommendation               | Enrich missing book information; calculate its taste and format judgments; update eligible platform queues                        |
 | Buy a book already evaluated                   | Update ownership, edition availability and eligibility in code; refresh qualitative format judgments only if their inputs changed |
 | Finish a book                                  | Update status, recent-reading context and series progress; refresh affected next-read judgments and queues                        |
+| Move a planned book later and add a reason     | Persist the reader's scheduling decision and reason; reassess placement in the affected platform plan using that reason           |
 | Add or change a rating, reaction or preference | Refresh the relevant preference evidence and dependent taste/format judgments, then queues                                        |
 | Correct book metadata or an edition            | Refresh only judgments depending on those changed facts                                                                           |
 | Change ranking criteria or request a refresh   | Recompute affected judgments against the current criteria                                                                         |
@@ -84,6 +88,31 @@ Natural-language filtering depends on the actual query: a new query may need a
 new Jev evaluation. Reuse a saved query result while its query, book evidence and
 any included user preferences remain unchanged. Saved book tags alone do not
 precompute every possible query match.
+
+## Planned reading order and reader feedback
+
+Each platform has a saved reading plan; the next three entries are its visible
+near-term order. Reordering must consider the sequence, not merely rank three
+independent alternatives against the same current state. The owner wants to
+consult this plan when deciding what to read next.
+
+Proposed interaction: select **Move later**, enter a reason, save the decision,
+then refresh the affected plan and store the resulting placement. Jev evaluates
+the relevant qualitative factors; application code applies eligibility and
+series constraints and calculates the resulting positions. The user's explicit
+request to defer the book must survive the refresh rather than being immediately
+undone by its existing high taste score.
+
+A reason such as "too dense right now" is scheduling context, not automatically
+a lower taste score or a permanent preference against dense books. Explicit
+dislike or a corrected preference may have different effects, but those effects
+need defined rules and reviewable evidence.
+
+For later positions, use the characteristics of preceding planned books as
+anticipated context. Do not treat a future read as completed or invent the
+reader's reaction to it. Finishing a real book, recording actual feedback or
+deferring an entry can update the remaining plan. The persistence lifecycle
+above applies: displaying the plan reads stored results.
 
 ## Proposed separation of judgments
 
@@ -193,12 +222,11 @@ recommendation quality. Numeric targets remain undecided.
 
 The initial taste evidence, relevance rubric, format criteria, queue behavior,
 profile persistence, enrichment sources, model/embedding costs, consent and
-milestone sequencing remain open. When designing the screen, clarify whether
-each platform's three books form a ranked shortlist to choose from now or a
-planned reading order that anticipates finishing the first and second books.
-This display detail remains open and does not block planning the persisted-results
-lifecycle. No new delivery tickets or technical design approvals are created by
-this draft.
+milestone sequencing remain open. The owner selected a planned reading order
+per platform and reason-based deferral. The plan horizon, how cross-platform
+recent reading influences each queue, how long a deferral reason applies and the
+exact placement rules still need design. No new delivery tickets or technical
+design approvals are created by this draft.
 
 ## Technical references
 
