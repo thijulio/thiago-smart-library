@@ -220,7 +220,8 @@ to a model and changes no hosted resources.
 The working product slice is now current reading plus personal relevance, format
 choice and three next books per platform, with story filtering afterwards. This
 replaces the assistant's earlier generic wishlist-first experiment suggestion.
-Milestone sequencing and executable tickets still need joint planning.
+The [roadmap](../roadmap/README.md) now proposes delivery order and maps the
+workflows to executable tickets; technical designs precede implementation.
 
 Evaluate retrieval completeness, whether explanations match their cited records,
 whether the reader finds the choices useful, and whether feedback corrects future
@@ -229,12 +230,13 @@ checks before any multiuser AI release; grounded explanations alone do not prove
 recommendation quality. Numeric targets remain undecided.
 
 The initial taste evidence, relevance rubric, format criteria, queue behavior,
-profile persistence, enrichment sources, model/embedding costs, consent and
-milestone sequencing remain open. The owner selected a planned reading order
+profile persistence, enrichment sources, model/embedding costs and consent
+remain open. The owner selected a planned reading order
 per platform, independent platform sequencing and reason-based deferral. The
 plan horizon, how long a deferral reason applies and the exact placement rules
-still need design. No new delivery tickets or technical
-design approvals are created by this draft.
+still need design. Recording requirements does not approve a technical design.
+The roadmap maps them to concrete planned issues (#14–#16, #45/#46 and #50–#54); see the
+[delivery queue](../roadmap/delivery-queue.md) for order and execution dependencies.
 
 ## Technical references
 

@@ -80,6 +80,7 @@ The public page works without secrets; login fails safely until configured.
 
 - [Product brief](docs/product/overview.md), [recovered direction](docs/product/direction-and-evidence.md)
   and [reading-product benchmark](docs/product/benchmark-2026-10-10.md)
+- [Reading priorities and Jev planning](docs/product/ai-recommendations.md)
 - [Private product spec](docs/superpowers/specs/2026-10-09-private-library-product.md)
 - [Exact hosted setup and owner binding](docs/database/runbooks/private-library-product.md)
 - [Product decisions](docs/product/decisions.md), [architecture](docs/architecture.md)
@@ -87,7 +88,7 @@ The public page works without secrets; login fails safely until configured.
 - [Database contract](docs/database/README.md) and its execution addendum
 
 Hosted migrations, imports, provider changes, owner binding, merges, deploys and
-cutover require explicit approval for the concrete action. The approved manual
-deploy did not push or merge code. A future production-branch deploy can replace
-this manual version; keep the published code and Git integration aligned before
-the next release.
+cutover require explicit approval for the concrete action. PR #48 integrated the
+private-library product into main (b248673); issue #28 records the approved
+Git-backed production publication on 2026-10-10. Subsequent releases must keep
+the reviewed code, Git commit and production deployment aligned.

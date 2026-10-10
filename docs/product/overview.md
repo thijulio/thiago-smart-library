@@ -1,8 +1,8 @@
 # Product overview
 
 > 2026-10-10: the owner reopened product definition for interactive brainstorming.
-> Treat this document as working material. Proposed priorities and exceptions
-> are not approved implementation scope; current data/privacy contracts remain in force.
+> Owner-stated Reading/AI priorities are recorded below. Delivery order and
+> technical details remain planning material; current data/privacy contracts remain in force.
 
 Planning review: 2026-10-10. This brief recovers existing intent; new priorities
 and validation proposals remain proposals until reviewed. See the
@@ -35,6 +35,20 @@ coherent book-level record linking reading, feedback, recaps and reviewable
 preferences is useful enough to become a reader's regular workspace. The
 benchmark establishes overlap; it does not prove an unserved market.
 
+## First product priorities — owner direction, 2026-10-10
+
+Display current reading; calculate and store personal taste relevance with Jev;
+compare Kindle/audiobook suitability; display the next three entries of an
+independent ordered plan per platform; let the reader move a book later with a
+reason. Then add natural-language filtering by story characteristics, using
+stored inexpensive AI enrichment and Jev relevance judgments.
+
+Calculate on meaningful changes and persist results. Page views reuse saved
+results. Temporary scheduling reasons do not automatically become dislikes.
+Use the prototype's familiar Reading/Library organization. See the
+[discussion](ai-recommendations.md) for confirmed direction and open details,
+and the [delivery queue](../roadmap/delivery-queue.md) for executable tickets.
+
 ## The reading loop
 
 | Moment          | User outcome                                                       | Delivery boundary                                                                        |
@@ -65,8 +79,8 @@ Local integration tests cover signed sessions and user isolation; a hosted
 second-account exercise is pending. Google OAuth remains in Testing with only
 the owner admitted. Multiuser architecture is not the same as open onboarding.
 
-The first publication was manual and preceded Git integration. Issue #28
-tracks review, Git integration and release evidence for the reproducible baseline.
+The first publication was manual. PR #48 subsequently integrated the app into
+main (b248673), and #28 records the 2026-10-10 Git-backed production publication.
 Creation/editing, a reading workspace, recap browsing, rankings and assistant
 tools are not delivered. A new user cannot yet complete the capture loop.
 
@@ -107,6 +121,7 @@ consented evidence; private prose and titles do not belong in analytics logs.
 
 Social feeds, public libraries, clubs, lending, billing, extra login providers,
 embeddings and autonomous agents are not requirements for the next slice.
-Existing discovery tickets preserve enrichment, retrieval, preferences,
-portability and reading-history questions. MCP is a planned capture/access
-channel, not a prerequisite for ordinary browser use.
+Enrichment (#14), taste relevance (#16) and story filtering (#15) now have
+concrete planned scopes in the roadmap. Broader preference learning, portability
+and history extensions remain later candidates. MCP is a planned capture/access
+channel, not a prerequisite for the in-app Jev reading recommendation loop.
