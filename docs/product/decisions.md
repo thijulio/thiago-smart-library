@@ -21,3 +21,50 @@ Taken on 2026-10-04 when Claude Code took over from Codex. Source: [takeover des
 
 - P-02 "ChatGPT is the only planned AI connection" (closed PR #20) is superseded by T-04.
 - The DB-05 owner CLI as final private interface is superseded by T-02 and T-03.
+
+## Product implementation direction — 2026-10-09
+
+Owner decision T-13 replaces the separate M0 spike prerequisite: discuss product ideas,
+implement them in the product, and validate them against the existing production environment.
+Reuse the existing Smart Library Neon project, imported production database, and Netlify site.
+Do not create dedicated spike projects, databases, branch deployments, or additional spike
+configuration. The imported library is already available; this is not another import task.
+
+OAuth, MCP compatibility, and function latency must still be verified when their product
+features are implemented. The previous throwaway spike is no longer a prerequisite for M1;
+this decision does not claim issue #27 passed. Its GitHub tracking still needs reconciliation.
+The existing spike setup proposals and Task 10 are superseded for execution.
+
+Start the product discussion with the Library catalog and book detail, using the planned
+Nuxt/Vue architecture and published Biome components. Production data and credentials remain
+private. Live validation starts with reads; deployments, hosted SQL, and data-changing actions
+still require approval for the concrete action. The Google Sheet remains canonical until an
+explicit cutover decision.
+
+## Private libraries for any user — 2026-10-09
+
+Owner decision T-14: the anonymous surface explains the product; books belong to
+private authenticated libraries. The product is for any user. Google is the first
+login method; application user IDs own libraries independently of the provider.
+Only the owner's existing library is populated today. New verified users start
+with an empty library and receive no access to the owner's books. Other login
+providers and scoped editing can follow without changing ownership keys.
+
+This supersedes the single-owner-only auth and public-catalog assumptions for the
+first product slice. See the [private library spec](../superpowers/specs/2026-10-09-private-library-product.md)
+and [hosted handoff](../database/runbooks/private-library-product.md). The existing
+production environment is reused; no spike setup, reimport or automatic cutover.
+
+## Product planning review — 2026-10-10
+
+The owner requested a product definition, benchmark and trackable roadmap,
+then supplied the private Smart Library folder as previous discussion context.
+The [source review](direction-and-evidence.md) recovers the reading-memory and
+grounded-assistance intent. The [brief](overview.md) and [roadmap](../roadmap/README.md)
+separate confirmed principles from proposals. This is not a new accepted
+T-series decision: native production writes before M5, pilot/AI scope and any
+change to the full-parity cutover gate still need explicit review.
+
+T-01 describes the historical takeover agent choice; it does not prohibit the
+owner's subsequent Codex work. T-08/T-09 owner-only/public-catalog assumptions
+are superseded by T-14; T-13 removes the standalone spike prerequisite.

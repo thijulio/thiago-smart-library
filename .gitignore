@@ -10,5 +10,7 @@ deno.lock
 .agent-toolbox/installed/
 .superpowers/
 .database-local/
+.nuxt/
+.output/
 database-reports/
 *.pgdump

@@ -1,28 +1,17 @@
 [build]
   base = "."
-  command = "pnpm build"
-  publish = "dist/apps/web"
-  functions = "dist/apps/api/functions"
+  command = "pnpm build:netlify"
+  publish = "dist/apps/web/public"
 
+[build.environment]
+  NODE_VERSION = "24"
+
+[functions]
+  directory = ".netlify/functions-internal"
+
+# Nitro generates the Netlify function and routing; there is no SPA fallback.
 [dev]
+  command = "pnpm dev"
+  targetPort = 3000
   port = 8888
-
-[[redirects]]
-  from = "/api/health"
-  to = "/.netlify/functions/health"
-  status = 200
-
-[[redirects]]
-  from = "/api/health/db"
-  to = "/.netlify/functions/database-health"
-  status = 200
-
-[[redirects]]
-  from = "/api/*"
-  to = "/api/not-found"
-  status = 404
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  framework = "#custom"

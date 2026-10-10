@@ -149,3 +149,33 @@ Default lock timeout 5 seconds, statement timeout 30 seconds; offline bulk impor
 No account service is selected in this pack. Owner operations are a local CLI using a private DB login; no private HTTP endpoints are exposed. Optional public catalogue fields follow the existing spec allowlist and remain behind `PUBLIC_LIBRARY_ENABLED=false` until publication approval. This deliberately makes database delivery independent of choosing authentication; it does not claim authenticated browser workflows are delivered.
 
 Source snapshot storage/report directories require owner-only permissions. Deny paths inside the tracked repository except synthetic fixtures; do not silently chmod or overwrite existing user files. Restrict error/log output to codes, counts and opaque run IDs; optional detailed files are private. Do not fetch covers/source links while importing.
+
+## J. Provider-neutral private libraries — 2026-10-09 product decision
+
+The owner now intends the product for any user, with Google as the first login
+provider and only the owner's imported library populated initially. Application
+user IDs own libraries; Google subjects and emails are not ownership keys.
+Anonymous visitors see product information, not a public book catalog. Verified
+new users see empty private libraries and never claim the existing import.
+
+This additive contract supersedes earlier single-owner/public-catalog assumptions
+for this product slice. Migration 0006 adds Better Auth storage in `auth`, unique
+application-user ownership in `library.user_libraries`, and exclusive book
+membership in `library.library_books`. It leaves old book IDs, imported values,
+feedback, provenance, source evidence and migrations 0001–0005 intact.
+
+The server derives identity from the current validated session and calls scoped
+read functions with that ID. `library_app_runtime` has auth CRUD and only those
+library function grants, not base/audit table or editor/importer access. Runtime
+credentials are trusted server infrastructure, never exposed to clients. The
+server must never accept a client-supplied ownership ID. Auth SQL uses Kysely as
+Better Auth's adapter; the library contract remains explicit SQL.
+
+Initial owner binding is an approved offline transaction after a verified owner
+login. It never runs during signup, startup, build or import. No test uses the
+production records. Hosted schema/login/configuration, owner binding and deploy
+remain separate approval gates. Future user-scoped editing/imports and account
+linking require their own reviewed contract; broad historical owner routines are
+not made available to the product runtime.
+
+See [private library handoff](../runbooks/private-library-product.md).
