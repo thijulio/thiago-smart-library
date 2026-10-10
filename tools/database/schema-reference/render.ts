@@ -13,7 +13,9 @@ export function anchor(id: string): string {
 }
 function objectCard(o: SchemaObject): string {
   const columns = o.columns?.length
-    ? '<div class="table-scroll"><table><caption>Columns</caption><thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Nullable</th><th scope="col">Default / generation</th><th scope="col">Comment / privileges</th></tr></thead><tbody>' +
+    ? '<div class="table-scroll" tabindex="0" role="region" aria-label="Columns for ' +
+      escapeHtml(o.schema + '.' + o.name) +
+      '"><table><caption>Columns</caption><thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Nullable</th><th scope="col">Default / generation</th><th scope="col">Comment / privileges</th></tr></thead><tbody>' +
       o.columns
         .map(
           (c) =>
@@ -122,7 +124,7 @@ function diagram(model: SchemaReference): string {
     )
     .join('');
   return (
-    '<div class="diagram-scroll"><svg role="img" aria-labelledby="diagram-title diagram-description" viewBox="0 0 ' +
+    '<div class="diagram-scroll"><svg role="group" aria-labelledby="diagram-title diagram-description" viewBox="0 0 ' +
     model.schemas.length * 250 +
     ' ' +
     height +
@@ -207,7 +209,7 @@ export async function renderReference(
     escapeHtml(model.postgresVersion) +
     '. Production migration status is tracked separately. Structural metadata only.</p><a href="./schema.sql" download>Download schema-only SQL</a> · <a href="./schema.json" download>Download catalog manifest</a></header><main><h2>Relationships</h2>' +
     diagram(model) +
-    '<div class="table-scroll"><table><caption>Foreign keys — linked text alternative</caption><thead><tr><th>From</th><th>Columns</th><th>To</th><th>Referenced columns</th></tr></thead><tbody>' +
+    '<div class="table-scroll" tabindex="0" role="region" aria-label="Foreign keys"><table><caption>Foreign keys — linked text alternative</caption><thead><tr><th>From</th><th>Columns</th><th>To</th><th>Referenced columns</th></tr></thead><tbody>' +
     relations +
     '</tbody></table></div><h2 id="reference">Schema objects</h2><label for="object-search">Search schema objects and definitions</label><input id="object-search" type="search" placeholder="Try books, owner or auth"><p id="search-results" role="status">' +
     model.objects.length +
