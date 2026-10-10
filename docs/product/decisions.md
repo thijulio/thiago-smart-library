@@ -55,7 +55,30 @@ first product slice. See the [private library spec](../superpowers/specs/2026-10
 and [hosted handoff](../database/runbooks/private-library-product.md). The existing
 production environment is reused; no spike setup, reimport or automatic cutover.
 
-## Product planning review — 2026-10-10
+## Reading priorities and persisted Jev judgments — 2026-10-10
+
+Owner-stated requirements: current reading, Jev personal taste relevance,
+Kindle/audiobook suitability, an independent planned reading order per platform
+displaying its next three books, and a Move later action with a saved reason.
+Then add story-description filtering using inexpensive AI book enrichment and
+Jev relevance judgments. Keep the prototype's familiar site organization.
+
+Calculate and store results; refresh affected results on meaningful changes
+(new/purchased books, recommendations, completion and reason-based deferral),
+not on every page view. Temporary deferral reasons guide placement without
+automatically reducing taste relevance. Jev through Vercel AI Gateway is the
+intended integration to explore; credits are owner-reported, not verified.
+
+This refines the planned AI path: MCP remains an assistant channel, while the
+in-app reading loop can use persisted server-side Jev judgments independently.
+It does not approve provider configuration, private-data/model calls, hosted
+persistence, imported-source writes, migration/import, merge, deploy or cutover.
+Those require the reviewed design/authority contract and applicable action gate.
+
+The [discussion](ai-recommendations.md) records technical proposals; the
+[roadmap](../roadmap/README.md) and GitHub tickets record the proposed sequence.
+
+## Earlier product planning review — 2026-10-10
 
 The owner requested a product definition, benchmark and trackable roadmap,
 then supplied the private Smart Library folder as previous discussion context.
