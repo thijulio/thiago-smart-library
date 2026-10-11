@@ -29,7 +29,9 @@
     "db:import": "tsx tools/database/import.ts",
     "db:verify": "tsx tools/database/verify.ts",
     "build:netlify": "NITRO_PRESET=netlify pnpm build",
-    "db:bind-owner": "tsx tools/database/bind-owner.ts"
+    "db:bind-owner": "tsx tools/database/bind-owner.ts",
+    "schema:generate": "tsx tools/database/schema-reference/cli.ts",
+    "test:schema-ui": "playwright test --config tools/database/schema-reference/playwright.config.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",

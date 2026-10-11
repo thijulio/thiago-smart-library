@@ -1,6 +1,6 @@
 # Automatically generated database reference — design proposal
 
-Date: 2026-10-10. Status: **architecture approved by the owner; implementation and initial publication pending**.
+Date: 2026-10-10. Status: **architecture and implementation plan approved; implementation in PR #56; initial publication pending**.
 
 ## Request and verified starting point
 
@@ -116,12 +116,13 @@ access and must not appear in output.
 ## Next stage
 
 Implementation tracking: [#55](https://github.com/thijulio/thiago-smart-library/issues/55),
-M0, Todo on Libraries; independent from the Reading delivery sequence.
+M0, In Progress on Libraries; independent from the Reading delivery sequence.
 
 The owner approved this architecture and public content boundary on 2026-10-10
-and explicitly authorized merging the planning PR. Next, write and review the
-concrete implementation plan. No generator, new dependencies, Pages workflow,
-hosted settings or publication is implemented by this document. Initial hosted
+and explicitly authorized merging the planning PR. The owner subsequently approved
+the implementation plan and direct execution. [PR #56](https://github.com/thijulio/thiago-smart-library/pull/56)
+contains the generator, curated reference and gated Pages workflow; see
+[usage and exact proposed publication setup](schema-reference.md). Initial hosted
 configuration/publication remains a separate action approval.
 
 ## References checked on 2026-10-10

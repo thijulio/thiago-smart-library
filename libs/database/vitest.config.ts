@@ -7,7 +7,11 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['libs/database/src/**/*.spec.ts', 'tools/database/import-cli.spec.ts'],
-    exclude: ['**/*.integration.spec.ts'],
+    include: [
+      'libs/database/src/**/*.spec.ts',
+      'tools/database/import-cli.spec.ts',
+      'tools/database/schema-reference/*.spec.ts',
+    ],
+    exclude: ['**/*.integration.spec.ts', '**/site.spec.ts'],
   },
 });

@@ -16,3 +16,5 @@ The implemented ownership layer supports private libraries keyed to application
 users; Google is the first provider. The founder's imported records remain
 Sheet-owned until explicit cutover. Historical single-owner/public-catalog text
 is superseded where later private-library decisions and migration 0006 apply.
+
+- [Automatic schema reference usage and publication setup](schema-reference.md).
