@@ -14,3 +14,6 @@ export type {
   BookCandidate,
   ImportReport,
 } from './lib/import-contracts';
+
+export { groupReadingBooks, isReadingResponse } from './lib/reading';
+export type { ReadingBook, ReadingResponse, ReadingGroup } from './lib/reading';

@@ -236,3 +236,40 @@ it('sanitizes database failures without returning connection or library details'
   expect(response.status).toBe(503);
   expect(await response.json()).toEqual({ error: 'Library temporarily unavailable' });
 });
+
+it('serves reading data only for the persisted actor and rejects unsafe sessions', async () => {
+  await db.owner.query(
+    `UPDATE library.books SET status='reading' WHERE stable_id IN ('book-a','book-b')`,
+  );
+  const response = await request('/api/private/reading?userId=user-b', 'token-a');
+  expect(response.status).toBe(200);
+  expect(response.headers.get('cache-control')).toContain('no-store');
+  const payload = await response.json();
+  expect(payload.queueState).toBe('available');
+  expect(payload.books).toMatchObject([{ stableId: 'book-a', nextRank: null, nextSlot: null }]);
+  expect(payload.books).toHaveLength(1);
+  for (const token of [undefined, 'expired', 'token-b']) {
+    expect((await request('/api/private/reading', token)).status).toBe(401);
+  }
+  expect((await request('/api/private/reading', 'unverified')).status).toBe(403);
+});
+it('sanitizes unavailable reading routines and rejects writes', async () => {
+  const headers = { cookie: await signedCookie('token-a') };
+  const unavailable = await privateLibraryResponse(
+    new Request(origin + '/api/private/reading', { headers }),
+    auth,
+    {
+      async query() {
+        throw new Error('private SQL details');
+      },
+    },
+  );
+  expect(unavailable.status).toBe(503);
+  expect(await unavailable.json()).toEqual({ error: 'Library temporarily unavailable' });
+  const post = await privateLibraryResponse(
+    new Request(origin + '/api/private/reading', { headers, method: 'POST' }),
+    auth,
+    db.appRuntime,
+  );
+  expect(post.status).toBe(405);
+});
