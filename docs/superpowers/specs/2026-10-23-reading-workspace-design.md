@@ -1,7 +1,8 @@
 # Reading workspace — issue #45
 
-Status: approved by the owner in chat; implemented locally, with hosted release
-and browser/build acceptance pending the published Biome dependency.
+Status: approved by the owner in chat; implemented and validated locally.
+Hosted migration and release remain pending separate owner approval. See the
+implementation plan for dated validation evidence.
 
 ## Intent and scope
 

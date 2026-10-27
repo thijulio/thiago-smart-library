@@ -5,6 +5,7 @@ const { signOut } = useLibrarySession();
 const signOutError = ref('');
 const { data, status, error, refresh } = await useFetch<unknown>('/api/private/reading', {
   server: false,
+  lazy: true,
   key: 'private-reading',
 });
 const valid = computed(() => isReadingResponse(data.value));

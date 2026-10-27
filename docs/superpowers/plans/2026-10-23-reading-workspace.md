@@ -49,19 +49,21 @@ ReadingBookList.vue, apps/web-e2e/src/reading.spec.ts.
 Consumes Task 1's response and groups. Produces `/library/reading`, navigation,
 accessible current-reading and queue sections and private book detail links.
 
-- [ ] Add browser tests for content, malformed/empty/error states, retry,
+- [x] Add browser tests for content, malformed/empty/error states, retry,
       sign-out, navigation, keyboard access and mobile layout; run red.
 - [x] Implement the page and shared list using existing product styles.
-- [ ] Run browser tests green, including accessibility and private routes.
+- [x] Run browser tests green, including accessibility and private routes.
 
 ## Task 3: Review and readiness
 
-- [ ] Run pnpm check, pnpm test:db and pnpm test:e2e.
+- [x] Run pnpm check, pnpm test:db and pnpm test:e2e.
 - [x] Fresh review against the approved spec; address actionable defects.
 - [x] Record evidence and any blocked checks; prepare local commit for review.
 - [x] Report that hosted migration/publication remain pending, separately.
 
 ## Execution ledger
+
+### Original implementation session (historical evidence)
 
 - The managed workspace is already task-isolated on branch `work`.
 - Implementation authorization is the owner's acceptance of the design.
@@ -91,10 +93,68 @@ accessible current-reading and queue sections and private book detail links.
   data is hidden. Current page gates display on successful, valid response.
 - No hosted migration, import, provider modification, merge or publication ran.
 
+### Local continuation — 2026-10-27
+
+- Checked status before fetching/switching: the local checkout was clean on
+  `thijulio/schema-reference-plan` at `8864c74`. Fetched and checked out
+  `codex/reading-workspace-45` at the requested
+  `9e003f1217edda91a8f98767349747a1f8957ccc`, with implementation base `068d3ea`.
+  No existing local edits needed moving or stashing.
+- The separate cloud continuation reported a proxy HTTP 403 for
+  `pkg-npm.githubusercontent.com`. Its only uncommitted change was a plan note,
+  absent from this local checkout. That result does not establish an invalid
+  token, and its build/browser checks were not completed.
+- Local frozen installation passed using the existing published Biome 0.0.2
+  dependency. No package, lockfile, registry configuration or Biome source changed.
+  The local missing `NPM_TOKEN` interpolation warning was non-blocking; this run
+  does not establish fresh remote package authentication.
+- Verified Node `v24.22.1` and Corepack pnpm `10.19.0`. An initial subprocess
+  probe found global pnpm `10.25.0`; installed temporary Corepack shims outside
+  the repository and prepended their directory plus Node 24 to PATH. Confirmed
+  a child shell resolves Node 24 and pnpm 10.19.0, then repeated installation,
+  check, PostgreSQL and browser commands with that environment. No global
+  package-manager installation was changed.
+- Added same-mounted-page refresh coverage for 503, malformed responses, 401 and 403. Synthetic populated results load first; the test invokes Nuxt's existing
+  `app:data:refresh` hook, delays the response, and verifies titles/reasons vanish
+  while pending and after failure. A document marker verifies no reload occurred.
+  Retry restores content for recoverable failures. No production test hook added.
+- Browser red run exposed a real initial-loading defect: awaited non-lazy fetch
+  suspended page mounting until the response, hiding the loading message. Added
+  `lazy: true` so the page mounts and announces the pending request. The existing
+  loading test failed before this change and passed afterward on both engines.
+  Scoped status assertions to main to exclude Nuxt's separate route announcer.
+- Desktop keyboard validation uses sequential Tab from Reading through theme,
+  sign-out and the first book, then Enter into private details. Mobile validates
+  touch navigation; desktop Tab ordering is not imposed on emulated iOS WebKit.
+- Independent whole-branch read-only review against the approved spec found no
+  actionable defects. Browser evidence, rather than static review, exposed and
+  verified the loading correction. No deferred findings remain from this review;
+  the earlier same-session coverage gap is now addressed.
+- `corepack pnpm install --frozen-lockfile`: passed.
+- `corepack pnpm check`: passed with Nx cache disabled, including format, lint,
+  typecheck, unit suites, production build and browser boundary scan
+  (`BROWSER_DATABASE_BOUNDARY_OK files=13`).
+- `corepack pnpm test:db`: 166/166 passed across 15 files against the marked,
+  disposable loopback PostgreSQL 16.15 container, using synthetic records only.
+  Image digest: `sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54`.
+- `corepack pnpm test:e2e`: 30/30 passed with Nx cache disabled across desktop
+  Chromium and mobile iPhone 13 WebKit, including all four same-session refresh
+  failures on both engines, loading, retry, logout and private HTTP routing.
+- Visual inspection of light/dark screenshots confirmed readable cards, honest
+  ties/unspecified slots, stacked mobile groups and intact navigation. The
+  keyboard screenshot shows a visible focus ring on the book link. Browser
+  checks passed at 390px without horizontal overflow; axe reported zero
+  serious/critical violations in Reading in both themes on both engines.
+  Screenshots contain synthetic fixtures and remain in ignored `test-results/`.
+- Local logs are in `/tmp/reading-45-{install,check,db,e2e}-final.log`; browser
+  captures are in `test-results/reading-reading-preserves--330cb-s-and-opens-private-details-{desktop,mobile}/`.
+- No merge, push, deploy, hosted migration/import, provider modification, canonical
+  Sheet access/change or prototype change occurred.
+
 ## Resume
 
-Restore GitHub Packages access, run the normal frozen installation with pnpm
-10.19.0, then run pnpm check, pnpm test:db and pnpm test:e2e. Preserve the
-published Biome dependency. Resolve any newly observed UI failures before
-requesting concrete hosted migration/release approval. Migration 0007 adds only
-reading_for_user(text); deploy it before enabling the new production route.
+Local implementation and validation are ready for owner review. Keep this branch
+local; hosted migration/publication are separate pending approvals. Migration
+0007 adds only `reading_for_user(text)` and must be applied under an explicitly
+approved hosted migration before enabling the new production route. Builds and
+function startup never apply it. Issue #44 still owns hosted multiuser acceptance.
