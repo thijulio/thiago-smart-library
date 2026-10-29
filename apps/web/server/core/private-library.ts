@@ -33,6 +33,13 @@ export async function privateLibraryResponse(
     const path = new URL(request.url).pathname;
     if (path === '/api/private/session')
       return privateJson({ user: { id: session.user.id, name: session.user.name } });
+    if (path === '/api/private/reading') {
+      const result = await pool.query('SELECT library.reading_for_user($1) AS books', [
+        session.user.id,
+      ]);
+      if (!Array.isArray(result.rows[0]?.books)) throw new Error('MISSING_READING_RESULT');
+      return privateJson({ books: result.rows[0].books, queueState: 'available' });
+    }
     if (path === '/api/private/books') {
       const result = await pool.query('SELECT library.catalog_for_user($1) AS books', [
         session.user.id,
