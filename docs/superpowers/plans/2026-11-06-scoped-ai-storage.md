@@ -228,3 +228,31 @@ storage payloads are unavailable, never an empty successful plan.
   deferred hardening consideration: parsed JSON cannot contain array holes.
 - Task 1 wire formats/limits and application-versus-model provenance are now
   explicit in the design. SQL, HTTP consumers and Tasks 2–5 are not implemented.
+- Task 1 complete at `3f2a050`: isolated domain tests 18/18 and TypeScript passed;
+  GitHub CI, PostgreSQL 16.15/18.6 and schema-reference workflows all passed on
+  that exact commit. Full repository `pnpm check` and browser E2E were executed
+  by CI, not inferred from the isolated tooling. PR #59 is ready for review.
+- Task 2 local foundation: migration 0008 adds separate app-owned tables, a
+  normalized plan-entry judgment relation, immutable history and a guarded
+  NOLOGIN producer group with no table/writer grants. Imported values/provenance
+  and migrations 0001–0007 remain unchanged. Contract sections document this
+  local scope without claiming hosted application or writer enablement.
+- Task 2 red/green: five focused schema tests first failed against absent tables,
+  then passed. Late insertion into a published plan was separately observed to
+  succeed incorrectly; the guard now rejects it. Inferred-provenance validation
+  was mutation-checked: removing the constraint made its assertion fail.
+- PostgreSQL 16.15, disposable loopback container, synthetic data only: 111/111
+  integration tests passed across ten database files, including nine new schema
+  tests, bootstrap/migration replay, roles, core writes, ownership and Reading.
+  These used exact Vitest 4.1.11 and pg 8.23.0 in isolated temporary tooling;
+  full `pnpm test:db` and schema rendering remain CI acceptance work.
+  Image digest: `sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d`.
+- Fixed synthetic migration fixture numbering after observing two regression
+  failures from duplicate ordinal 0009. The rerun passed all 111 tests.
+- Independent schema review found no blocking defect. Task 4 must acquire a
+  stream lock before inserting plan revisions, avoiding FK KEY SHARE lock
+  upgrades in concurrent owner constructions. Its tests must include late
+  judgment insertion and same-library wrong-stream plan heads; foundation
+  constraints implement those rules but those two cases lack direct tests here.
+- PR #60's exact runner fix also passed all workflows after one targeted retry
+  of the cancelled schema-16.15 job. No application behavior or lockfile changed.
