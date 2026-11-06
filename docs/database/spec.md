@@ -762,6 +762,32 @@ Schema implementation, initial import, API adoption, and source-of-truth
 cutover are separate delivery slices. Connection health is already delivered;
 none of those later states follows automatically from it.
 
+### 11.4 App-owned storage foundation (#50)
+
+Additive migration 0008 defines separate private app-owned result streams and
+immutable revisions, independent Kindle/Audible plan streams and entries,
+explicit/inferred preference evidence, deferral history and operation receipts.
+Composite foreign keys keep book, head, plan-entry judgment and actor references
+inside their owning library/stream. Archiving does not erase historical records.
+This local implementation contract does not assert that 0008 is hosted/applied.
+
+The canonical Sheet continues to own imported facts, status/completion, feedback,
+assessments and explicit Up Next. App-result operations must not overwrite their
+values or provenance. Native book creation and imported status overlays remain
+outside #50 and need the separate #46 authority decision before enablement.
+
+The foundation creates a guarded NOLOGIN `library_ai_producer` permission group
+with schema usage only, no hosted login, direct table access or writer execution.
+Runtime permissions remain unchanged. Later narrow operations require ownership,
+retry receipts, expected-head concurrency and dependency freshness checks under
+the existing writer/import gate; the tables alone are not a production writer.
+
+See the [storage design](../superpowers/specs/2026-11-06-scoped-ai-storage-design.md)
+and [implementation plan](../superpowers/plans/2026-11-06-scoped-ai-storage.md).
+Recovery must preserve app-only revisions and reasons; switching back to an
+unchanged Sheet cannot recover those records. Hosted migration, write activation,
+provider calls and release each remain their applicable separate action gates.
+
 ## 12. Acceptance criteria for implementation
 
 The implementation ticket must turn the following into executable checks.
