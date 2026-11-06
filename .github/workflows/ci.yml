@@ -11,7 +11,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   foundation:
-    runs-on: ubuntu-latest
+    # Playwright 1.58.2 supports Ubuntu 24.04; keep browser jobs off rolling images.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
