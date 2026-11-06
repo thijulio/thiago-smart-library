@@ -256,3 +256,10 @@ storage payloads are unavailable, never an empty successful plan.
   constraints implement those rules but those two cases lack direct tests here.
 - PR #60's exact runner fix also passed all workflows after one targeted retry
   of the cancelled schema-16.15 job. No application behavior or lockfile changed.
+- Cross-branch CI exposed a preexisting mobile Reading audit race: 29 E2E tests
+  passed, while the dark-theme audit sampled light link colors over the already
+  dark background. Inspection of the exact published CSS in the schema artifact
+  confirmed a 250ms link-color transition. Reading now waits on actual active
+  CSS transitions after each theme change before auditing/screenshotting; it does
+  not disable motion, sleep for a fixed duration or suppress contrast findings.
+  The failed browser assertion is the red evidence; fresh CI must prove green.

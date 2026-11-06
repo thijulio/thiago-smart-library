@@ -38,6 +38,23 @@ async function session(page: Page) {
     r.fulfill({ json: { user: { id: 'synthetic', name: 'Reader' } } }),
   );
 }
+async function themeSettled(page: Page) {
+  // The published link color transition outlives the data-mode attribute change.
+  // Audit the settled theme without disabling motion or suppressing violations.
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document
+            .getAnimations()
+            .filter(
+              (animation) =>
+                animation instanceof CSSTransition && animation.playState !== 'finished',
+            ).length,
+      ),
+    )
+    .toBe(0);
+}
 test('reading preserves platforms, slots, ties and opens private details', async ({
   page,
 }, testInfo) => {
@@ -77,6 +94,7 @@ test('reading preserves platforms, slots, ties and opens private details', async
   await testInfo.attach('reading', { path: screenshot, contentType: 'image/png' });
   await page.getByRole('button', { name: 'Switch to dark mode' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
+  await themeSettled(page);
   const darkResults = await new AxeBuilder({ page }).analyze();
   expect(
     darkResults.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical'),
@@ -85,6 +103,8 @@ test('reading preserves platforms, slots, ties and opens private details', async
   await page.screenshot({ path: darkScreenshot, fullPage: true });
   await testInfo.attach('reading-dark', { path: darkScreenshot, contentType: 'image/png' });
   await page.getByRole('button', { name: 'Switch to light mode' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-mode', 'light');
+  await themeSettled(page);
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   if (testInfo.project.name === 'desktop') {
