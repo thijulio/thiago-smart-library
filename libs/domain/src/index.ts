@@ -17,3 +17,20 @@ export type {
 
 export { groupReadingBooks, isReadingResponse } from './lib/reading';
 export type { ReadingBook, ReadingResponse, ReadingGroup } from './lib/reading';
+
+export { isStoredResult, isStoredPlan } from './lib/ai-storage';
+export type {
+  ResultKind,
+  StoredState,
+  PlanPlatform,
+  StaleReason,
+  SourceReference,
+  RubricScore,
+  FormatJudgment,
+  ResultPayloads,
+  ProducerMetadata,
+  RevisionMetadata,
+  StoredResult,
+  PlanEntry,
+  StoredPlan,
+} from './lib/ai-storage';

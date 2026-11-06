@@ -212,3 +212,19 @@ storage payloads are unavailable, never an empty successful plan.
   matrix passed. Browser installation failed because the rolling Ubuntu 26.04
   runner is unsupported by locked Playwright 1.58.2. Independent fix PR #60 pins
   browser jobs to Ubuntu 24.04; its actual CI results must be checked separately.
+- Task 1 in progress: added closed result/plan envelopes and bounded typed
+  payload validators. The initial missing-module test was followed by an
+  executable stub run showing 5 failing assertions/2 passing; implementation
+  made the focused suite pass. A later application-producer test failed first
+  and then passed without fabricating model provenance.
+- Temporary tooling outside the repository uses exact Vitest 4.1.11,
+  TypeScript 5.9.3 and Node types 24.10.1; the temporary config points at the real
+  domain files and resolves only test tooling. Domain suite: 18/18 passed across
+  three files; domain TypeScript check passed. These are isolated checks, not
+  `pnpm check`, database acceptance or a restored frozen local install.
+- Independent read-only code review found no important parsed-JSON implementation
+  defect. Its missing-boundary-tests finding was addressed with maximum accepted
+  and maximum-plus-one rejected payload cases. Sparse JavaScript arrays are a
+  deferred hardening consideration: parsed JSON cannot contain array holes.
+- Task 1 wire formats/limits and application-versus-model provenance are now
+  explicit in the design. SQL, HTTP consumers and Tasks 2–5 are not implemented.

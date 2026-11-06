@@ -165,6 +165,31 @@ values/provenance remain byte-for-byte unchanged by app-result operations.
 
 ## API and implementation boundaries
 
+### Initial wire-contract choices
+
+The first implementation slice uses schema version 1 and closed DTO shapes:
+unknown fields are rejected rather than forwarded to browser consumers. Revision
+IDs are UUID strings; revision counters are positive PostgreSQL-bigint decimal
+strings; calculation times are canonical UTC ISO strings with milliseconds.
+Fingerprints are lowercase SHA-256 hex. These are author-selected wire formats,
+not changes to imported source values or scoring criteria.
+
+Model provenance records producer, provider, model and prompt version. Pure
+application provenance records producer/version without inventing a model call.
+Both retain a rubric/criteria version. Source references carry a reference and
+nullable revision; null can represent external evidence without a DB revision.
+
+Payload limits: identifiers/factors/version labels 200 characters, stable book
+IDs 500, source/edition references 2000, scheduling reasons 4000 and enrichment
+descriptions 20,000. Arrays permit at most 64 tags/scores, 128 sources or judgment
+revision references, two distinct format judgments and 1000 ordered plan entries.
+Tags are at most 100 characters. Enrichment may have zero tags; accepted plans
+may have zero entries. Nonempty sources are required for saved payloads and plan
+reasons. Taste factors are unique and specify finite min/value/max with
+`min < max` and a value inside those bounds. Format evidence explicitly separates
+unknown from known-edition suitability (`suitable`, `unsuitable`, `mixed`);
+these transport labels do not select a model rubric or numerical product scale.
+
 Add framework-free DTOs/validation in `libs/domain`, migrations and synthetic
 tests under `libs/database`, and session-scoped read adapters under the existing
 Nitro server boundary. Preserve the current Nx dependency direction; HTTP code
