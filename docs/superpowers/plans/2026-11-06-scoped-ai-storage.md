@@ -228,3 +228,10 @@ storage payloads are unavailable, never an empty successful plan.
   deferred hardening consideration: parsed JSON cannot contain array holes.
 - Task 1 wire formats/limits and application-versus-model provenance are now
   explicit in the design. SQL, HTTP consumers and Tasks 2–5 are not implemented.
+- Cross-branch CI exposed a preexisting mobile Reading audit race: 29 E2E tests
+  passed, while the dark-theme audit sampled light link colors over the already
+  dark background. Inspection of the exact published CSS in the schema artifact
+  confirmed a 250ms link-color transition. Reading now waits on actual active
+  CSS transitions after each theme change before auditing/screenshotting; it does
+  not disable motion, sleep for a fixed duration or suppress contrast findings.
+  The failed browser assertion is the red evidence; fresh CI must prove green.
