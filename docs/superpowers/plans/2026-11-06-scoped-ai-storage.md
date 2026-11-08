@@ -181,6 +181,30 @@ serialize to the Task 1 decimal-string revision contract.
 
 ## Task 4: Preferences, platform plans and recoverable history
 
+Execution decisions:
+
+- Ruling: producer-only propose_preference_evidence appends inferred proposals;
+  runtime-only save_preference_evidence records explicit statements or decisions
+  on retained inferences. Producers may revise only pending proposals, preventing
+  indirect revocation of acceptance. Cost: a later inference needs a new identity.
+- Ruling: immutable plan policies and input capture mirror Task 3. Capture names
+  at most 512 owned books and 127 result dependencies, plus accepted preference
+  IDs, latest platform deferral IDs and up to 1000 active candidates matching the
+  platform or Unknown, with status/platform provenance. Cost: Unknown candidates
+  are shared context and may invalidate both platforms.
+- Ruling: publication locks all library books in numeric order before the stream,
+  rejecting more than 2048 memberships. Cost: larger libraries need a later lock
+  scope refinement rather than silent omission.
+- Ruling: deferrals compare their own expected counter and expected platform plan
+  revision. Publication captures intent revision IDs without cancelling them.
+  Cost: future pending/consumed UI derives that state from the plan manifest.
+- Ruling: an archived entry makes the current plan unavailable while retaining
+  history. Filtering entries could invent a different accepted sequence. Cost:
+  that platform needs a replacement before its plan can be displayed.
+- Ruling: plan receipt replay authorizes the verified library owner and returns
+  only revision identity, including after archive. The current projection hides
+  archived content. Cost: coordinators must read current freshness after replay.
+
 Files: new `0010_scoped_plan_operations.sql`,
 `libs/database/test/plan-operations.integration.spec.ts`.
 
@@ -205,14 +229,14 @@ mark Audible stale unless shared evidence actually changed. Republish a retained
 payload through a new operation/revision with current expected-head and input
 checks; never rewind a head or rewrite an old revision.
 
-- [ ] Tests: explicit/inferred privilege separation; foreign/archived books;
+- [x] Tests: explicit/inferred privilege separation; foreign/archived books;
       plan entry constraints; two-platform independence; pending/cancelled
       deferrals; replay/concurrency; producer failure preserving accepted output;
       retained-payload recovery remaining stale when inputs are obsolete.
-- [ ] Run focused tests red, implement operations, then run green plus Tasks 2/3.
-- [ ] Replay a synthetic import using existing fixture/runner conventions and
+- [x] Run focused tests red, implement operations, then run green plus Tasks 2/3.
+- [x] Replay a synthetic import using existing fixture/runner conventions and
       verify all app revisions, heads, receipts and deferrals survive unchanged.
-- [ ] Check grants via producer/runtime/public test connections and commit.
+- [x] Check grants via producer/runtime/public test connections and commit.
 
 ## Task 5: Private read projections and full acceptance
 
@@ -227,10 +251,10 @@ sanitized no-store DTOs. Unknown/foreign books use indistinguishable 404s;
 an owned book without results returns explicit missing data. Invalid available
 storage payloads are unavailable, never an empty successful plan.
 
-- [ ] Write HTTP tests red for verified actors, forged ownership parameters,
+- [x] Write HTTP tests red for verified actors, forged ownership parameters,
       revoked/unverified sessions, missing/stale/empty projections, malformed
       storage returns, sanitized failures and method rejection.
-- [ ] Implement only private read routes and boundary validation. Do not expose
+- [x] Implement only private read routes and boundary validation. Do not expose
       generic JSON write APIs, change Reading's source queue or activate a worker.
 - [ ] Run HTTP tests green; then `corepack pnpm check`, `corepack pnpm test:db`
       and `corepack pnpm test:e2e` with Corepack available to child processes.
@@ -342,3 +366,30 @@ storage payloads are unavailable, never an empty successful plan.
   checks. This supplies full CI acceptance separately from the constrained local
   tooling. PR #62 is stacked on unmerged PR #61. Tasks 4–5 remain unimplemented;
   no hosted SQL, writer activation, merge or production deployment was performed.
+
+- Tasks 4–5 start at PR #62 head d6eb76c on codex/scoped-plan-operations-50.
+  Workspace was clean; the Reading stash is preserved. Enforced cloud revision 7
+  still excludes the package CDN. Exact public temporary tooling remains separate
+  from unchanged project dependencies, lockfile and published Biome.
+- Task 4: seven tests first failed on missing routines, then passed. Expanded
+  tests cover privilege separation, decisions, platform independence, controlled
+  two-client preference/publication races, judgment freshness, rollback/replay,
+  archive and a real synthetic XLSX import. Import apply/replay preserved all app
+  policies, revisions, heads, entries, preferences, receipts and deferrals.
+- Automatic candidate provenance initially remained fresh incorrectly. Its test
+  failed; including status/platform provenance in the snapshot made it pass.
+- Task 5: four HTTP route/projection tests failed before implementation. Temporary
+  tooling needed pinned auth packages and the actual source tsconfig; these setup
+  errors are not feature red evidence. New routes use persisted session actors,
+  validate closed domain DTOs and identity, preserve no-store/404 privacy and
+  return unavailable for malformed storage instead of a false empty plan.
+- A verified account without a library initially got 503; a failing regression
+  now receives missing without creating records during its read. Writes still
+  require an existing library. Intermediate 174/174 PostgreSQL/HTTP tests passed
+  across thirteen files. A read-only whole-branch review found no important or
+  critical defect and did not independently run tests. Final receipts follow.
+- Final local Tasks 4–5 regression: 177/177 PostgreSQL/HTTP cases passed across
+  thirteen files, including 18 plan-operation and 21 HTTP cases. Targeted
+  TypeScript, formatting and diff checks passed. Node 24.19.0 and Corepack pnpm
+  10.19.0 were confirmed. Migrations 0001–0009 and package/lockfile are unchanged.
+  Full frozen-install repository checks and browser coverage remain CI work.
