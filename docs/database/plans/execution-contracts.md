@@ -173,6 +173,26 @@ Import dry-run executes inside a read-only repeatable-read transaction for curre
 
 Default lock timeout 5 seconds, statement timeout 30 seconds; offline bulk import uses an explicit bounded 120-second statement timeout. Retry serialization/deadlock errors at most twice with bounded jitter; uniqueness/validation/conflict errors are not retried blindly. Never retry an unknown commit outcome by inventing new run/request identity.
 
+### F.1 Scoped app-result writer order (#50 Task 3)
+
+Migration 0009 writers require READ COMMITTED isolation, rejecting transaction
+snapshots that could remain obsolete after waiting on a lock. They acquire the
+shared import gate `(73421,2)`, request identity lock in namespace 73423 keyed by
+hashtext of actor/operation/request UUID, then library context lock in namespace
+73422 keyed by hashtext of library UUID text. Next come all affected book rows in
+increasing numeric ID order, then stream locks. These operations do not change
+ranking state. Future preference/deferral/plan writers must take the same context
+lock before book/stream locks. Existing book writers need no new context lock;
+imports retain the exclusive gate.
+
+Request locking covers exact replay before first-stream creation. Context locking
+serializes policy/head/preference changes within one library. Selected source
+values and provenance are revalidated after all locks; no calculation occurs in
+the transaction. Immutable result, head and receipt commit atomically. Receipt
+hashes include expected revision and request; uncertain outcomes must replay the
+original actor/operation/request UUID. Receipts identify a revision only; a new
+scoped read computes freshness. See spec §11.5 for manifests and bounds.
+
 ## G. Privacy and implementation boundary
 
 No account service is selected in this pack. Owner operations are a local CLI using a private DB login; no private HTTP endpoints are exposed. Optional public catalogue fields follow the existing spec allowlist and remain behind `PUBLIC_LIBRARY_ENABLED=false` until publication approval. This deliberately makes database delivery independent of choosing authentication; it does not claim authenticated browser workflows are delivered.
