@@ -334,3 +334,11 @@ storage payloads are unavailable, never an empty successful plan.
   Migrations 0001–0008, package.json and pnpm-lock.yaml are unchanged. The prior
   Reading-notes stash is preserved. Full frozen-install checks and E2E remain CI
   validation because the enforced cloud policy still excludes the package CDN.
+- Task 3 PR #62, code commit `023375e60343675963ed2bf0038352c73fd0fdde`:
+  all three GitHub workflows passed. CI run `42472907495` performed the real
+  frozen installation, pnpm check and 30/30 browser E2E tests. Database run
+  `42472907468` passed 202/202 tests twice on each of PostgreSQL 16.15 and 18.6.
+  Schema-reference run `42472907493` passed both version builds and UI/artifact
+  checks. This supplies full CI acceptance separately from the constrained local
+  tooling. PR #62 is stacked on unmerged PR #61. Tasks 4–5 remain unimplemented;
+  no hosted SQL, writer activation, merge or production deployment was performed.
