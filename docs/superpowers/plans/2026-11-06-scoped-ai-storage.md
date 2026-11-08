@@ -60,14 +60,14 @@ Interfaces:
 - Plan payload contains owned stable book IDs, positions, reason/evidence links
   and dependency revision IDs; its accepted-empty state has `entries: []`.
 
-- [ ] Write tests for every valid state/kind, missing required metadata, malformed
+- [x] Write tests for every valid state/kind, missing required metadata, malformed
       dates/hashes, numeric revision IDs, nonfinite scores, unknown format
       evidence, duplicate/gapped positions and accepted empty plans.
-- [ ] Run `corepack pnpm exec vitest run --config libs/domain/vitest.config.ts`.
+- [x] Run `corepack pnpm exec vitest run --config libs/domain/vitest.config.ts`.
       Expected red: missing exports/validators, not missing tooling.
-- [ ] Implement the types and validators. Bound payload arrays/text explicitly
+- [x] Implement the types and validators. Bound payload arrays/text explicitly
       and pin those limits in tests before SQL/HTTP consumers are implemented.
-- [ ] Re-run the domain suite. Expected green; then typecheck domain and commit.
+- [x] Re-run the domain suite. Expected green; then typecheck domain and commit.
 
 ## Task 2: Additive schema and authority amendment
 
@@ -92,13 +92,13 @@ Interfaces: `library.ai_result_streams`, `ai_result_revisions`,
 - Create guarded NOLOGIN `library_ai_producer`, following 0001/0006's unsafe
   preexisting-role checks. No login, ownership membership or table grants.
 
-- [ ] Write failing integration tests for tables, constraints, stream-specific
+- [x] Write failing integration tests for tables, constraints, stream-specific
       heads, cross-library dependencies and direct/PUBLIC access denial.
-- [ ] Run the focused integration file through the guarded local harness.
+- [x] Run the focused integration file through the guarded local harness.
       Expected red: missing relations/functions after successful DB setup.
-- [ ] Add schema/constraints and the contract amendment; update fixed migration
+- [x] Add schema/constraints and the contract amendment; update fixed migration
       counts in existing tests only where the new additive migration requires it.
-- [ ] Re-run focused tests and the existing migration/role suites. Expected green.
+- [x] Re-run focused tests and the existing migration/role suites. Expected green.
       Confirm a second migration run is a checksum-verified no-op, then commit.
 
 ## Task 3: Atomic result publication and replay
@@ -256,11 +256,11 @@ storage payloads are unavailable, never an empty successful plan.
       storage returns, sanitized failures and method rejection.
 - [x] Implement only private read routes and boundary validation. Do not expose
       generic JSON write APIs, change Reading's source queue or activate a worker.
-- [ ] Run HTTP tests green; then `corepack pnpm check`, `corepack pnpm test:db`
+- [x] Run HTTP tests green; then `corepack pnpm check`, `corepack pnpm test:db`
       and `corepack pnpm test:e2e` with Corepack available to child processes.
       Expected: all pass, including browser/server bundle scanning and existing
       Reading regressions. A blocked install is not a red application test.
-- [ ] Request an independent whole-branch review, fix actionable defects with
+- [x] Request an independent whole-branch review, fix actionable defects with
       regression evidence, commit and prepare a feature PR. Report local/CI
       evidence separately from hosted actions; retain #44's acceptance gate.
 
@@ -401,3 +401,13 @@ storage payloads are unavailable, never an empty successful plan.
   importer integration suite); targeted TypeScript and diff checks passed.
   Plan-operation cases are now 17; the eighteenth moved to the importer suite.
 - GitHub Codex review of implementation commit 4981d67 completed with no findings.
+- Tasks 4–5 full CI acceptance on code commit 2830df194b538b42a15cb13f2341e7e870656e2d:
+  CI run 42490772962 passed frozen installation, pnpm check and 30/30 browser
+  E2E tests. Database run 42490772928 passed 228/228 cases across eighteen files,
+  twice on each of PostgreSQL 16.15 and 18.6. This verifies the dependency-cycle
+  fix with real repository tooling, separately from local isolated test runs.
+  All five implementation tasks are complete in the PR stack (#61 → #62 → #63).
+  These receipts do not authorize/claim merges, hosted migrations, production
+  writer activation or #44 hosted acceptance. The unchanged Sheet alone is not
+  a recovery source for new app-only history; hosted rollout remains separately
+  gated by exact target/grants and a reviewed backup/export/recovery procedure.
