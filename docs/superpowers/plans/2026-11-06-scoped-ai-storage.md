@@ -393,3 +393,11 @@ storage payloads are unavailable, never an empty successful plan.
   TypeScript, formatting and diff checks passed. Node 24.19.0 and Corepack pnpm
   10.19.0 were confirmed. Migrations 0001–0009 and package/lockfile are unchanged.
   Full frozen-install repository checks and browser coverage remain CI work.
+- PR #63 initial CI failed the Nx circular-dependency check: the new database
+  integration test imported importer code, creating a graph cycle despite the
+  per-test lint exception. Moved the import-replay regression to the importer
+  suite, preserving importer-to-database direction without weakening rules.
+  Local rerun passed 215/215 cases across fourteen files (including the complete
+  importer integration suite); targeted TypeScript and diff checks passed.
+  Plan-operation cases are now 17; the eighteenth moved to the importer suite.
+- GitHub Codex review of implementation commit 4981d67 completed with no findings.
