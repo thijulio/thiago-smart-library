@@ -136,6 +136,35 @@ Recaps are one parent aggregate: a source-only update replaces parsed children a
 
 Recaps gain `owner_reviewed_by text` and `owner_reviewed_at timestamptz`, both NULL or both set by a trusted owner operation. Source verified_at/status never populates these fields. Replacing an owner-reviewed recap requires the explicit expected-version resolution; accepted replacement resets the owner-review marker. This makes the protection testable rather than inferring it from source status.
 
+## E.1 App-owned storage isolation (#50 foundation)
+
+Migration 0008 adds separate private app-result/plan/preference/deferral/receipt
+storage. It does not change imported values, source provenance, Sheet authority,
+runtime write grants or the native/status-editing authority decision. An additive
+composite membership key supplies relational ownership constraints without
+rebinding any imported book.
+
+The new guarded NOLOGIN `library_ai_producer` group has schema usage only at this
+stage. No hosted login, worker, provider call or user write endpoint is activated.
+Retained revision/entry/evidence/receipt rows reject updates/deletes; published
+plan revisions also reject late entry/judgment insertion. Only owner-controlled
+construction is available until later reviewed narrow routines are implemented.
+Raw JSON columns at this stage are private storage primitives, not available DTO
+projections; future publication must validate payloads and canonical inputs before
+moving a head. Direct table grants are not an acceptable publication interface.
+
+Every later result/plan writer must follow section F's import gate and lock
+order, validate ownership before receipt replay, serialize first publication,
+check expected heads and revalidate source dependencies. A shared import gate
+alone does not serialize ordinary writers: mutable per-library evidence and the
+affected streams need consistently ordered locks. Archive retains history while
+current scoped projections must exclude it. Import replay must preserve all
+app-owned records; app-result writes must preserve imported baselines/provenance.
+
+This contract records local implementation scope. It is not evidence of hosted
+migration or permission to enable production app-owned/native writes. Preserve
+and reconcile app-only revisions before any rollback/switchback after enablement.
+
 ## F. Transactions and locks
 
 One checked-out direct `pg` client for an entire migration/import/write transaction. Global migration lock is a session advisory lock on a direct connection, key `(73421,1)`. Import/application writers take transaction advisory lock `(73421,2)`: imports exclusive, normal writers shared. Then acquire ranking_state (once DB-04 exists), then books in increasing numeric ID order, then child/event locks. All writers follow this order; the normal shared gate does not serialize unrelated writes before ranking locks are needed.
