@@ -60,14 +60,14 @@ Interfaces:
 - Plan payload contains owned stable book IDs, positions, reason/evidence links
   and dependency revision IDs; its accepted-empty state has `entries: []`.
 
-- [ ] Write tests for every valid state/kind, missing required metadata, malformed
+- [x] Write tests for every valid state/kind, missing required metadata, malformed
       dates/hashes, numeric revision IDs, nonfinite scores, unknown format
       evidence, duplicate/gapped positions and accepted empty plans.
-- [ ] Run `corepack pnpm exec vitest run --config libs/domain/vitest.config.ts`.
+- [x] Run `corepack pnpm exec vitest run --config libs/domain/vitest.config.ts`.
       Expected red: missing exports/validators, not missing tooling.
-- [ ] Implement the types and validators. Bound payload arrays/text explicitly
+- [x] Implement the types and validators. Bound payload arrays/text explicitly
       and pin those limits in tests before SQL/HTTP consumers are implemented.
-- [ ] Re-run the domain suite. Expected green; then typecheck domain and commit.
+- [x] Re-run the domain suite. Expected green; then typecheck domain and commit.
 
 ## Task 2: Additive schema and authority amendment
 
@@ -92,13 +92,13 @@ Interfaces: `library.ai_result_streams`, `ai_result_revisions`,
 - Create guarded NOLOGIN `library_ai_producer`, following 0001/0006's unsafe
   preexisting-role checks. No login, ownership membership or table grants.
 
-- [ ] Write failing integration tests for tables, constraints, stream-specific
+- [x] Write failing integration tests for tables, constraints, stream-specific
       heads, cross-library dependencies and direct/PUBLIC access denial.
-- [ ] Run the focused integration file through the guarded local harness.
+- [x] Run the focused integration file through the guarded local harness.
       Expected red: missing relations/functions after successful DB setup.
-- [ ] Add schema/constraints and the contract amendment; update fixed migration
+- [x] Add schema/constraints and the contract amendment; update fixed migration
       counts in existing tests only where the new additive migration requires it.
-- [ ] Re-run focused tests and the existing migration/role suites. Expected green.
+- [x] Re-run focused tests and the existing migration/role suites. Expected green.
       Confirm a second migration run is a checksum-verified no-op, then commit.
 
 ## Task 3: Atomic result publication and replay
@@ -181,6 +181,30 @@ serialize to the Task 1 decimal-string revision contract.
 
 ## Task 4: Preferences, platform plans and recoverable history
 
+Execution decisions:
+
+- Ruling: producer-only propose_preference_evidence appends inferred proposals;
+  runtime-only save_preference_evidence records explicit statements or decisions
+  on retained inferences. Producers may revise only pending proposals, preventing
+  indirect revocation of acceptance. Cost: a later inference needs a new identity.
+- Ruling: immutable plan policies and input capture mirror Task 3. Capture names
+  at most 512 owned books and 127 result dependencies, plus accepted preference
+  IDs, latest platform deferral IDs and up to 1000 active candidates matching the
+  platform or Unknown, with status/platform provenance. Cost: Unknown candidates
+  are shared context and may invalidate both platforms.
+- Ruling: publication locks all library books in numeric order before the stream,
+  rejecting more than 2048 memberships. Cost: larger libraries need a later lock
+  scope refinement rather than silent omission.
+- Ruling: deferrals compare their own expected counter and expected platform plan
+  revision. Publication captures intent revision IDs without cancelling them.
+  Cost: future pending/consumed UI derives that state from the plan manifest.
+- Ruling: an archived entry makes the current plan unavailable while retaining
+  history. Filtering entries could invent a different accepted sequence. Cost:
+  that platform needs a replacement before its plan can be displayed.
+- Ruling: plan receipt replay authorizes the verified library owner and returns
+  only revision identity, including after archive. The current projection hides
+  archived content. Cost: coordinators must read current freshness after replay.
+
 Files: new `0010_scoped_plan_operations.sql`,
 `libs/database/test/plan-operations.integration.spec.ts`.
 
@@ -205,14 +229,14 @@ mark Audible stale unless shared evidence actually changed. Republish a retained
 payload through a new operation/revision with current expected-head and input
 checks; never rewind a head or rewrite an old revision.
 
-- [ ] Tests: explicit/inferred privilege separation; foreign/archived books;
+- [x] Tests: explicit/inferred privilege separation; foreign/archived books;
       plan entry constraints; two-platform independence; pending/cancelled
       deferrals; replay/concurrency; producer failure preserving accepted output;
       retained-payload recovery remaining stale when inputs are obsolete.
-- [ ] Run focused tests red, implement operations, then run green plus Tasks 2/3.
-- [ ] Replay a synthetic import using existing fixture/runner conventions and
+- [x] Run focused tests red, implement operations, then run green plus Tasks 2/3.
+- [x] Replay a synthetic import using existing fixture/runner conventions and
       verify all app revisions, heads, receipts and deferrals survive unchanged.
-- [ ] Check grants via producer/runtime/public test connections and commit.
+- [x] Check grants via producer/runtime/public test connections and commit.
 
 ## Task 5: Private read projections and full acceptance
 
@@ -227,16 +251,16 @@ sanitized no-store DTOs. Unknown/foreign books use indistinguishable 404s;
 an owned book without results returns explicit missing data. Invalid available
 storage payloads are unavailable, never an empty successful plan.
 
-- [ ] Write HTTP tests red for verified actors, forged ownership parameters,
+- [x] Write HTTP tests red for verified actors, forged ownership parameters,
       revoked/unverified sessions, missing/stale/empty projections, malformed
       storage returns, sanitized failures and method rejection.
-- [ ] Implement only private read routes and boundary validation. Do not expose
+- [x] Implement only private read routes and boundary validation. Do not expose
       generic JSON write APIs, change Reading's source queue or activate a worker.
-- [ ] Run HTTP tests green; then `corepack pnpm check`, `corepack pnpm test:db`
+- [x] Run HTTP tests green; then `corepack pnpm check`, `corepack pnpm test:db`
       and `corepack pnpm test:e2e` with Corepack available to child processes.
       Expected: all pass, including browser/server bundle scanning and existing
       Reading regressions. A blocked install is not a red application test.
-- [ ] Request an independent whole-branch review, fix actionable defects with
+- [x] Request an independent whole-branch review, fix actionable defects with
       regression evidence, commit and prepare a feature PR. Report local/CI
       evidence separately from hosted actions; retain #44's acceptance gate.
 
@@ -342,3 +366,48 @@ storage payloads are unavailable, never an empty successful plan.
   checks. This supplies full CI acceptance separately from the constrained local
   tooling. PR #62 is stacked on unmerged PR #61. Tasks 4–5 remain unimplemented;
   no hosted SQL, writer activation, merge or production deployment was performed.
+
+- Tasks 4–5 start at PR #62 head d6eb76c on codex/scoped-plan-operations-50.
+  Workspace was clean; the Reading stash is preserved. Enforced cloud revision 7
+  still excludes the package CDN. Exact public temporary tooling remains separate
+  from unchanged project dependencies, lockfile and published Biome.
+- Task 4: seven tests first failed on missing routines, then passed. Expanded
+  tests cover privilege separation, decisions, platform independence, controlled
+  two-client preference/publication races, judgment freshness, rollback/replay,
+  archive and a real synthetic XLSX import. Import apply/replay preserved all app
+  policies, revisions, heads, entries, preferences, receipts and deferrals.
+- Automatic candidate provenance initially remained fresh incorrectly. Its test
+  failed; including status/platform provenance in the snapshot made it pass.
+- Task 5: four HTTP route/projection tests failed before implementation. Temporary
+  tooling needed pinned auth packages and the actual source tsconfig; these setup
+  errors are not feature red evidence. New routes use persisted session actors,
+  validate closed domain DTOs and identity, preserve no-store/404 privacy and
+  return unavailable for malformed storage instead of a false empty plan.
+- A verified account without a library initially got 503; a failing regression
+  now receives missing without creating records during its read. Writes still
+  require an existing library. Intermediate 174/174 PostgreSQL/HTTP tests passed
+  across thirteen files. A read-only whole-branch review found no important or
+  critical defect and did not independently run tests. Final receipts follow.
+- Final local Tasks 4–5 regression: 177/177 PostgreSQL/HTTP cases passed across
+  thirteen files, including 18 plan-operation and 21 HTTP cases. Targeted
+  TypeScript, formatting and diff checks passed. Node 24.19.0 and Corepack pnpm
+  10.19.0 were confirmed. Migrations 0001–0009 and package/lockfile are unchanged.
+  Full frozen-install repository checks and browser coverage remain CI work.
+- PR #63 initial CI failed the Nx circular-dependency check: the new database
+  integration test imported importer code, creating a graph cycle despite the
+  per-test lint exception. Moved the import-replay regression to the importer
+  suite, preserving importer-to-database direction without weakening rules.
+  Local rerun passed 215/215 cases across fourteen files (including the complete
+  importer integration suite); targeted TypeScript and diff checks passed.
+  Plan-operation cases are now 17; the eighteenth moved to the importer suite.
+- GitHub Codex review of implementation commit 4981d67 completed with no findings.
+- Tasks 4–5 full CI acceptance on code commit 2830df194b538b42a15cb13f2341e7e870656e2d:
+  CI run 42490772962 passed frozen installation, pnpm check and 30/30 browser
+  E2E tests. Database run 42490772928 passed 228/228 cases across eighteen files,
+  twice on each of PostgreSQL 16.15 and 18.6. This verifies the dependency-cycle
+  fix with real repository tooling, separately from local isolated test runs.
+  All five implementation tasks are complete in the PR stack (#61 → #62 → #63).
+  These receipts do not authorize/claim merges, hosted migrations, production
+  writer activation or #44 hosted acceptance. The unchanged Sheet alone is not
+  a recovery source for new app-only history; hosted rollout remains separately
+  gated by exact target/grants and a reviewed backup/export/recovery procedure.

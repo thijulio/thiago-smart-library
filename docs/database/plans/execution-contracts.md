@@ -193,6 +193,15 @@ hashes include expected revision and request; uncertain outcomes must replay the
 original actor/operation/request UUID. Receipts identify a revision only; a new
 scoped read computes freshness. See spec §11.5 for manifests and bounds.
 
+Migration 0010 uses the same gate/request/library/book/stream order for plans and
+user intent. Preference writes need the context lock without books/streams; plan
+configuration locks its stream after context. Deferrals lock their owned active
+book before the platform stream. Publication locks all library books, bounded at
+2048 memberships, before its stream and before inserting revision foreign keys.
+No transaction spans a calculation. Failed publication preserves previous output
+and pending intent; deferral revisions are referenced without mutation. Scoped
+grants and snapshot/read contracts are in spec §11.6.
+
 ## G. Privacy and implementation boundary
 
 No account service is selected in this pack. Owner operations are a local CLI using a private DB login; no private HTTP endpoints are exposed. Optional public catalogue fields follow the existing spec allowlist and remain behind `PUBLIC_LIBRARY_ENABLED=false` until publication approval. This deliberately makes database delivery independent of choosing authentication; it does not claim authenticated browser workflows are delivered.

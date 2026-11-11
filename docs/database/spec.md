@@ -826,6 +826,39 @@ valid results become stale on relevant input/policy changes. Archive hides the
 root while retaining history. Changing a policy can invalidate the previous
 result before recalculation.
 
+### 11.6 Preferences, platform plans and private reads (#50 Tasks 4–5)
+
+Migration 0010 exposes runtime-only explicit preference/inference decisions and
+platform deferrals; producer-only inferred proposals and plan policy/capture/
+publication; and runtime-only plan reads. No table grants or hosted login are
+added. User requests cannot set producer metadata; producers can revise pending
+proposals but cannot change a preference after a user decision.
+
+Plan manifests capture schema/hash version, platform, selected book fields with
+value/provenance hashes, active platform-or-Unknown candidates with status/platform
+provenance, accepted preference IDs, latest platform deferral IDs, result revision
+IDs and policy revision/hash. Limits are 512 selected books, 127 result dependencies,
+1000 candidates/deferrals, 128 accepted preferences and 1 MiB per request. Under
+READ COMMITTED, publication locks at most 2048 library book memberships in numeric
+order before the stream, then rechecks current inputs and transitive judgment
+freshness. Entries reference selected owned active books with contiguous unique
+positions, nonempty evidence and captured judgment revisions. Empty accepted
+plans are distinct from missing.
+
+Deferrals compare both expected platform plan and deferral revisions. Publishing
+captures intent IDs without mutating them; cancellation appends history and affects
+only that platform. Recovery republishes retained payloads through current checks;
+obsolete inputs are rejected and prior output remains. Archive retains entries
+but makes the current plan unavailable. Receipt replay returns only identity after
+current library authorization, never cached content/freshness. Verified accounts
+without a library receive missing on reads without read-side initialization.
+
+Authenticated no-store GET routes /api/private/ai-results/:kind/:stableId and
+/api/private/reading-plans/:platform derive actors from persisted sessions,
+validate domain shape and identity, convert malformed storage to unavailable,
+sanitize SQL failures and reject unknown identifiers/methods. They add no write
+route, model call or Reading queue behavior.
+
 ## 12. Acceptance criteria for implementation
 
 The implementation ticket must turn the following into executable checks.
