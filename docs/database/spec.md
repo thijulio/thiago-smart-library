@@ -788,6 +788,44 @@ Recovery must preserve app-only revisions and reasons; switching back to an
 unchanged Sheet cannot recover those records. Hosted migration, write activation,
 provider calls and release each remain their applicable separate action gates.
 
+### 11.5 Scoped result operations (#50 Task 3)
+
+Migration 0009 adds immutable rubric/producer policies per result stream. The
+producer group receives only `configure_ai_result`, read-only
+`ai_result_inputs_for_user` and `publish_ai_result`; runtime receives only
+`ai_result_for_user`. Helpers and underlying tables remain private. No hosted
+login, model call or user write endpoint is activated. Imported authority stays
+unchanged.
+
+Capture selects book-detail `fields`, optional `relatedBooks` with their own
+field selections, and owned `resultRevisionIds`. Each selected field hash includes
+its value and source-provenance row, including absent provenance. Taste/format
+also capture the latest accepted preference revision IDs; enrichment does not.
+
+The canonical manifest includes `schemaVersion: 1`,
+`hashVersion: 'pg-jsonb-text-v1'`, `bookStableId`, `kind`, sorted `fields`,
+`fieldHashes`, sorted `relatedBooks` with field hashes, sorted
+`preferenceRevisionIds`, sorted `resultRevisionIds`, decimal-string
+`policyRevision` and `policyHash` of rubric/producer metadata. Its fingerprint is
+lowercase SHA-256 of PostgreSQL JSONB text encoded as UTF-8. This is a versioned
+server format, not a browser hashing algorithm. Capture returns `{manifest,
+fingerprint, policy}`; publication must match that entire current envelope.
+
+Limits are 16 selected fields, 127 related books per manifest, 128 total result
+revisions including the graph root, 128 accepted preferences, 512 distinct locked
+books per publication and 1 MiB per request. Graphs are acyclic and cannot include
+the publishing stream's own historical revisions. Every dependency must remain a
+current fresh head; unchanged IDs do not conceal transitive source/policy changes.
+Payload variants, UTF-16 text limits and metadata follow the domain contract.
+
+Publication uses expected-head concurrency with explicit null for a first result.
+Replays authenticate current ownership before returning immutable revision
+identity, without a cached freshness assertion. Reads perform no writes or model
+calls: absent heads are missing, malformed storage is unavailable, and retained
+valid results become stale on relevant input/policy changes. Archive hides the
+root while retaining history. Changing a policy can invalidate the previous
+result before recalculation.
+
 ## 12. Acceptance criteria for implementation
 
 The implementation ticket must turn the following into executable checks.

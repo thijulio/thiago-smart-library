@@ -103,6 +103,48 @@ Interfaces: `library.ai_result_streams`, `ai_result_revisions`,
 
 ## Task 3: Atomic result publication and replay
 
+Execution decisions for this task:
+
+- Ruling: add immutable policy revisions plus producer-only
+  `configure_ai_result(actor, request_id, expected_policy_revision, request)`.
+  Without a current rubric/model policy, storage cannot detect version changes
+  before another result is calculated. This adds internal coordinator setup, not
+  a settings UI or hosted writer. Cost: one extra configuration operation per
+  new/changed stream policy; identical policy requests do not advance its version.
+- Ruling: add read-only `ai_result_inputs_for_user(actor, stable_id, kind,
+selector)` with selector `{fields, resultRevisionIds, relatedBooks?}`. It returns canonical
+  `{manifest, fingerprint, policy}`; publication requires that captured context
+  still matches current authorized data. Fields are an explicit book-detail
+  allowlist; preference IDs are captured automatically for taste/format, not
+  enrichment. Hash selected values together with their source provenance.
+  Cost: canonical manifests are PostgreSQL JSONB/hash-version specific; they
+  must be versioned rather than recomputed in a browser.
+- Ruling: optional `relatedBooks: [{bookStableId, fields}]` captures selected
+  owned-book inputs for reading-history feedback without inventing a derived
+  result dependency. At most 127 related books per manifest and 512 distinct
+  locked books per publication are allowed. Freshness caches per-book field
+  hashes across the graph. Cost: larger calculations must split their scope.
+- Ruling: writers require READ COMMITTED isolation, checked before acquiring
+  locks. Repeatable-read transactions can retain obsolete preference evidence
+  after waiting for a lock; they are rejected instead of publishing from that
+  snapshot. Cost: coordinators must use the normal READ COMMITTED transaction.
+- Ruling: dependency graphs are library-private, acyclic across result streams
+  and limited to 128 total revisions including the result being read/published.
+  Every referenced result must be a current fresh head. Transitive freshness is
+  checked iteratively, not by unbounded recursive application calls. Cost: a
+  coordinator must split larger calculations and cannot depend on its own prior
+  stream revision, which would immediately become stale when the head advances.
+- Ruling: all new writers use shared import gate `(73421,2)`, request-identity
+  lock namespace 73423, per-library context namespace 73422, then affected book
+  rows in numeric order and stream locks. This serializes evidence/policy/head
+  changes without holding a transaction over a model call. Existing book writers
+  do not acquire the new context lock, avoiding an inverse lock order. Cost:
+  publication within one library serializes; unrelated libraries remain separate.
+- Ruling: publication receipts return immutable revision identity only, not a
+  cached `fresh` DTO. Replay after source changes must not claim an old result
+  is still fresh; a separate read computes current freshness. SQL-owned actor
+  parameters remain trusted service inputs, matching existing scoped reads.
+
 Files: new `0009_scoped_ai_result_operations.sql`,
 `libs/database/test/ai-result-operations.integration.spec.ts`.
 
@@ -127,14 +169,14 @@ serialize to the Task 1 decimal-string revision contract.
 - Publish revision, head and receipt in one transaction; typed conflicts leave
   no partial writes. Use fixed search paths and PUBLIC revocations.
 
-- [ ] Tests: exact replay after later head, changed-body replay rejection,
+- [x] Tests: exact replay after later head, changed-body replay rejection,
       authorization before replay, concurrent first write, concurrent head
       updates, changed inputs, foreign references, invalid payload, rollback.
-- [ ] Reproduce red with real PostgreSQL, implement routines/grants, then green.
-- [ ] Test concurrent import/preference changes with two checked-out clients and
+- [x] Reproduce red with real PostgreSQL, implement routines/grants, then green.
+- [x] Test concurrent import/preference changes with two checked-out clients and
       controlled transaction barriers. Assert stale evidence cannot commit as
       fresh. No arbitrary sleeps as concurrency evidence.
-- [ ] Verify existing imported values/provenance are unchanged and reads cause
+- [x] Verify existing imported values/provenance are unchanged and reads cause
       no writes. Commit only after focused and migration/role suites pass.
 
 ## Task 4: Preferences, platform plans and recoverable history
@@ -263,3 +305,40 @@ storage payloads are unavailable, never an empty successful plan.
   CSS transitions after each theme change before auditing/screenshotting; it does
   not disable motion, sleep for a fixed duration or suppress contrast findings.
   The failed browser assertion is the red evidence; fresh CI must prove green.
+
+- Task 3 resumed from PR #61 head `ec7deb2`; PR #59 is merged as `707af0e`,
+  with all post-merge workflows passing. PR #61 remains unmerged; no hosted
+  migration or writer enablement is included in Task 3.
+- Task 3 red/green: eight initial tests failed against missing routines, then
+  passed after implementation. An expanded run exposed a test-observation issue:
+  the synthetic owner cannot inspect another login's pg_stat_activity wait state.
+  Using pg_blocking_pids verifies the actual barrier without monitoring grants.
+  Both controlled import/preference races then passed, rejecting changed inputs.
+- Task 3 boundary regression: whitespace-only descriptions incorrectly published
+  under PostgreSQL btrim. A failing test reproduced this; SQL now recognizes the
+  JavaScript whitespace set and preserves UTF-16 length bounds.
+- Intermediate local regression passed 128/128 cases across eleven files on
+  disposable synthetic PostgreSQL 16.15; later focused additions passed 21/21.
+  Isolated tooling versions match the previous Task 2 ledger and do not stand in
+  for frozen-install repository checks. Final results are recorded below.
+- Task 3 independent review findings were reproduced as three failing tests:
+  malformed relatedBooks storage raised 22023 instead of unavailable;
+  repeatable-read publication was accepted despite potentially obsolete evidence;
+  and arbitrary-precision score bounds could collapse to equal JavaScript values.
+  Type guarding/defensive handling, a READ COMMITTED writer guard and double-scale
+  validation made all three pass. Read-only follow-up review found no remaining
+  important defect; the reviewer did not independently rerun the tests.
+- Final Task 3 local verification: 138/138 real-PostgreSQL integration tests across
+  eleven files, including 27 result-operation cases; targeted TypeScript and
+  git diff --check passed. Exact Node 24.19.0/Corepack pnpm 10.19.0 confirmed.
+  Migrations 0001–0008, package.json and pnpm-lock.yaml are unchanged. The prior
+  Reading-notes stash is preserved. Full frozen-install checks and E2E remain CI
+  validation because the enforced cloud policy still excludes the package CDN.
+- Task 3 PR #62, code commit `023375e60343675963ed2bf0038352c73fd0fdde`:
+  all three GitHub workflows passed. CI run `42472907495` performed the real
+  frozen installation, pnpm check and 30/30 browser E2E tests. Database run
+  `42472907468` passed 202/202 tests twice on each of PostgreSQL 16.15 and 18.6.
+  Schema-reference run `42472907493` passed both version builds and UI/artifact
+  checks. This supplies full CI acceptance separately from the constrained local
+  tooling. PR #62 is stacked on unmerged PR #61. Tasks 4–5 remain unimplemented;
+  no hosted SQL, writer activation, merge or production deployment was performed.
