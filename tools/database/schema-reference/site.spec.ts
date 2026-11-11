@@ -5,6 +5,9 @@ test('full reference works at project prefix without application data', async ({
   page,
   request,
 }) => {
+  // PostgreSQL 18 exposes NOT NULL constraints as additional catalog objects;
+  // the full reference and its whole-page accessibility audit need a larger budget.
+  test.setTimeout(120_000);
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./', { waitUntil: 'domcontentloaded' });

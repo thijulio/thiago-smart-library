@@ -138,3 +138,10 @@ browser confirmation capability in this adapter.
   both independent versions and writability to MCP. Regression reproduced the
   omission before the fix; server 38 tests, real database readback, lint and web
   typecheck pass. Independent review found no blocking issue in the fix.
+- Latest feature commit passes full CI and PostgreSQL 16/18. The PostgreSQL 18
+  schema-reference accessibility test hits its old 30-second total budget.
+  Investigation retained every catalog fact and accessibility rule: actual
+  current PG16 full Axe takes 40.67 seconds locally; a diagnostic simulation
+  adding PG18-style NOT NULL catalog cards takes 74.49 seconds, both with zero
+  violations. Only the full-reference test gets a 120-second budget. The exact
+  desktop reference test then passes in 1.1 minutes; hosted CI rechecks PG18.
