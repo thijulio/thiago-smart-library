@@ -1,5 +1,29 @@
 # Smart Library roadmap
 
+## Current priority — conversational adoption, 2026-11-11
+
+The owner prioritized updating the new library through ChatGPT and Claude MCP,
+then through the site's AI text/voice input. Manual form entry is not the
+required workflow. Google remains authentication only. See the
+[owner decision](../product/decisions.md#conversational-capture-and-mcp-adoption-first--2026-11-11).
+
+1. Implement the shared private capture/status/feedback writer (#46), including
+   the authority contract and assistant/user authorship boundary.
+2. Deliver OAuth and scoped MCP reads/writes in real ChatGPT and Claude (#27).
+   Assistant computation produces validated commands; both channels use the
+   same server-side writer. Demonstrate capture and an update visible on site.
+3. Reconcile updates from the still-used old library and rehearse a single-writer
+   transition (#10/#11). Do not overwrite newer records, silently dual-write or
+   treat stale imported data as ready for adoption.
+4. Add the site's conversational AI capture, then voice input, over that writer.
+   Further recommendation/refresh work follows this adoption path.
+
+This order supersedes the October proposal below and #51 as the immediate next
+ticket. #50/#64 remain useful integrated foundations. MCP reads can progress
+alongside writer design, but read-only tools do not complete the adoption goal.
+Full retirement still requires the existing parity/cutover acceptance and exact
+hosted-operation approvals. This document grants no production data writes.
+
 Planning snapshot: 2026-10-10. The owner identified the highest-value workflows
 in the [AI/product discussion](../product/ai-recommendations.md): current reading,
 personal taste relevance, Kindle/audiobook suitability, independent ordered
@@ -62,10 +86,9 @@ contract is accepted. #7 enrichment import and #8 comparison/ranking parity
 provide historical evidence where needed; they do not block every explicit-
 preference scoring design. Exact prerequisites live in each ticket.
 
-**Current delivery ticket: #51.** Reuse the integrated #50 input snapshots and
-publication routines. Implement durable intent, bounded retries and fenced
-publication; page views remain saved-result reads. Provider/spend/privacy review
-and concrete hosted approvals remain separate from synthetic local work.
+**Current delivery tickets: #46 and #27.** Follow the conversational adoption
+priority above. #51's durable adapter is retained as follow-through, rather than
+blocking assistant capture on a recommendation engine or in-app model provider.
 
 ## Milestones — preserve existing identities
 

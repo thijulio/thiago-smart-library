@@ -91,3 +91,31 @@ change to the full-parity cutover gate still need explicit review.
 T-01 describes the historical takeover agent choice; it does not prohibit the
 owner's subsequent Codex work. T-08/T-09 owner-only/public-catalog assumptions
 are superseded by T-14; T-13 removes the standalone spike prerequisite.
+
+## Conversational capture and MCP adoption first — 2026-11-11
+
+Owner direction: everyday input is conversational, through ChatGPT, Claude or
+the Smart Library site. The reader describes the intended action in text or
+speech; AI interprets it, performs the relevant computation and submits validated
+changes. A manual book form is not the required adoption path. Google is the
+sign-in provider, not an assistant or a library-write integration.
+
+The immediate delivery priority is the shared scoped writer (#46) and real
+ChatGPT/Claude MCP capture (#27), plus reconciliation of changes still being
+made in the old library. They precede further recommendation/refresh expansion.
+Keep #50 and #64's completed foundations; do not redo or remove them. In-app text
+capture follows the same write service, with voice as another input channel.
+The first MCP capture must not wait for the in-app AI provider or voice UI.
+
+External assistants can do interpretation/computation using their own models;
+the MCP server validates permissions, exact constraints, concurrency, authorship
+and persistence. The site's eventual assistant performs equivalent work using
+its server-side AI integration. User-authored opinions remain distinct from
+generated enrichment, recaps and inferred preferences.
+
+The existing library is stale because the old application is still used. Prepare
+an incremental source reconciliation, not a second initial import or a new
+database. Establish one writer at the explicit transition; do not silently
+dual-write or turn imported facts into native editable data. This priority does
+not waive full-parity retirement, authorize a hosted migration/import, or assert
+that MCP, capture, voice or in-app interpretation already work.

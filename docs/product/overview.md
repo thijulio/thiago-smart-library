@@ -37,6 +37,15 @@ benchmark establishes overlap; it does not prove an unserved market.
 
 ## First product priorities — owner direction, 2026-10-10
 
+**Updated adoption priority, 2026-11-11:** conversational capture through
+ChatGPT/Claude MCP comes first, backed by the same scoped writer used by the
+site's eventual text/voice assistant. The reader describes an action; AI
+interprets/computes and the server validates/persists it. Do not require manual
+form entry to adopt the product. Reconcile changes from the still-used old
+library before switching authority. This supersedes the delivery order below,
+while preserving the Reading/recommendation outcomes. See the
+[current decision](decisions.md#conversational-capture-and-mcp-adoption-first--2026-11-11).
+
 Display current reading; calculate and store personal taste relevance with Jev;
 compare Kindle/audiobook suitability; display the next three entries of an
 independent ordered plan per platform; let the reader move a book later with a
@@ -81,8 +90,11 @@ the owner admitted. Multiuser architecture is not the same as open onboarding.
 
 The first publication was manual. PR #48 subsequently integrated the app into
 main (b248673), and #28 records the 2026-10-10 Git-backed production publication.
-Creation/editing, a reading workspace, recap browsing, rankings and assistant
-tools are not delivered. A new user cannot yet complete the capture loop.
+Reading is now integrated through #58; scoped result/plan storage through
+#61–#63 and a pure refresh lifecycle through #64 are also integrated. These are
+Git delivery records, not evidence of applied hosted migrations. Creation/editing,
+recap browsing, rankings and assistant tools are not delivered. A new user cannot
+yet complete the capture loop.
 
 The Google Sheet remains canonical for the imported library until M5. Native
 libraries need an explicit authority/reconciliation contract before writes are
