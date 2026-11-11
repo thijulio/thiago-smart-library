@@ -236,3 +236,243 @@ it('sanitizes database failures without returning connection or library details'
   expect(response.status).toBe(503);
   expect(await response.json()).toEqual({ error: 'Library temporarily unavailable' });
 });
+
+it('serves reading data only for the persisted actor and rejects unsafe sessions', async () => {
+  await db.owner.query(
+    `UPDATE library.books SET status='reading' WHERE stable_id IN ('book-a','book-b')`,
+  );
+  const response = await request('/api/private/reading?userId=user-b', 'token-a');
+  expect(response.status).toBe(200);
+  expect(response.headers.get('cache-control')).toContain('no-store');
+  const payload = await response.json();
+  expect(payload.queueState).toBe('available');
+  expect(payload.books).toMatchObject([{ stableId: 'book-a', nextRank: null, nextSlot: null }]);
+  expect(payload.books).toHaveLength(1);
+  for (const token of [undefined, 'expired', 'token-b']) {
+    expect((await request('/api/private/reading', token)).status).toBe(401);
+  }
+  expect((await request('/api/private/reading', 'unverified')).status).toBe(403);
+});
+it('sanitizes unavailable reading routines and rejects writes', async () => {
+  const headers = { cookie: await signedCookie('token-a') };
+  const unavailable = await privateLibraryResponse(
+    new Request(origin + '/api/private/reading', { headers }),
+    auth,
+    {
+      async query() {
+        throw new Error('private SQL details');
+      },
+    },
+  );
+  expect(unavailable.status).toBe(503);
+  expect(await unavailable.json()).toEqual({ error: 'Library temporarily unavailable' });
+  const post = await privateLibraryResponse(
+    new Request(origin + '/api/private/reading', { headers, method: 'POST' }),
+    auth,
+    db.appRuntime,
+  );
+  expect(post.status).toBe(405);
+});
+it('reads stored results using only the verified session actor and distinguishes owned missing from foreign books', async () => {
+  const response = await request(
+    '/api/private/ai-results/enrichment/book-a?actor=user-b',
+    'token-a',
+  );
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({
+    result: { kind: 'enrichment', bookStableId: 'book-a', state: 'missing' },
+  });
+  for (const book of ['book-b', 'unknown']) {
+    const r = await request('/api/private/ai-results/enrichment/' + book, 'token-a');
+    expect(r.status).toBe(404);
+    expect(await r.json()).toEqual({ error: 'Book not found' });
+    expect(r.headers.get('cache-control')).toContain('no-store');
+  }
+});
+it('reads missing and accepted-empty plans with sanitized storage boundaries', async () => {
+  expect(await (await request('/api/private/reading-plans/Kindle', 'token-a')).json()).toEqual({
+    plan: { platform: 'Kindle', state: 'missing' },
+  });
+  await db.aiProducer.query('SELECT library.configure_reading_plan($1,$2,NULL,$3)', [
+    'user-a',
+    crypto.randomUUID(),
+    {
+      platform: 'Kindle',
+      rubricVersion: 'v1',
+      producer: { kind: 'application', id: 'synthetic', version: 'v1' },
+    },
+  ]);
+  const context = (
+    await db.aiProducer.query('SELECT library.reading_plan_inputs_for_user($1,$2,$3) AS result', [
+      'user-a',
+      'Kindle',
+      { books: [], resultRevisionIds: [] },
+    ])
+  ).rows[0].result;
+  await db.aiProducer.query('SELECT library.publish_reading_plan($1,$2,NULL,$3)', [
+    'user-a',
+    crypto.randomUUID(),
+    { platform: 'Kindle', inputs: context, entries: [], calculatedAt: '2026-11-08T12:00:00.000Z' },
+  ]);
+  const result = await request('/api/private/reading-plans/Kindle?userId=user-b', 'token-a');
+  expect(result.status).toBe(200);
+  expect((await result.json()).plan).toMatchObject({ state: 'fresh', revision: { entries: [] } });
+});
+it('rejects revoked and unverified sessions for new stored-output routes', async () => {
+  for (const path of [
+    '/api/private/ai-results/enrichment/book-a',
+    '/api/private/reading-plans/Audible',
+  ]) {
+    for (const token of [undefined, 'expired', 'token-b'])
+      expect((await request(path, token)).status).toBe(401);
+    expect((await request(path, 'unverified')).status).toBe(403);
+  }
+});
+it('turns malformed or mismatched storage DTOs into unavailable without forwarding private values', async () => {
+  const headers = { cookie: await signedCookie('token-a') };
+  for (const [path, column, value, expected] of [
+    [
+      '/api/private/ai-results/enrichment/book-a',
+      'result',
+      { state: 'fresh', payload: 'private malformed payload' },
+      { result: { kind: 'enrichment', bookStableId: 'book-a', state: 'unavailable' } },
+    ],
+    [
+      '/api/private/ai-results/enrichment/book-a',
+      'result',
+      { kind: 'enrichment', bookStableId: 'book-b', state: 'missing' },
+      { result: { kind: 'enrichment', bookStableId: 'book-a', state: 'unavailable' } },
+    ],
+    [
+      '/api/private/reading-plans/Audible',
+      'plan',
+      { platform: 'Kindle', state: 'missing' },
+      { plan: { platform: 'Audible', state: 'unavailable' } },
+    ],
+    [
+      '/api/private/reading-plans/Audible',
+      'plan',
+      { platform: 'Audible', state: 'fresh', revision: { entries: [] } },
+      { plan: { platform: 'Audible', state: 'unavailable' } },
+    ],
+  ] as const) {
+    const response = await privateLibraryResponse(new Request(origin + path, { headers }), auth, {
+      async query() {
+        return { rows: [{ [column]: value }] };
+      },
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(expected);
+  }
+});
+it('rejects malformed identifiers and methods and sanitizes stored-output SQL failures', async () => {
+  const headers = { cookie: await signedCookie('token-a') };
+  for (const path of [
+    '/api/private/ai-results/other/book-a',
+    '/api/private/ai-results/enrichment/%ZZ',
+    '/api/private/reading-plans/Physical',
+  ])
+    expect((await request(path, 'token-a')).status).toBe(404);
+  for (const path of [
+    '/api/private/ai-results/enrichment/book-a',
+    '/api/private/reading-plans/Kindle',
+  ]) {
+    const post = await privateLibraryResponse(
+      new Request(origin + path, { headers, method: 'POST' }),
+      auth,
+      db.appRuntime,
+    );
+    expect(post.status).toBe(405);
+    const failed = await privateLibraryResponse(new Request(origin + path, { headers }), auth, {
+      async query() {
+        throw new Error('private SQL details');
+      },
+    });
+    expect(failed.status).toBe(503);
+    expect(await failed.json()).toEqual({ error: 'Library temporarily unavailable' });
+  }
+});
+it('serves valid fresh and stale result DTOs without app writes or recalculation', async () => {
+  const producer = { kind: 'application', id: 'synthetic-http-producer', version: 'v1' };
+  await db.aiProducer.query('SELECT library.configure_ai_result($1,$2,NULL,$3)', [
+    'user-a',
+    crypto.randomUUID(),
+    { bookStableId: 'book-a', kind: 'enrichment', rubricVersion: 'v1', producer },
+  ]);
+  const inputs = (
+    await db.aiProducer.query('SELECT library.ai_result_inputs_for_user($1,$2,$3,$4) AS result', [
+      'user-a',
+      'book-a',
+      'enrichment',
+      { fields: ['title'], resultRevisionIds: [] },
+    ])
+  ).rows[0].result;
+  await db.aiProducer.query('SELECT library.publish_ai_result($1,$2,NULL,$3)', [
+    'user-a',
+    crypto.randomUUID(),
+    {
+      bookStableId: 'book-a',
+      kind: 'enrichment',
+      inputs,
+      payload: {
+        description: 'Synthetic saved result',
+        tags: [],
+        sources: [{ reference: 'synthetic', revision: null }],
+      },
+      calculatedAt: '2026-11-08T12:00:00.000Z',
+    },
+  ]);
+  const before = (await db.owner.query('SELECT count(*) FROM library.app_operation_receipts'))
+    .rows[0].count;
+  const fresh = await request('/api/private/ai-results/enrichment/book-a', 'token-a');
+  expect((await fresh.json()).result).toMatchObject({
+    state: 'fresh',
+    revision: { payload: { description: 'Synthetic saved result' } },
+  });
+  await db.owner.query(
+    "UPDATE library.books SET title='Changed synthetic HTTP source' WHERE stable_id='book-a'",
+  );
+  expect(
+    (await (await request('/api/private/ai-results/enrichment/book-a', 'token-a')).json()).result,
+  ).toMatchObject({ state: 'stale', reason: 'inputs_changed' });
+  expect(
+    (await db.owner.query('SELECT count(*) FROM library.app_operation_receipts')).rows[0].count,
+  ).toBe(before);
+});
+it('returns a stale saved plan after a user preference changes', async () => {
+  await db.appRuntime.query('SELECT library.save_preference_evidence($1,$2,NULL,$3)', [
+    'user-a',
+    crypto.randomUUID(),
+    {
+      preferenceId: crypto.randomUUID(),
+      statement: 'Synthetic app preference',
+      sources: [],
+      decision: 'accepted',
+    },
+  ]);
+  const response = await request('/api/private/reading-plans/Kindle', 'token-a');
+  expect(response.status).toBe(200);
+  expect((await response.json()).plan).toMatchObject({
+    state: 'stale',
+    reason: 'inputs_changed',
+    revision: { entries: [] },
+  });
+});
+it('returns a missing plan for a verified new account without creating a library during a read', async () => {
+  await db.owner.query(
+    `INSERT INTO auth."user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES('empty-plan-user','Empty','empty-plan@example.test',true,now(),now())`,
+  );
+  await db.owner.query(
+    `INSERT INTO auth.session(id,token,"userId","expiresAt","createdAt","updatedAt") VALUES('empty-plan-token','empty-plan-token','empty-plan-user',now()+interval '1 hour',now(),now())`,
+  );
+  const response = await request('/api/private/reading-plans/Kindle', 'empty-plan-token');
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({ plan: { platform: 'Kindle', state: 'missing' } });
+  expect(
+    (
+      await db.owner.query(
+        "SELECT count(*) FROM library.user_libraries WHERE owner_user_id='empty-plan-user'",
+      )
+    ).rows[0].count,
+  ).toBe('0');
+});

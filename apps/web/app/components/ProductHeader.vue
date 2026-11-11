@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{ signedIn?: boolean }>();
 const emit = defineEmits<{ signout: [] }>();
+const route = useRoute();
 const mode = ref<'light' | 'dark'>('light');
 useHead(() => ({ htmlAttrs: { 'data-mode': mode.value } }));
 onMounted(() => {
@@ -25,6 +26,20 @@ function toggleTheme() {
       >Smart Library<span class="brand-dot" aria-hidden="true">.</span></NuxtLink
     >
     <nav aria-label="Main navigation">
+      <NuxtLink
+        v-if="props.signedIn"
+        to="/library"
+        class="quiet-button"
+        :aria-current="route.path === '/library' ? 'page' : undefined"
+        >Library</NuxtLink
+      >
+      <NuxtLink
+        v-if="props.signedIn"
+        to="/library/reading"
+        class="quiet-button"
+        :aria-current="route.path === '/library/reading' ? 'page' : undefined"
+        >Reading</NuxtLink
+      >
       <button
         class="quiet-button"
         :aria-label="`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`"
@@ -36,3 +51,21 @@ function toggleTheme() {
     </nav>
   </header>
 </template>
+<style scoped>
+.site-header nav a {
+  text-decoration: none;
+}
+.site-header nav a[aria-current='page'] {
+  border-color: var(--brand);
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .site-header {
+    flex-wrap: wrap;
+    padding-block: 1rem;
+  }
+  .site-header nav {
+    justify-content: flex-start;
+  }
+}
+</style>

@@ -811,3 +811,130 @@ it('reviewed cached Book ID retains its audit locator and verifies without gener
   const { verifyCore } = await import('../src/verify');
   expect((await verifyCore(db.importer, run.runId!)).stableIds).toBe(3);
 });
+it('preserves app revisions, heads, receipts and deferrals when a synthetic import is replayed', async () => {
+  const source = await snapshot();
+  const imported = await apply(source);
+  expect(imported.status).toBe('applied');
+  const actor = crypto.randomUUID();
+  const stableId = 'legacy-book';
+  const producer = { kind: 'application', id: 'synthetic-import-replay', version: 'v1' };
+  await db.owner.query(
+    `INSERT INTO auth."user"(id,name,email,"emailVerified","createdAt","updatedAt") VALUES($1,'Synthetic',$1||'@example.test',true,now(),now())`,
+    [actor],
+  );
+  const lib = (
+    await db.owner.query(
+      'INSERT INTO library.user_libraries(owner_user_id) VALUES($1) RETURNING id',
+      [actor],
+    )
+  ).rows[0].id;
+  await db.owner.query(
+    'INSERT INTO library.library_books(library_id,book_id) SELECT $1,id FROM library.books WHERE stable_id=$2',
+    [lib, stableId],
+  );
+  await db.appRuntime.query('SELECT library.save_preference_evidence($1,$2,NULL,$3)', [
+    actor,
+    crypto.randomUUID(),
+    {
+      preferenceId: crypto.randomUUID(),
+      statement: 'Synthetic retained preference',
+      sources: [],
+      decision: 'accepted',
+    },
+  ]);
+  await db.aiProducer.query('SELECT library.configure_ai_result($1,$2,NULL,$3)', [
+    actor,
+    crypto.randomUUID(),
+    { bookStableId: stableId, kind: 'enrichment', rubricVersion: 'v1', producer },
+  ]);
+  const captured = (
+    await db.aiProducer.query('SELECT library.ai_result_inputs_for_user($1,$2,$3,$4) AS result', [
+      actor,
+      stableId,
+      'enrichment',
+      { fields: ['title'], resultRevisionIds: [] },
+    ])
+  ).rows[0].result;
+  await db.aiProducer.query('SELECT library.publish_ai_result($1,$2,NULL,$3)', [
+    actor,
+    crypto.randomUUID(),
+    {
+      bookStableId: stableId,
+      kind: 'enrichment',
+      inputs: captured,
+      payload: {
+        description: 'Synthetic enrichment',
+        tags: [],
+        sources: [{ reference: 'synthetic', revision: null }],
+      },
+      calculatedAt: '2026-11-08T12:00:00.000Z',
+    },
+  ]);
+  await db.aiProducer.query('SELECT library.configure_reading_plan($1,$2,NULL,$3)', [
+    actor,
+    crypto.randomUUID(),
+    { platform: 'Kindle', rubricVersion: 'v1', producer },
+  ]);
+  await db.appRuntime.query('SELECT library.record_plan_deferral($1,$2,NULL,$3)', [
+    actor,
+    crypto.randomUUID(),
+    {
+      deferralId: crypto.randomUUID(),
+      bookStableId: stableId,
+      platform: 'Kindle',
+      state: 'active',
+      reason: 'Retain synthetic intent',
+      expectedDeferralRevision: null,
+    },
+  ]);
+  const context = (
+    await db.aiProducer.query('SELECT library.reading_plan_inputs_for_user($1,$2,$3) AS result', [
+      actor,
+      'Kindle',
+      { books: [{ bookStableId: stableId, fields: ['title'] }], resultRevisionIds: [] },
+    ])
+  ).rows[0].result;
+  await db.aiProducer.query('SELECT library.publish_reading_plan($1,$2,NULL,$3)', [
+    actor,
+    crypto.randomUUID(),
+    {
+      platform: 'Kindle',
+      inputs: context,
+      entries: [
+        {
+          bookStableId: stableId,
+          position: 1,
+          reason: 'Synthetic retained schedule',
+          evidence: [{ reference: 'synthetic', revision: null }],
+          judgmentRevisionIds: [],
+        },
+      ],
+      calculatedAt: '2026-11-08T12:00:00.000Z',
+    },
+  ]);
+  const snapshotStores = async () => {
+    const result: Record<string, unknown> = {};
+    for (const table of [
+      'ai_result_streams',
+      'ai_result_policies',
+      'ai_result_revisions',
+      'reading_plan_streams',
+      'reading_plan_policies',
+      'reading_plan_revisions',
+      'reading_plan_entries',
+      'reading_plan_entry_judgments',
+      'preference_evidence',
+      'plan_deferrals',
+      'app_operation_receipts',
+    ])
+      result[table] = (
+        await db.owner.query(
+          `SELECT COALESCE(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]') AS data FROM library.${table} t`,
+        )
+      ).rows[0].data;
+    return result;
+  };
+  const before = await snapshotStores();
+  expect((await apply(source)).runId).toBe(imported.runId);
+  expect(await snapshotStores()).toEqual(before);
+});

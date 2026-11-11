@@ -136,6 +136,35 @@ Recaps are one parent aggregate: a source-only update replaces parsed children a
 
 Recaps gain `owner_reviewed_by text` and `owner_reviewed_at timestamptz`, both NULL or both set by a trusted owner operation. Source verified_at/status never populates these fields. Replacing an owner-reviewed recap requires the explicit expected-version resolution; accepted replacement resets the owner-review marker. This makes the protection testable rather than inferring it from source status.
 
+## E.1 App-owned storage isolation (#50 foundation)
+
+Migration 0008 adds separate private app-result/plan/preference/deferral/receipt
+storage. It does not change imported values, source provenance, Sheet authority,
+runtime write grants or the native/status-editing authority decision. An additive
+composite membership key supplies relational ownership constraints without
+rebinding any imported book.
+
+The new guarded NOLOGIN `library_ai_producer` group has schema usage only at this
+stage. No hosted login, worker, provider call or user write endpoint is activated.
+Retained revision/entry/evidence/receipt rows reject updates/deletes; published
+plan revisions also reject late entry/judgment insertion. Only owner-controlled
+construction is available until later reviewed narrow routines are implemented.
+Raw JSON columns at this stage are private storage primitives, not available DTO
+projections; future publication must validate payloads and canonical inputs before
+moving a head. Direct table grants are not an acceptable publication interface.
+
+Every later result/plan writer must follow section F's import gate and lock
+order, validate ownership before receipt replay, serialize first publication,
+check expected heads and revalidate source dependencies. A shared import gate
+alone does not serialize ordinary writers: mutable per-library evidence and the
+affected streams need consistently ordered locks. Archive retains history while
+current scoped projections must exclude it. Import replay must preserve all
+app-owned records; app-result writes must preserve imported baselines/provenance.
+
+This contract records local implementation scope. It is not evidence of hosted
+migration or permission to enable production app-owned/native writes. Preserve
+and reconcile app-only revisions before any rollback/switchback after enablement.
+
 ## F. Transactions and locks
 
 One checked-out direct `pg` client for an entire migration/import/write transaction. Global migration lock is a session advisory lock on a direct connection, key `(73421,1)`. Import/application writers take transaction advisory lock `(73421,2)`: imports exclusive, normal writers shared. Then acquire ranking_state (once DB-04 exists), then books in increasing numeric ID order, then child/event locks. All writers follow this order; the normal shared gate does not serialize unrelated writes before ranking locks are needed.
@@ -143,6 +172,35 @@ One checked-out direct `pg` client for an entire migration/import/write transact
 Import dry-run executes inside a read-only repeatable-read transaction for current DB/baseline comparison; it does not stage into DB or advance heads. Import apply recomputes its decisions under the exclusive gate; dry-run is not permission to apply a stale plan. Staging is a prior committed audit transaction. Canonical rows, accepted baselines, provenance, scope completion and source head commit together. On failure rollback that transaction and record failure in a separate audit transaction. A failed audit write is a surfaced operational error, not success.
 
 Default lock timeout 5 seconds, statement timeout 30 seconds; offline bulk import uses an explicit bounded 120-second statement timeout. Retry serialization/deadlock errors at most twice with bounded jitter; uniqueness/validation/conflict errors are not retried blindly. Never retry an unknown commit outcome by inventing new run/request identity.
+
+### F.1 Scoped app-result writer order (#50 Task 3)
+
+Migration 0009 writers require READ COMMITTED isolation, rejecting transaction
+snapshots that could remain obsolete after waiting on a lock. They acquire the
+shared import gate `(73421,2)`, request identity lock in namespace 73423 keyed by
+hashtext of actor/operation/request UUID, then library context lock in namespace
+73422 keyed by hashtext of library UUID text. Next come all affected book rows in
+increasing numeric ID order, then stream locks. These operations do not change
+ranking state. Future preference/deferral/plan writers must take the same context
+lock before book/stream locks. Existing book writers need no new context lock;
+imports retain the exclusive gate.
+
+Request locking covers exact replay before first-stream creation. Context locking
+serializes policy/head/preference changes within one library. Selected source
+values and provenance are revalidated after all locks; no calculation occurs in
+the transaction. Immutable result, head and receipt commit atomically. Receipt
+hashes include expected revision and request; uncertain outcomes must replay the
+original actor/operation/request UUID. Receipts identify a revision only; a new
+scoped read computes freshness. See spec §11.5 for manifests and bounds.
+
+Migration 0010 uses the same gate/request/library/book/stream order for plans and
+user intent. Preference writes need the context lock without books/streams; plan
+configuration locks its stream after context. Deferrals lock their owned active
+book before the platform stream. Publication locks all library books, bounded at
+2048 memberships, before its stream and before inserting revision foreign keys.
+No transaction spans a calculation. Failed publication preserves previous output
+and pending intent; deferral revisions are referenced without mutation. Scoped
+grants and snapshot/read contracts are in spec §11.6.
 
 ## G. Privacy and implementation boundary
 

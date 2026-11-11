@@ -762,6 +762,103 @@ Schema implementation, initial import, API adoption, and source-of-truth
 cutover are separate delivery slices. Connection health is already delivered;
 none of those later states follows automatically from it.
 
+### 11.4 App-owned storage foundation (#50)
+
+Additive migration 0008 defines separate private app-owned result streams and
+immutable revisions, independent Kindle/Audible plan streams and entries,
+explicit/inferred preference evidence, deferral history and operation receipts.
+Composite foreign keys keep book, head, plan-entry judgment and actor references
+inside their owning library/stream. Archiving does not erase historical records.
+This local implementation contract does not assert that 0008 is hosted/applied.
+
+The canonical Sheet continues to own imported facts, status/completion, feedback,
+assessments and explicit Up Next. App-result operations must not overwrite their
+values or provenance. Native book creation and imported status overlays remain
+outside #50 and need the separate #46 authority decision before enablement.
+
+The foundation creates a guarded NOLOGIN `library_ai_producer` permission group
+with schema usage only, no hosted login, direct table access or writer execution.
+Runtime permissions remain unchanged. Later narrow operations require ownership,
+retry receipts, expected-head concurrency and dependency freshness checks under
+the existing writer/import gate; the tables alone are not a production writer.
+
+See the [storage design](../superpowers/specs/2026-11-06-scoped-ai-storage-design.md)
+and [implementation plan](../superpowers/plans/2026-11-06-scoped-ai-storage.md).
+Recovery must preserve app-only revisions and reasons; switching back to an
+unchanged Sheet cannot recover those records. Hosted migration, write activation,
+provider calls and release each remain their applicable separate action gates.
+
+### 11.5 Scoped result operations (#50 Task 3)
+
+Migration 0009 adds immutable rubric/producer policies per result stream. The
+producer group receives only `configure_ai_result`, read-only
+`ai_result_inputs_for_user` and `publish_ai_result`; runtime receives only
+`ai_result_for_user`. Helpers and underlying tables remain private. No hosted
+login, model call or user write endpoint is activated. Imported authority stays
+unchanged.
+
+Capture selects book-detail `fields`, optional `relatedBooks` with their own
+field selections, and owned `resultRevisionIds`. Each selected field hash includes
+its value and source-provenance row, including absent provenance. Taste/format
+also capture the latest accepted preference revision IDs; enrichment does not.
+
+The canonical manifest includes `schemaVersion: 1`,
+`hashVersion: 'pg-jsonb-text-v1'`, `bookStableId`, `kind`, sorted `fields`,
+`fieldHashes`, sorted `relatedBooks` with field hashes, sorted
+`preferenceRevisionIds`, sorted `resultRevisionIds`, decimal-string
+`policyRevision` and `policyHash` of rubric/producer metadata. Its fingerprint is
+lowercase SHA-256 of PostgreSQL JSONB text encoded as UTF-8. This is a versioned
+server format, not a browser hashing algorithm. Capture returns `{manifest,
+fingerprint, policy}`; publication must match that entire current envelope.
+
+Limits are 16 selected fields, 127 related books per manifest, 128 total result
+revisions including the graph root, 128 accepted preferences, 512 distinct locked
+books per publication and 1 MiB per request. Graphs are acyclic and cannot include
+the publishing stream's own historical revisions. Every dependency must remain a
+current fresh head; unchanged IDs do not conceal transitive source/policy changes.
+Payload variants, UTF-16 text limits and metadata follow the domain contract.
+
+Publication uses expected-head concurrency with explicit null for a first result.
+Replays authenticate current ownership before returning immutable revision
+identity, without a cached freshness assertion. Reads perform no writes or model
+calls: absent heads are missing, malformed storage is unavailable, and retained
+valid results become stale on relevant input/policy changes. Archive hides the
+root while retaining history. Changing a policy can invalidate the previous
+result before recalculation.
+
+### 11.6 Preferences, platform plans and private reads (#50 Tasks 4–5)
+
+Migration 0010 exposes runtime-only explicit preference/inference decisions and
+platform deferrals; producer-only inferred proposals and plan policy/capture/
+publication; and runtime-only plan reads. No table grants or hosted login are
+added. User requests cannot set producer metadata; producers can revise pending
+proposals but cannot change a preference after a user decision.
+
+Plan manifests capture schema/hash version, platform, selected book fields with
+value/provenance hashes, active platform-or-Unknown candidates with status/platform
+provenance, accepted preference IDs, latest platform deferral IDs, result revision
+IDs and policy revision/hash. Limits are 512 selected books, 127 result dependencies,
+1000 candidates/deferrals, 128 accepted preferences and 1 MiB per request. Under
+READ COMMITTED, publication locks at most 2048 library book memberships in numeric
+order before the stream, then rechecks current inputs and transitive judgment
+freshness. Entries reference selected owned active books with contiguous unique
+positions, nonempty evidence and captured judgment revisions. Empty accepted
+plans are distinct from missing.
+
+Deferrals compare both expected platform plan and deferral revisions. Publishing
+captures intent IDs without mutating them; cancellation appends history and affects
+only that platform. Recovery republishes retained payloads through current checks;
+obsolete inputs are rejected and prior output remains. Archive retains entries
+but makes the current plan unavailable. Receipt replay returns only identity after
+current library authorization, never cached content/freshness. Verified accounts
+without a library receive missing on reads without read-side initialization.
+
+Authenticated no-store GET routes /api/private/ai-results/:kind/:stableId and
+/api/private/reading-plans/:platform derive actors from persisted sessions,
+validate domain shape and identity, convert malformed storage to unavailable,
+sanitize SQL failures and reject unknown identifiers/methods. They add no write
+route, model call or Reading queue behavior.
+
 ## 12. Acceptance criteria for implementation
 
 The implementation ticket must turn the following into executable checks.
