@@ -34,3 +34,12 @@ export type {
   PlanEntry,
   StoredPlan,
 } from './lib/ai-storage';
+
+export { enqueueRefresh, claimRefresh, finishRefresh } from './lib/refresh';
+export type {
+  RefreshTarget,
+  RefreshRequest,
+  RefreshJob,
+  RefreshClaim,
+  RefreshOutcome,
+} from './lib/refresh';
