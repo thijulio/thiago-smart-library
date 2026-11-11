@@ -6,6 +6,14 @@ This page records order/dependencies rather than duplicating task status.
 
 ## Next product slices
 
+**Owner reprioritization, 2026-11-11:** the table below is the historical
+recommendation sequence. The active queue is shared conversational capture #46
+→ real ChatGPT/Claude MCP #27 → current-source reconciliation and controlled
+transition #10/#11 → in-app conversational capture, then voice and further AI
+recommendations. Preserve existing milestone identities. A user does not have to
+fill manual forms to adopt the product; the assistant supplies structured changes
+to the shared server writer. See [current roadmap](README.md#current-priority--conversational-adoption-2026-11-11).
+
 | Order                     | Ticket                                                                                                   | Milestone | Dependency or gate                                                                                |
 | ------------------------- | -------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------- |
 | 1                         | [#45 — Current reading and existing Up Next](https://github.com/thijulio/thiago-smart-library/issues/45) | M1        | First UI design; scoped records; #44 before hosted multiuser acceptance. No AI/writes/imports.    |
@@ -54,10 +62,11 @@ As of 2026-11-11, #45 and #50 implementation are integrated: PR #58 and the
 implementation. Their Git/CI acceptance does not authorize hosted SQL or imply
 production schema parity. Issue #44 remains a hosted acceptance gate.
 
-Continue #51 from its [lifecycle plan](../superpowers/plans/2026-11-11-refresh-lifecycle.md).
-The pure policy is a first slice; persistence, transactional intent and fenced
-publication remain necessary before claiming durable refresh. Keep paid/private
-provider execution outside synthetic work until its concrete approval.
+Continue the #46 authority/writer contract and #27 MCP design first. Preserve
+#51's [lifecycle plan](../superpowers/plans/2026-11-11-refresh-lifecycle.md) for
+later durable refresh integration. Its pure policy is a first slice, not a
+running worker. Keep paid/private provider execution outside synthetic work
+until its concrete approval.
 
 For later AI slices, read the discussion, #50's reviewed authority contract and
 the selected ticket's dependencies. Keep reading actions independent of model
