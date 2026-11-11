@@ -117,3 +117,41 @@ describe('shared library service', () => {
     ).rejects.toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
   });
 });
+
+it('exposes current independent versions to MCP callers preparing an update', async () => {
+  const editable = {
+    stableId: 'synthetic',
+    title: 'Synthetic',
+    authors: ['Synthetic author'],
+    platform: 'Kindle',
+    status: 'wishlist',
+    rating: null,
+    opinion: null,
+    notes: null,
+    finishedDate: null,
+    version: '3',
+    feedbackVersion: '2',
+    native: true,
+    writable: true,
+  };
+  const service = createLibraryService({
+    async query(sql) {
+      return {
+        rows: [
+          {
+            result: sql.includes('editable_book_for_user')
+              ? editable
+              : { stableId: 'synthetic', title: 'Synthetic', wordCount: 1000 },
+          },
+        ],
+      };
+    },
+  });
+  expect(await service.getBook('verified-user', 'synthetic')).toMatchObject({
+    version: '3',
+    feedbackVersion: '2',
+    native: true,
+    writable: true,
+    wordCount: 1000,
+  });
+});

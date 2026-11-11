@@ -130,3 +130,11 @@ browser confirmation capability in this adapter.
   passes all 252 tests. Independent OAuth review identified an unbounded-body
   gap; a failing regression test reproduced it, then bounded streamed reads made
   the full server suite green. Browser tests collect; execution needs the build.
+- PR #66 initial CI passes `pnpm check`, full browser tests and PostgreSQL
+  16.15/18.6; Netlify preview builds. Four synthetic review-page checks also pass
+  against that preview on desktop/mobile Chromium, without hosted data writes.
+- Final update-path regression found legacy detail reads omitted write versions.
+  The shared detail service now overlays the scoped editable projection, exposing
+  both independent versions and writability to MCP. Regression reproduced the
+  omission before the fix; server 38 tests, real database readback, lint and web
+  typecheck pass. Independent review found no blocking issue in the fix.

@@ -76,6 +76,12 @@ it('persists the exact browser-approved MCP proposal once, then verifies through
   expect(await service.commit('api-user', randomUUID(), proposal.id, proposal.digest)).toEqual(
     receipt,
   );
+  expect(await service.getBook('api-user', receipt.stableId)).toMatchObject({
+    version: receipt.version,
+    feedbackVersion: receipt.feedbackVersion,
+    native: true,
+    writable: true,
+  });
   const editable = await changeResponse(
     request('editable-books/' + receipt.stableId),
     auth,

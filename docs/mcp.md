@@ -182,6 +182,11 @@ validation on each MCP request.
 | `get_change`     | `{ id }`                    | Both scopes; read proposal and receipt                                      |
 | `commit_change`  | `{ requestId, id, digest }` | Both scopes; retrieve/replay a browser-approved receipt; cannot confirm     |
 
+`get_book` includes `version`, `feedbackVersion`, `native` and `writable`, alongside
+the current editable values. For an update, copy those versions into
+`expectedVersion` and `expectedFeedbackVersion`; do not guess or increment them.
+Imported records report `writable: false`.
+
 A typical MCP interaction prepares the change, asks the reader to open
 `reviewUrl`, and waits for approval there. After approval, `get_change` or
 `commit_change` retrieves the receipt, and `get_book` verifies the saved book.

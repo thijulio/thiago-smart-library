@@ -85,7 +85,10 @@ export function createLibraryService(pool: {
     },
     async getBook(actor: string, id: string) {
       if (!identifier(id)) invalid();
-      return call('book_for_user', actor, [id], record);
+      const book = await call('book_for_user', actor, [id], record);
+      const editable = await call('editable_book_for_user', actor, [id], isEditableBook);
+      // Overlay all editable values from the same versioned projection.
+      return { ...book, ...editable };
     },
     async listReading(actor: string) {
       return call('reading_for_user', actor, [], books);
