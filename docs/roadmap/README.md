@@ -14,6 +14,15 @@ and [delivery queue](delivery-queue.md).
 
 ## Baseline and destination
 
+Execution update, 2026-11-11: Reading #45 is integrated through PR #58.
+Storage #50 PRs #61, #62 and #63 are now merged into main, including migrations
+0008–0010 and private result/plan reads. CI, Database and schema-reference checks
+were verified successful on each exact PR head before merging. This records Git
+integration, not hosted migration application or production writer activation.
+The next implementation is #51; its first bounded lifecycle slice is documented
+in the [refresh design](../superpowers/specs/2026-11-11-refresh-lifecycle-design.md)
+and [execution plan](../superpowers/plans/2026-11-11-refresh-lifecycle.md).
+
 Private Library/search/detail and Google sign-in are integrated into main through
 [PR #48](https://github.com/thijulio/thiago-smart-library/pull/48), commit b248673.
 The 2026-10-10 release record in [#28](https://github.com/thijulio/thiago-smart-library/issues/28)
@@ -53,9 +62,10 @@ contract is accepted. #7 enrichment import and #8 comparison/ranking parity
 provide historical evidence where needed; they do not block every explicit-
 preference scoring design. Exact prerequisites live in each ticket.
 
-**First delivery ticket: #45.** Review the prototype's Reading flow and available
-scoped DTOs, present its short design, then implement the accepted slice. Do not
-install AI dependencies or call providers as part of #45.
+**Current delivery ticket: #51.** Reuse the integrated #50 input snapshots and
+publication routines. Implement durable intent, bounded retries and fenced
+publication; page views remain saved-result reads. Provider/spend/privacy review
+and concrete hosted approvals remain separate from synthetic local work.
 
 ## Milestones — preserve existing identities
 

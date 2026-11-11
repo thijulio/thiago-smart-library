@@ -49,9 +49,15 @@ standalone spike infrastructure are created.
 
 ## Working session handoff
 
-Start with #45's Reading design. Verify branch/dirty state, predecessor evidence
-and scoped DTO/data availability. Inspect the prototype read-only as the UX
-reference. Present its short design before product implementation.
+As of 2026-11-11, #45 and #50 implementation are integrated: PR #58 and the
+#61 → #62 → #63 storage stack are merged. Do not repeat their migrations or
+implementation. Their Git/CI acceptance does not authorize hosted SQL or imply
+production schema parity. Issue #44 remains a hosted acceptance gate.
+
+Continue #51 from its [lifecycle plan](../superpowers/plans/2026-11-11-refresh-lifecycle.md).
+The pure policy is a first slice; persistence, transactional intent and fenced
+publication remain necessary before claiming durable refresh. Keep paid/private
+provider execution outside synthetic work until its concrete approval.
 
 For later AI slices, read the discussion, #50's reviewed authority contract and
 the selected ticket's dependencies. Keep reading actions independent of model
