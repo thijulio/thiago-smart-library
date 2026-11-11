@@ -43,9 +43,10 @@ Storage #50 PRs #61, #62 and #63 are now merged into main, including migrations
 0008–0010 and private result/plan reads. CI, Database and schema-reference checks
 were verified successful on each exact PR head before merging. This records Git
 integration, not hosted migration application or production writer activation.
-The next implementation is #51; its first bounded lifecycle slice is documented
+PR #64 subsequently integrated #51's first bounded lifecycle slice, documented
 in the [refresh design](../superpowers/specs/2026-11-11-refresh-lifecycle-design.md)
 and [execution plan](../superpowers/plans/2026-11-11-refresh-lifecycle.md).
+The current implementation priority is now #46/#27 as stated above.
 
 Private Library/search/detail and Google sign-in are integrated into main through
 [PR #48](https://github.com/thijulio/thiago-smart-library/pull/48), commit b248673.
