@@ -1,14 +1,15 @@
 # Automatically generated database reference — design proposal
 
-Date: 2026-10-10. Status: **architecture and implementation plan approved; implementation in PR #56; initial publication pending**.
+Date: 2026-10-10. Status: **implemented in merged PR #56; published on 2026-10-11 with owner-approved recurring main-only updates**.
 
 ## Request and verified starting point
 
 The owner requested a project page containing the full schema that updates
 automatically, and clarified **GitHub Pages**. Repository
-`thijulio/thiago-smart-library` is currently public; the authenticated Pages API
-returned 404 with repository admin permission, indicating no configured Pages
-site at this check. No Pages setting, workflow or hosted database was changed.
+`thijulio/thiago-smart-library` was public at the initial design check on
+2026-10-10. The authenticated Pages API returned 404 with repository admin
+permission, indicating no configured Pages site at that time. The verified
+publication below records the subsequent owner-approved configuration.
 
 The repository already has immutable migrations 0001–0006, a guarded disposable
 PostgreSQL harness and CI on PostgreSQL 16.15 and 18.6. Reuse those contracts;
@@ -19,7 +20,7 @@ never execute the historical schema prototype. See the
 
 - Repository: the existing Smart Library repository.
 - Site: a public schema-only reference at the default project Pages address,
-  `https://thijulio.github.io/thiago-smart-library/` (proposed, not live).
+  [https://thijulio.github.io/thiago-smart-library/](https://thijulio.github.io/thiago-smart-library/).
 - Source: committed migrations plus required bootstrap metadata definitions.
 - Database for generation: a fresh empty disposable local/CI PostgreSQL target,
   guarded by the existing local-test/synthetic-test validation. Do not accept an
@@ -113,17 +114,28 @@ access and must not appear in output.
   and credentials in an additional workflow. It is unnecessary for the requested
   migration-driven reference and is outside this proposal.
 
-## Next stage
+## Publication handoff
 
 Implementation tracking: [#55](https://github.com/thijulio/thiago-smart-library/issues/55),
-M0, In Progress on Libraries; independent from the Reading delivery sequence.
+M0; independent from the Reading delivery sequence.
 
 The owner approved this architecture and public content boundary on 2026-10-10
 and explicitly authorized merging the planning PR. The owner subsequently approved
 the implementation plan and direct execution. [PR #56](https://github.com/thijulio/thiago-smart-library/pull/56)
-contains the generator, curated reference and gated Pages workflow; see
-[usage and exact proposed publication setup](schema-reference.md). Initial hosted
-configuration/publication remains a separate action approval.
+contains the generator, curated reference and gated Pages workflow. On
+2026-10-11, the owner approved its merge, initial Pages configuration/publication
+and recurring main-only updates. The PR was merged at
+`068d3ea098482de6485dd24f69d75fc99d32fb5d`.
+
+[Publication run](https://github.com/thijulio/thiago-smart-library/actions/runs/38126844496)
+passed PostgreSQL 16.15/18.6 generation, UI/accessibility checks, artifact
+validation and Pages deployment. The six live files returned HTTP 200 and
+matched the validated main artifact byte for byte. GitHub Pages uses Actions;
+the github-pages environment permits only main, and SCHEMA_REFERENCE_PUBLISH
+is true. See [usage and live publication evidence](schema-reference.md).
+
+No hosted database operation was part of this publication. The owner chose to
+defer improving the relationship diagram and continue with the product roadmap.
 
 ## References checked on 2026-10-10
 

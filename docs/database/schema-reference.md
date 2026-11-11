@@ -5,8 +5,18 @@ Implementation tracking: [#55](https://github.com/thijulio/thiago-smart-library/
 [execution plan](../superpowers/plans/2026-10-10-schema-reference.md).
 
 The generator describes the **repository schema at its source commit**, not the
-applied production schema. It never connects to Neon. Initial Pages configuration,
-publication and recurring automation enablement remain pending owner approval.
+applied production schema. It never connects to Neon. The owner approved the
+implementation merge, initial Pages configuration/publication and recurring
+main-only updates on 2026-10-11.
+
+Live reference: [Smart Library database schema](https://thijulio.github.io/thiago-smart-library/).
+Initial publication used commit `068d3ea098482de6485dd24f69d75fc99d32fb5d`, following
+the merge of [PR #56](https://github.com/thijulio/thiago-smart-library/pull/56).
+[Publication run](https://github.com/thijulio/thiago-smart-library/actions/runs/38126844496)
+passed both PostgreSQL builds and the Pages deployment. All six public files
+returned HTTP 200 and matched the validated artifact byte for byte: five schemas,
+251 structural objects, 24 foreign keys and six migrations. These totals describe
+the generated schema, not application records.
 
 ## Local generation
 
@@ -35,16 +45,17 @@ No application records are read. Unknown schema object families fail generation
 rather than being silently omitted. PR artifacts are downloadable previews;
 no PR deployment, product secrets, hosted DB credentials or private exports.
 
-## Proposed publication setup
+## Active publication setup
 
 Use the existing public repository and GitHub Actions as the Pages source.
-Default URL: https://thijulio.github.io/thiago-smart-library/ (not published yet).
+Default URL: https://thijulio.github.io/thiago-smart-library/.
+The github-pages environment allows deployments from the main branch only.
 
 Builds validate PostgreSQL 16.15 and 18.6; the published artifact uses 16.15.
 Relevant PR changes trigger validation. Every main push rebuilds the reference
 so a later unrelated commit can replace an obsolete in-flight build. Main deployment also requires SCHEMA_REFERENCE_PUBLISH=true.
-Leave that variable unset until the owner reviews the artifact and explicitly
-approves initial Pages settings/publication and recurring main-only updates.
+That repository variable is enabled following the owner's publication approval.
+Unset it to pause publication; workflow dispatch on main supports recovery.
 
 The deploy job depends on both successful matrix builds, revalidates the curated
 artifact, rejects obsolete commits and has narrowly scoped Pages permissions.
