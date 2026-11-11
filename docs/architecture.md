@@ -29,8 +29,8 @@ Other providers can be added later with an explicit account-linking policy.
 Better Auth uses the `auth` schema through a Kysely PostgreSQL adapter and the
 Neon WebSocket pool. Tokens are encrypted at rest and sessions use secure cookies;
 server reads validate the current persisted session without cookie caching.
-Google sign-in is pinned to identity scopes and product callbacks. Only the
-implemented sign-in/callback/sign-out auth routes are exposed. Sign-out confirms
+Google sign-in is pinned to identity scopes and product callbacks. The sign-in/callback/sign-out routes are exposed by default. The opt-in MCP
+OAuth provider additionally exposes its narrowly allowlisted authorization routes. Sign-out confirms
 persisted revocation before reporting success; upstream errors propagate to a
 sanitizing boundary before fallback logging. Each request closes its Neon pool. Server-only
 configuration has no client/public counterpart or fallback administrator URL.
@@ -40,7 +40,9 @@ without changing imported IDs, values, feedback or provenance. The trusted serve
 passes only the session's user ID to `catalog_for_user`/`book_for_user`; client
 ownership parameters are ignored. A foreign book returns 404. The runtime login
 has auth CRUD and scoped function execution, with no base library/audit access,
-writer operations, DDL or owner membership. Offline owner binding requires a
+broad legacy writer operations, DDL or owner membership. Migration 0011 adds
+scoped proposal/confirmation functions, with native writes disabled per library
+until an offline permission grant. Offline owner binding requires a
 verified user, refuses reassignment and never runs during signup/build/startup.
 
 ## Privacy, routing and builds
@@ -59,11 +61,28 @@ product source; build caching includes `NITRO_PRESET`.
 `pnpm build:netlify` produces `.netlify/functions-internal/server/server.mjs` and
 `dist/apps/web/public`. Neither build runs migrations, imports or owner binding.
 
+## Shared changes and MCP
+
+The shared service in `server/core/library-service.ts` validates domain DTOs and
+calls scoped SQL functions. Browser and MCP adapters share those rules. A change
+is first stored as an immutable, expiring proposal. A verified browser session
+approves its exact digest and saves atomically; MCP cannot manufacture approval.
+Optimistic book and feedback versions prevent stale overwrites, while request
+identities and receipts make retries idempotent. User opinions remain separate
+from AI results. Imported books remain read-only while the Sheet is canonical.
+
+`/mcp` uses the official stateless Streamable HTTP SDK. OAuth is disabled unless
+`MCP_OAUTH_ENABLED=true`; migration 0012 provides the provider tables. Opaque
+hashed access tokens require PKCE, the exact resource, granted scopes and a live
+verified user/session on every request. Hosted schema application, permissions,
+activation and real ChatGPT/Claude acceptance remain release gates. See
+[API and MCP operation](mcp.md) for the implemented surface and pending activation.
+
 ## Remaining capabilities
 
-Editing, Book Battle/ranking, enrichment imports, MCP, jobs and AI remain future
-milestone work. Runtime user-scoped writes need their own contract; historical
-broad editor/importer credentials are not available to the product runtime.
+Conversational interpretation in the site, Book Battle/ranking, enrichment
+imports, jobs and AI remain future milestone work. Historical broad
+editor/importer credentials are not available to the product runtime.
 Published Biome CSS is consumed directly; shared Vue components can be adopted
 when the package is available without copying component or token source.
 
