@@ -2,11 +2,13 @@ import { betterAuth, APIError } from 'better-auth';
 import { PostgresDialect } from 'kysely';
 import type { AuthConfig } from './config';
 import { permitsUser } from './config';
+import { mcpOAuthPlugins } from './oauth';
 
 type AuthPool = ConstructorParameters<typeof PostgresDialect>[0]['pool'];
 export function createProductAuth(pool: AuthPool, config: AuthConfig) {
   return betterAuth({
     appName: 'Smart Library',
+    plugins: config.mcpOAuthEnabled ? mcpOAuthPlugins(config.origin) : [],
     baseURL: config.origin,
     secret: config.secret,
     trustedOrigins: [config.origin],

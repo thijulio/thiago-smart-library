@@ -4,6 +4,7 @@ export interface AuthConfig {
   googleClientId: string;
   googleClientSecret: string;
   databaseUrl: string;
+  mcpOAuthEnabled?: boolean;
 }
 export function readRuntimeConfig(env: Record<string, string | undefined>): AuthConfig {
   try {
@@ -29,6 +30,7 @@ export function readRuntimeConfig(env: Record<string, string | undefined>): Auth
     }
     return {
       origin: origin.origin,
+      mcpOAuthEnabled: env.MCP_OAUTH_ENABLED === 'true',
       secret: env.BETTER_AUTH_SECRET!,
       googleClientId: env.GOOGLE_CLIENT_ID,
       googleClientSecret: env.GOOGLE_CLIENT_SECRET,

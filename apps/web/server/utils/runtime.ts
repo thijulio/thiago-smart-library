@@ -13,5 +13,5 @@ export function productRuntime() {
   });
   // Pool errors must never log credential-bearing driver details.
   pool.on('error', () => {});
-  return { pool, auth: createProductAuth(pool, config) };
+  return { config, pool, auth: createProductAuth(pool, config) };
 }

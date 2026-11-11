@@ -43,3 +43,13 @@ export type {
   RefreshClaim,
   RefreshOutcome,
 } from './lib/refresh';
+
+export { isBookChange, isEditableBook, isChangeProposal, isChangeReceipt } from './lib/book-change';
+export type {
+  BookChange,
+  BookChangeFields,
+  BookChangeStatus,
+  EditableBook,
+  ChangeProposal,
+  ChangeReceipt,
+} from './lib/book-change';

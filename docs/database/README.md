@@ -19,3 +19,7 @@ is superseded where later private-library decisions and migration 0006 apply.
 
 - [Live database schema reference](https://thijulio.github.io/thiago-smart-library/),
   with [usage and verified publication evidence](schema-reference.md).
+
+Migrations 0011–0012 add native-only proposal writes and MCP OAuth storage. They
+are code-level additions, not evidence of hosted application. Read the
+[API/MCP guide](../mcp.md) for disabled-by-default activation and approval rules.
