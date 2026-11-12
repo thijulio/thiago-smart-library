@@ -195,6 +195,9 @@ invoke the browser approval endpoint in place of its session and Origin checks.
 Do not interpret tool discovery or local SDK tests as proof that a hosted client
 has completed OAuth or saved a book.
 
+For the dated production preflight, exact pending migration manifest and staged
+activation/reversal procedure, see the [activation runbook](database/runbooks/mcp-activation.md).
+
 ## Release checks
 
 Before any approved hosted activation:
